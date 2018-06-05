@@ -11,6 +11,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.zhanghe.protocol.RpcRequest;
+import com.zhanghe.protocol.RpcResponse;
 
 public class KryoUtil {
 	public static void main( String[] args ) throws FileNotFoundException {
@@ -38,7 +39,6 @@ public class KryoUtil {
 		re.setTypeParameters(new Class[]{String.class,String.class});
 		
 		Kryo kryo = new Kryo();
-	    kryo.register(RpcRequest.class);
 	    Output output = new Output(new FileOutputStream("E:\\20170315WorkSpace\\netty-rpc\\rpc.bin"));
 	    kryo.writeObject(output, re);
 	    output.close();
