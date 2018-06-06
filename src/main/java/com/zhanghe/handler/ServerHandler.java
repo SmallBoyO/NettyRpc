@@ -1,6 +1,7 @@
 package com.zhanghe.handler;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,7 +9,9 @@ import java.io.InputStream;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.zhanghe.protocol.RpcRequest;
+import com.zhanghe.protocol.RpcResponse;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -36,8 +39,19 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
 	    RpcRequest req = kryo.readObject(input, RpcRequest.class);
 	    input.close();
 	    System.out.println("接收到rpc请求:"+req);
-	    ctx.write(Unpooled.copiedBuffer("接收到rpc", CharsetUtil.UTF_8));
-	    ctx.writeAndFlush(Unpooled.copiedBuffer("接收到rpc", CharsetUtil.UTF_8));
+	    
+	    
+		RpcResponse res = new RpcResponse();
+		res.setId(req.getId());
+		res.setResult("SUCCESS");
+		
+	    Output output = new Output(new ByteArrayOutputStream());
+	    kryo.writeObject(output, res);
+	    output.toBytes();
+	    System.out.println("发送rpc结果:"+output);
+		ctx.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
+		output.close();
+		
 	}
 	/**
 	 * 通知处理器最后的 channelread() 是当前批处理中的最后一条消息时调用
