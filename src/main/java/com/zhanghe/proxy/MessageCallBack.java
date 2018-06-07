@@ -23,12 +23,16 @@ public class MessageCallBack {
 	public Object start() throws InterruptedException{
 		try{
 			lock.lock();
-			//超时时间设置为10秒
-			condition.await(10*1000,TimeUnit.MILLISECONDS);
 			if(response!=null){
 				return response.result;
 			}else{
-				return null;
+				//超时时间设置为10秒
+				condition.await(11*1000,TimeUnit.MILLISECONDS);
+				if(response!=null){
+					return response.result;
+				}else{
+					return null;
+				}
 			}
 		}finally{
 			lock.unlock();
@@ -38,11 +42,12 @@ public class MessageCallBack {
 	public void over(RpcResponse reponse) {
         try {
             lock.lock();
-            condition.signal();
+            condition.signalAll();
             this.response = reponse;
         } finally {
             lock.unlock();
         }
+        System.out.println(reponse.getId()+",over");
     }
 
 }

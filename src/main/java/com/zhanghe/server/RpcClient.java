@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.util.UUID;
 
 import com.zhanghe.RpcClientLoader;
+import com.zhanghe.handler.ClientChannelInitializer;
 import com.zhanghe.handler.ClientHandler;
 import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.proxy.MessageCallBack;
@@ -25,7 +26,7 @@ public class RpcClient<T> {
 	private String host;
 	private int port;
 	private InetSocketAddress socketaddress;
-	private Bootstrap b ;
+	public Bootstrap b ;
 	public RpcClient( String host ,int port ){
 		super();
 		this.socketaddress = new InetSocketAddress(host, port);
@@ -34,12 +35,7 @@ public class RpcClient<T> {
 		b.group(group)
 		.channel(NioSocketChannel.class)
 		.remoteAddress(socketaddress)
-		.handler(new ChannelInitializer<SocketChannel>() {
-			@Override
-			protected void initChannel( SocketChannel ch ) throws Exception {
-				ch.pipeline().addLast(new ClientHandler());
-			}
-		});
+		.handler(new ClientHandler());
 	}
 	
 	public void start() throws InterruptedException{
@@ -68,7 +64,7 @@ public class RpcClient<T> {
 //	            }
 //	        });
 			ChannelFuture f = b.connect().sync();
-			System.out.println("connected");
+			//System.out.println("connected");
 //			RpcRequest re = new RpcRequest();
 //			re.setId(UUID.randomUUID().toString());
 //			re.setClassName("com.zhanghe");
@@ -77,15 +73,16 @@ public class RpcClient<T> {
 //			re.setTypeParameters(new Class[]{String.class,String.class});
 			f.channel().pipeline().get(ClientHandler.class).setChannel(f.channel());
 			RpcClientLoader.getInstance().setClientHandler(f.channel().pipeline().get(ClientHandler.class));
-			//f.channel().pipeline().get(ClientHandler.class).sendRequest(re);
-			MessageSendProxy proxy = new MessageSendProxy<>();
-			TestService service = (TestService) Proxy.newProxyInstance(
-	                TestService.class.getClassLoader(),
-	                new Class<?>[]{ TestService.class},
-	                new MessageSendProxy<>()
-	        );
-			service.hello();
-			
+//			f.channel().pipeline().get(ClientHandler.class).sendRequest(re);
+//			MessageSendProxy proxy = new MessageSendProxy<>(b);
+//			TestService service = (TestService) Proxy.newProxyInstance(
+//	                TestService.class.getClassLoader(),
+//	                new Class<?>[]{ TestService.class},
+//	                proxy
+//	        );
+//			service.hello();
+//			service.hello();
+//			f.channel().closeFuture().sync();
 	}
 	
 	public static void main( String[] args ) throws InterruptedException {
@@ -97,17 +94,17 @@ public class RpcClient<T> {
         System.out.println("over:"+(end-start));
         
 		
-//        start = System.currentTimeMillis();
-//		rpc.start();
-//        end = System.currentTimeMillis();
-//        System.out.println("over:"+(end-start));
-//        start = System.currentTimeMillis();
-//		rpc.start();
-//        end = System.currentTimeMillis();
-//        System.out.println("over:"+(end-start));
-//        start = System.currentTimeMillis();
-//		rpc.start();
-//        end = System.currentTimeMillis();
-//        System.out.println("over:"+(end-start));
+        start = System.currentTimeMillis();
+		rpc.start();
+        end = System.currentTimeMillis();
+        System.out.println("over:"+(end-start));
+        start = System.currentTimeMillis();
+		rpc.start();
+        end = System.currentTimeMillis();
+        System.out.println("over:"+(end-start));
+        start = System.currentTimeMillis();
+		rpc.start();
+        end = System.currentTimeMillis();
+        System.out.println("over:"+(end-start));
 	}
 }

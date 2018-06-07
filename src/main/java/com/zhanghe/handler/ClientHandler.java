@@ -18,7 +18,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.CharsetUtil;
-
+import io.netty.channel.ChannelHandler.Sharable;
+@Sharable
 public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 	
 	private ConcurrentHashMap<String, MessageCallBack> mapCallBack = new ConcurrentHashMap<String, MessageCallBack>();
@@ -83,12 +84,12 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 		RpcResponse response = kryo.readObject(input, RpcResponse.class);
 	    input.close();
         String messageId = response.getId();
-        System.out.println("接收到回复:"+response);
         MessageCallBack callBack = mapCallBack.get(messageId);
         if (callBack != null) {
             mapCallBack.remove(messageId);
             callBack.over(response);
         }
+        System.out.println("接收到回复:"+response);
 	}
 	
 	public MessageCallBack sendRequest(RpcRequest request) {

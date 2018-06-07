@@ -1,12 +1,19 @@
 package com.zhanghe.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import com.zhanghe.handler.ClientChannelInitializer;
 import com.zhanghe.handler.ServerHandler;
+import com.zhanghe.service.TestService;
+import com.zhanghe.service.TestServiceImpl;
 
 public class RpcServer {
 	
@@ -17,7 +24,7 @@ public class RpcServer {
 		this.port = port;
 	}
 	
-	public void start() throws InterruptedException{
+	public void start(Map<String, Object> handlerMap) throws InterruptedException{
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try{
@@ -25,7 +32,9 @@ public class RpcServer {
         	b.group(bossGroup, workerGroup)
         		.channel(NioServerSocketChannel.class)
         		.localAddress(port)
-        		.childHandler(new ServerHandler());
+        		//通过NoDelay禁用Nagle,使消息立即发出去，不用等待到一定的数据量才发出去
+        		.option(ChannelOption.SO_KEEPALIVE,true)
+        		.childHandler(new ServerHandler(handlerMap));
         	
         	ChannelFuture f = b.bind().sync();
         	System.out.println("started and listening for connections on " + port);
@@ -38,6 +47,9 @@ public class RpcServer {
 	}
 	
 	public static void main( String[] args ) throws InterruptedException {
-		new RpcServer(6666).start();
+		TestServiceImpl test = new TestServiceImpl();
+		Map<String, Object> handlerMap = new HashMap<>();
+		handlerMap.put(test.getClass().getInterfaces()[0].getName(), test);
+		new RpcServer(6666).start(handlerMap);
 	}
 }

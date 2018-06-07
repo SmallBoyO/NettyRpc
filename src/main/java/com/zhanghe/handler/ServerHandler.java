@@ -6,6 +6,9 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -23,6 +26,15 @@ import io.netty.util.CharsetUtil;
 
 @Sharable
 public class ServerHandler extends ChannelInboundHandlerAdapter{
+	
+	private Map<String, Object> handlerMap;
+	
+	private Executor excutor = Executors.newFixedThreadPool(5);
+	
+	public ServerHandler( Map<String, Object> handlerMap ){
+		super();
+		this.handlerMap = handlerMap;
+	}
 	/**
 	 * 每个信息入站都会调用
 	 */
@@ -40,17 +52,17 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
 	    input.close();
 	    System.out.println("接收到rpc请求:"+req);
 	    
-	    
-		RpcResponse res = new RpcResponse();
-		res.setId(req.getId());
-		res.setResult("SUCCESS");
-		
-	    Output output = new Output(new ByteArrayOutputStream());
-	    kryo.writeObject(output, res);
-	    output.toBytes();
-	    System.out.println("发送rpc结果:"+output);
-		ctx.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
-		output.close();
+	    excutor.execute(new ServerMethodExcutor(req, handlerMap, ctx,ctx.channel()));
+//		RpcResponse res = new RpcResponse();
+//		res.setId(req.getId());
+//		res.setResult("SUCCESS");
+//		
+//	    Output output = new Output(new ByteArrayOutputStream());
+//	    kryo.writeObject(output, res);
+//	    output.toBytes();
+//	    System.out.println("发送rpc结果:"+output);
+//		ctx.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
+//		output.close();
 		
 	}
 	/**
