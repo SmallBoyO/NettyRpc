@@ -52,7 +52,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
 	    input.close();
 	    System.out.println("接收到rpc请求:"+req);
 	    
-	    excutor.execute(new ServerMethodExcutor(req, handlerMap, ctx,ctx.channel()));
+	    excutor.execute(new ServerMethodExcutor(req, handlerMap,ctx.channel()));
 //		RpcResponse res = new RpcResponse();
 //		res.setId(req.getId());
 //		res.setResult("SUCCESS");
@@ -65,13 +65,13 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
 //		output.close();
 		
 	}
-	/**
-	 * 通知处理器最后的 channelread() 是当前批处理中的最后一条消息时调用
-	 */
-	@Override
-	public void channelReadComplete( ChannelHandlerContext ctx ) throws Exception {
-		ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-	}
+//	/**
+//	 * 通知处理器最后的 channelread() 是当前批处理中的最后一条消息时调用
+//	 */
+//	@Override
+//	public void channelReadComplete( ChannelHandlerContext ctx ) throws Exception {
+//		ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+//	}
 	/**
 	 * 读操作时捕获到异常时调用
 	 */

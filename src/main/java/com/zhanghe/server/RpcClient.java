@@ -64,25 +64,26 @@ public class RpcClient<T> {
 //	            }
 //	        });
 			ChannelFuture f = b.connect().sync();
-			//System.out.println("connected");
-//			RpcRequest re = new RpcRequest();
-//			re.setId(UUID.randomUUID().toString());
-//			re.setClassName("com.zhanghe");
-//			re.setMethodName("test");
-//			re.setParametersVal(new Object[]{"1","2"});
-//			re.setTypeParameters(new Class[]{String.class,String.class});
-			f.channel().pipeline().get(ClientHandler.class).setChannel(f.channel());
-			RpcClientLoader.getInstance().setClientHandler(f.channel().pipeline().get(ClientHandler.class));
-//			f.channel().pipeline().get(ClientHandler.class).sendRequest(re);
-//			MessageSendProxy proxy = new MessageSendProxy<>(b);
-//			TestService service = (TestService) Proxy.newProxyInstance(
-//	                TestService.class.getClassLoader(),
-//	                new Class<?>[]{ TestService.class},
-//	                proxy
-//	        );
-//			service.hello();
-//			service.hello();
-//			f.channel().closeFuture().sync();
+//			//System.out.println("connected");
+			RpcRequest re = new RpcRequest();
+			re.setId(UUID.randomUUID().toString());
+			re.setClassName("com.zhanghe.service");
+			re.setMethodName("TestService");
+			re.setParametersVal(new Object[]{"1","2"});
+			re.setTypeParameters(new Class[]{String.class,String.class});
+			//f.channel().pipeline().get(ClientHandler.class).sendRequest(re);
+			MessageSendProxy proxy = new MessageSendProxy<>(b);
+			TestService service = (TestService) Proxy.newProxyInstance(
+	                TestService.class.getClassLoader(),
+	                new Class<?>[]{ TestService.class},
+	                proxy
+	        );
+			service.hello();
+			service.hello();
+
+		f.channel().pipeline().get(ClientHandler.class).setChannel(f.channel());
+		RpcClientLoader.getInstance().setClientHandler(f.channel().pipeline().get(ClientHandler.class));
+		//f.channel().closeFuture().sync();
 	}
 	
 	public static void main( String[] args ) throws InterruptedException {
@@ -93,18 +94,18 @@ public class RpcClient<T> {
 
         System.out.println("over:"+(end-start));
         
-		
-        start = System.currentTimeMillis();
-		rpc.start();
-        end = System.currentTimeMillis();
-        System.out.println("over:"+(end-start));
-        start = System.currentTimeMillis();
-		rpc.start();
-        end = System.currentTimeMillis();
-        System.out.println("over:"+(end-start));
-        start = System.currentTimeMillis();
-		rpc.start();
-        end = System.currentTimeMillis();
-        System.out.println("over:"+(end-start));
+//
+//        start = System.currentTimeMillis();
+//		rpc.start();
+//        end = System.currentTimeMillis();
+//        System.out.println("over:"+(end-start));
+//        start = System.currentTimeMillis();
+//		rpc.start();
+//        end = System.currentTimeMillis();
+//        System.out.println("over:"+(end-start));
+//        start = System.currentTimeMillis();
+//		rpc.start();
+//        end = System.currentTimeMillis();
+//        System.out.println("over:"+(end-start));
 	}
 }

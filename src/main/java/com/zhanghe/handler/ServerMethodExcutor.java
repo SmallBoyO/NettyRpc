@@ -1,5 +1,6 @@
 package com.zhanghe.handler;
 
+import com.zhanghe.RpcServerLoader;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,11 +23,10 @@ public class ServerMethodExcutor implements Runnable {
 	private Channel channel;
 	
 	
-	public ServerMethodExcutor( RpcRequest request ,Map<String, Object> handlerMap ,ChannelHandlerContext ctx ,Channel channel){
+	public ServerMethodExcutor( RpcRequest request ,Map<String, Object> handlerMap ,Channel channel){
 		super();
 		this.request = request;
 		this.handlerMap = handlerMap;
-		this.ctx = ctx;
 		this.channel = channel;
 	}
 
@@ -45,7 +45,7 @@ public class ServerMethodExcutor implements Runnable {
 		Output output = new Output(new ByteArrayOutputStream());
 		Kryo kryo = new Kryo();
 	    kryo.writeObject(output, response);
-	    System.out.println("发送rpc结果:"+output);
+	    System.out.println("发送rpc结果:"+response);
 	    channel.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
 	}
 	

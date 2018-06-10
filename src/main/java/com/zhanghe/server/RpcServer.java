@@ -37,8 +37,8 @@ public class RpcServer {
         		.childHandler(new ServerHandler(handlerMap));
         	
         	ChannelFuture f = b.bind().sync();
-        	System.out.println("started and listening for connections on " + port);
-        	
+        	System.out.println("started and listening for connections on " + port+","+f.channel().pipeline().get(ServerHandler.class));
+			//RpcServerLoader.getInstance().setServerHandler(f.channel().pipeline().get(ServerHandler.class));
         	f.channel().closeFuture().sync();
 		}finally{
         	workerGroup.shutdownGracefully().sync();
