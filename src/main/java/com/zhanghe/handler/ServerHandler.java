@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.zhanghe.ThreadPool.RpcThreadPool;
 import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.protocol.RpcResponse;
 
@@ -29,10 +30,11 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
 	
 	private Map<String, Object> handlerMap;
 	
-	private Executor excutor = Executors.newFixedThreadPool(5);
+	private Executor excutor;
 	
 	public ServerHandler( Map<String, Object> handlerMap ){
 		super();
+		this.excutor = RpcThreadPool.getExecutor(10, 0);
 		this.handlerMap = handlerMap;
 	}
 	/**
