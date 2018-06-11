@@ -10,7 +10,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-import com.zhanghe.handler.ClientChannelInitializer;
 import com.zhanghe.handler.ServerHandler;
 import com.zhanghe.service.TestService;
 import com.zhanghe.service.TestServiceImpl;
