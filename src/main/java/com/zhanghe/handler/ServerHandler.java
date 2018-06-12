@@ -43,15 +43,16 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
 	@Override
 	public void channelRead( ChannelHandlerContext ctx ,Object msg ) throws Exception {
 		System.out.println("接收到rpc请求:"+this);
-		ByteBuf bin = (ByteBuf) msg;
-		byte[] binbytes = new byte[bin.readableBytes()];
-		bin.readBytes(binbytes);
-		
-		ByteArrayInputStream bain = new ByteArrayInputStream(binbytes);
-		Kryo kryo = new Kryo();
-		Input input = new Input(bain);
-	    RpcRequest req = kryo.readObject(input, RpcRequest.class);
-	    input.close();
+		RpcRequest req = (RpcRequest) msg;
+//		ByteBuf bin = (ByteBuf) msg;
+//		byte[] binbytes = new byte[bin.readableBytes()];
+//		bin.readBytes(binbytes);
+//		
+//		ByteArrayInputStream bain = new ByteArrayInputStream(binbytes);
+//		Kryo kryo = new Kryo();
+//		Input input = new Input(bain);
+//	    RpcRequest req = kryo.readObject(input, RpcRequest.class);
+//	    input.close();
 	    System.out.println("接收到rpc请求:"+req);
 	    
 	    excutor.execute(new ServerMethodExcutor(req, handlerMap,ctx.channel()));

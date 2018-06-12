@@ -1,0 +1,26 @@
+package com.zhanghe.encoder;
+
+import java.io.ByteArrayOutputStream;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Output;
+import com.zhanghe.protocol.RpcRequest;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToByteEncoder;
+
+public class RequestToByteEncoder extends MessageToByteEncoder<RpcRequest>{
+
+	@Override
+	protected void encode( ChannelHandlerContext ctx ,RpcRequest request ,ByteBuf out ) throws Exception {
+		 Kryo kryo = new Kryo();
+		 Output output = new Output(new ByteArrayOutputStream());
+		 kryo.writeObject(output, request);
+		 output.toBytes();
+		 System.out.println("发送rpc请求:"+request);
+		 out.writeBytes(output.toBytes());
+		 output.close();
+	}
+
+}

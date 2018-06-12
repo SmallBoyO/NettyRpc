@@ -25,7 +25,7 @@ public class MessageSendProxy<T> implements InvocationHandler {
 	@Override
 	public Object invoke( Object proxy ,Method method ,Object[] args ) throws Throwable {
 		ChannelFuture f = b.connect().sync();
-		//f.channel().pipeline().get(ClientHandler.class).setChannel(f.channel());
+		f.channel().pipeline().get(ClientHandler.class).setChannel(f.channel());
 		//RpcClientLoader.getInstance().setClientHandler(f.channel().pipeline().get(ClientHandler.class));
 		System.out.println("invoke");
 		RpcRequest req = new RpcRequest();

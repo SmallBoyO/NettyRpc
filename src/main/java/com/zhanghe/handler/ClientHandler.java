@@ -20,7 +20,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.CharsetUtil;
 import io.netty.channel.ChannelHandler.Sharable;
 @Sharable
-public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
+public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 	
 	private ConcurrentHashMap<String, MessageCallBack> mapCallBack = new ConcurrentHashMap<String, MessageCallBack>();
 
@@ -73,16 +73,16 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
 
 	@Override
-	protected void channelRead0( ChannelHandlerContext ctx ,ByteBuf msg ) throws Exception {
-		ByteBuf bin = (ByteBuf) msg;
-		byte[] binbytes = new byte[bin.readableBytes()];
-		bin.readBytes(binbytes);
-		
-		ByteArrayInputStream bain = new ByteArrayInputStream(binbytes);
-		Kryo kryo = new Kryo();
-		Input input = new Input(bain);
-		RpcResponse response = kryo.readObject(input, RpcResponse.class);
-	    input.close();
+	protected void channelRead0( ChannelHandlerContext ctx ,RpcResponse response ) throws Exception {
+//		ByteBuf bin = (ByteBuf) msg;
+//		byte[] binbytes = new byte[bin.readableBytes()];
+//		bin.readBytes(binbytes);
+//		
+//		ByteArrayInputStream bain = new ByteArrayInputStream(binbytes);
+//		Kryo kryo = new Kryo();
+//		Input input = new Input(bain);
+//		RpcResponse response = kryo.readObject(input, RpcResponse.class);
+//	    input.close();
         String messageId = response.getId();
         MessageCallBack callBack = mapCallBack.get(messageId);
         if (callBack != null) {
@@ -96,13 +96,14 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
         MessageCallBack callBack = new MessageCallBack(request);
         mapCallBack.put(request.getId(), callBack);
         
-        Kryo kryo = new Kryo();
-	    Output output = new Output(new ByteArrayOutputStream());
-	    kryo.writeObject(output, request);
-	    output.toBytes();
-	    System.out.println("发送rpc请求:"+request);
-	    channel.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
-		output.close();
+//        Kryo kryo = new Kryo();
+//	    Output output = new Output(new ByteArrayOutputStream());
+//	    kryo.writeObject(output, request);
+//	    output.toBytes();
+//	    System.out.println("发送rpc请求:"+request);
+//	    channel.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
+//		output.close();
+        channel.writeAndFlush(request);
         return callBack;
     }
 }

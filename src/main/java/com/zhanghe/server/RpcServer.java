@@ -10,6 +10,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import com.zhanghe.handler.ServerChannelInnitializer;
 import com.zhanghe.handler.ServerHandler;
 import com.zhanghe.service.TestService;
 import com.zhanghe.service.TestServiceImpl;
@@ -33,7 +34,7 @@ public class RpcServer {
         		.localAddress(port)
         		//通过NoDelay禁用Nagle,使消息立即发出去，不用等待到一定的数据量才发出去
         		.option(ChannelOption.SO_KEEPALIVE,true)
-        		.childHandler(new ServerHandler(handlerMap));
+        		.childHandler(new ServerChannelInnitializer(handlerMap));
         	
         	ChannelFuture f = b.bind().sync();
         	System.out.println("started and listening for connections on " + port+","+f.channel().pipeline().get(ServerHandler.class));

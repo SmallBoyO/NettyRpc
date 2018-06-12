@@ -41,11 +41,12 @@ public class ServerMethodExcutor implements Runnable {
 			response.setException(e);
 			e.printStackTrace();
 		}
-		Output output = new Output(new ByteArrayOutputStream());
-		Kryo kryo = new Kryo();
-	    kryo.writeObject(output, response);
+//		Output output = new Output(new ByteArrayOutputStream());
+//		Kryo kryo = new Kryo();
+//	    kryo.writeObject(output, response);
 	    System.out.println("发送rpc结果:"+response);
-	    channel.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
+	    //channel.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
+	    channel.writeAndFlush(response);
 	}
 	
 	public Object excuteByReflect(RpcRequest request) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
