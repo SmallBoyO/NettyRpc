@@ -18,7 +18,6 @@ public class RequestToByteEncoder extends MessageToByteEncoder<RpcRequest>{
 		 Output output = new Output(new ByteArrayOutputStream());
 		 kryo.writeObject(output, request);
 		 output.toBytes();
-		 System.out.println("发送rpc请求:"+request);
 		 out.writeBytes(output.toBytes());
 		 output.close();
 	}

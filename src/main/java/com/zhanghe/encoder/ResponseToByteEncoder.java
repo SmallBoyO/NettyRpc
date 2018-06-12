@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
-import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.protocol.RpcResponse;
 
 import io.netty.buffer.ByteBuf;
@@ -19,7 +18,6 @@ public class ResponseToByteEncoder extends MessageToByteEncoder<RpcResponse>{
 		 Output output = new Output(new ByteArrayOutputStream());
 		 kryo.writeObject(output, response);
 		 output.toBytes();
-		 System.out.println("发送rpc结果:"+response);
 		 out.writeBytes(output.toBytes());
 		 output.close();
 	}

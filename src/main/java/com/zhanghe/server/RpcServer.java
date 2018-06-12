@@ -12,7 +12,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import com.zhanghe.handler.ServerChannelInnitializer;
 import com.zhanghe.handler.ServerHandler;
-import com.zhanghe.service.TestService;
 import com.zhanghe.service.TestServiceImpl;
 
 public class RpcServer {

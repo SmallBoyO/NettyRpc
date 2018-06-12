@@ -1,15 +1,11 @@
 package com.zhanghe.handler;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.io.ByteArrayOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Output;
 import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.protocol.RpcResponse;
 
@@ -41,11 +37,6 @@ public class ServerMethodExcutor implements Runnable {
 			response.setException(e);
 			e.printStackTrace();
 		}
-//		Output output = new Output(new ByteArrayOutputStream());
-//		Kryo kryo = new Kryo();
-//	    kryo.writeObject(output, response);
-	    System.out.println("发送rpc结果:"+response);
-	    //channel.writeAndFlush(Unpooled.copiedBuffer(output.toBytes()));
 	    channel.writeAndFlush(response);
 	}
 	

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
-import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.protocol.RpcResponse;
 
 import io.netty.buffer.ByteBuf;

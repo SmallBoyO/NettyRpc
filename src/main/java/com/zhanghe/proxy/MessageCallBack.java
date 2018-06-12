@@ -47,7 +47,6 @@ public class MessageCallBack {
         } finally {
             lock.unlock();
         }
-        System.out.println(reponse.getId()+",over");
     }
 
 }

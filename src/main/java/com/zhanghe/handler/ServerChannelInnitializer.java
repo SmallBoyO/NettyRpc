@@ -1,9 +1,6 @@
 package com.zhanghe.handler;
 
 import java.util.Map;
-import java.util.concurrent.Executor;
-
-import com.zhanghe.ThreadPool.RpcThreadPool;
 import com.zhanghe.decoder.ByteToRequestDecoder;
 import com.zhanghe.encoder.ResponseToByteEncoder;
 
