@@ -9,7 +9,12 @@ import com.zhanghe.protocol.RpcRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-
+/**  
+ * RequestToByteEncoder
+ * RpcRequest编码器
+ * @author Clevo  
+ * @date 2018/6/12 23:02 
+ */  
 public class RequestToByteEncoder extends MessageToByteEncoder<RpcRequest>{
 
 	@Override

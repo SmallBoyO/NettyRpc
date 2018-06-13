@@ -3,16 +3,26 @@ package com.zhanghe.protocol;
 import java.util.Arrays;
 
 public class RpcRequest {
-	
-	//调用id
+
+	/**
+	 * 调用id
+	 */
 	public String id;
-	//类名
+	/**
+	 * 类名
+	 */
 	public String className;
-	//方法名
+	/**
+	 * 方法名
+	 */
 	public String methodName;
-	//传入参数的类型
+	/**
+	 * 传入参数的类型
+	 */
 	private Class<?>[] typeParameters;
-	//传入参数
+	/**
+	 * 传入参数
+	 */
     private Object[] parametersVal;
     
 	public String getId() {

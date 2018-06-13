@@ -1,12 +1,18 @@
 package com.zhanghe.protocol;
 
 public class RpcResponse {
-	
-	//调用id
+
+	/**
+	 * 调用id
+	 */
 	public String id;
-	//异常
+	/**
+	 * 异常
+	 */
 	public Exception exception;
-	//执行结果
+	/**
+	 * 执行结果
+	 */
 	public Object result;
 	
 	public String getId() {
