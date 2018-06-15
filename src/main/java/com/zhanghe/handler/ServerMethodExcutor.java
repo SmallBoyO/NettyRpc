@@ -10,11 +10,22 @@ import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.protocol.RpcResponse;
 
 public class ServerMethodExcutor implements Runnable {
-
+	
+	/**
+	 * 请求
+	 */
 	private RpcRequest request;
+	/**
+	 * 结果
+	 */
 	private RpcResponse response;
+	/**
+	 * 服务端注册的service集合
+	 */
 	private Map<String, Object> handlerMap;
+	
 	private ChannelHandlerContext ctx;
+	
 	private Channel channel;
 	
 	
@@ -40,6 +51,17 @@ public class ServerMethodExcutor implements Runnable {
 	    channel.writeAndFlush(response);
 	}
 	
+	/**
+	 * 通过反射调用handlerMap中对应service的方法
+	 * @param request
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 * @return Object
+	 */
 	public Object excuteByReflect(RpcRequest request) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
 		String className = request.getClassName();
 		Object serviceBean = handlerMap.get(className);
