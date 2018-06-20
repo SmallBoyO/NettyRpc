@@ -22,7 +22,6 @@ public class ByteToRequestDecoder extends ByteToMessageDecoder {
 	protected void decode( ChannelHandlerContext ctx ,ByteBuf in ,List<Object> out ) throws Exception {
 		byte[] binbytes = new byte[in.readableBytes()];
 		in.readBytes(binbytes);
-		
 		ByteArrayInputStream bain = new ByteArrayInputStream(binbytes);
 		Kryo kryo = new Kryo();
 		Input input = new Input(bain);

@@ -7,6 +7,7 @@ import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.protocol.RpcResponse;
 import com.zhanghe.proxy.MessageCallBack;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -20,7 +21,6 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     
     private SocketAddress remoteAddr;
     
-
 	public Channel getChannel() {
 		return channel;
 	}
@@ -38,7 +38,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         this.channel = ctx.channel();
         this.remoteAddr = this.channel.remoteAddress();
 	}
-
+	
 	/**
 	 * 捕捉到异常时调用
 	 */
@@ -63,6 +63,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         MessageCallBack callBack = new MessageCallBack(request);
         mapCallBack.put(request.getId(), callBack);
         channel.writeAndFlush(request);
+        //发送分隔符
+        channel.writeAndFlush(Unpooled.copiedBuffer(System.getProperty("line.separator").getBytes()));
         return callBack;
     }
 }

@@ -1,5 +1,6 @@
 package com.zhanghe.handler;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -49,6 +50,8 @@ public class ServerMethodExcutor implements Runnable {
 			e.printStackTrace();
 		}
 	    channel.writeAndFlush(response);
+	    //发送分隔符
+	    channel.writeAndFlush(Unpooled.copiedBuffer(System.getProperty("line.separator").getBytes()));
 	}
 	
 	/**

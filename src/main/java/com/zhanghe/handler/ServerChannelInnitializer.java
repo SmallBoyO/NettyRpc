@@ -7,6 +7,7 @@ import com.zhanghe.encoder.ResponseToByteEncoder;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LineBasedFrameDecoder;
 
 public class ServerChannelInnitializer extends ChannelInitializer<SocketChannel>{
 	
@@ -19,6 +20,7 @@ public class ServerChannelInnitializer extends ChannelInitializer<SocketChannel>
 	@Override
 	protected void initChannel( SocketChannel socketChannel ) throws Exception {
 		ChannelPipeline pipeline = socketChannel.pipeline();
+		pipeline.addLast(new LineBasedFrameDecoder(1024));
 		pipeline.addLast(new ResponseToByteEncoder());
 		pipeline.addLast(new ByteToRequestDecoder());
         pipeline.addLast(new ServerHandler(handlerMap));
