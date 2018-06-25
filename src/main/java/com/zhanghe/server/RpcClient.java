@@ -66,7 +66,7 @@ public class RpcClient {
 		re.setParametersVal(new Object[]{"1","2"});
 		re.setTypeParameters(new Class[]{String.class,String.class});
 		TestService service = (TestService) rpc.proxy("com.zhanghe.service.TestService");
-		service.hello();
+		System.out.println(service.hello());
 //
 //        start = System.currentTimeMillis();
 //		rpc.start();

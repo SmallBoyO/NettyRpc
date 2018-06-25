@@ -51,7 +51,7 @@ public class ServerMethodExcutor implements Runnable {
 		}
 	    channel.writeAndFlush(response);
 	    //发送分隔符
-	    channel.writeAndFlush(Unpooled.copiedBuffer(System.getProperty("line.separator").getBytes()));
+	    //channel.writeAndFlush(Unpooled.copiedBuffer(System.getProperty("line.separator").getBytes()));
 	}
 	
 	/**
