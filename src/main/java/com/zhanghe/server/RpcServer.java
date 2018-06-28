@@ -17,13 +17,17 @@ import com.zhanghe.service.TestServiceImpl;
 public class RpcServer {
 	
 	private int port;
+	
+	private Map<String, Object> handlerMap;
 
-	public RpcServer( int port ){
+	public RpcServer( int port ,Map<String, Object> handlerMap ){
 		super();
 		this.port = port;
+		System.out.println(handlerMap);
+		this.handlerMap = handlerMap;
 	}
 	
-	public void start(Map<String, Object> handlerMap) throws InterruptedException{
+	public void start() throws InterruptedException{
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try{
@@ -31,7 +35,6 @@ public class RpcServer {
         	b.group(bossGroup, workerGroup)
         		.channel(NioServerSocketChannel.class)
         		.localAddress(port)
-        		//通过NoDelay禁用Nagle,使消息立即发出去，不用等待到一定的数据量才发出去
         		.option(ChannelOption.SO_KEEPALIVE,true)
         		.childHandler(new ServerChannelInnitializer(handlerMap));
         	
@@ -49,6 +52,13 @@ public class RpcServer {
 		TestServiceImpl test = new TestServiceImpl();
 		Map<String, Object> handlerMap = new HashMap<>();
 		handlerMap.put(test.getClass().getInterfaces()[0].getName(), test);
-		new RpcServer(6666).start(handlerMap);
+		new RpcServer(6666,handlerMap).start();
 	}
+
+	@Override
+	public String toString() {
+		return "RpcServer [port=" + port + ", handlerMap=" + handlerMap + "]";
+	}
+	
+	
 }
