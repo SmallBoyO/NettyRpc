@@ -63,8 +63,6 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         MessageCallBack callBack = new MessageCallBack(request);
         mapCallBack.put(request.getId(), callBack);
         channel.writeAndFlush(request);
-        //发送分隔符
-        //channel.writeAndFlush(Unpooled.copiedBuffer(System.getProperty("line.separator").getBytes()));
         return callBack;
     }
 }

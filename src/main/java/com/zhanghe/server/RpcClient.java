@@ -51,34 +51,7 @@ public class RpcClient {
 	
 	public static void main( String[] args ) throws InterruptedException, ClassNotFoundException {
 		RpcClient rpc = new RpcClient("127.0.0.1", 6666);
-		long start = System.currentTimeMillis();
-		//rpc.start();
-		long end = System.currentTimeMillis();
-
-        System.out.println("over:"+(end-start));
-        
-        
-        
-        RpcRequest re = new RpcRequest();
-		re.setId(UUID.randomUUID().toString());
-		re.setClassName("com.zhanghe.service");
-		re.setMethodName("TestService");
-		re.setParametersVal(new Object[]{"1","2"});
-		re.setTypeParameters(new Class[]{String.class,String.class});
 		TestService service = (TestService) rpc.proxy("com.zhanghe.service.TestService");
 		System.out.println(service.hello());
-//
-//        start = System.currentTimeMillis();
-//		rpc.start();
-//        end = System.currentTimeMillis();
-//        System.out.println("over:"+(end-start));
-//        start = System.currentTimeMillis();
-//		rpc.start();
-//        end = System.currentTimeMillis();
-//        System.out.println("over:"+(end-start));
-//        start = System.currentTimeMillis();
-//		rpc.start();
-//        end = System.currentTimeMillis();
-//        System.out.println("over:"+(end-start));
 	}
 }

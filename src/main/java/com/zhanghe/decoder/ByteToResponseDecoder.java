@@ -34,12 +34,10 @@ public class ByteToResponseDecoder extends ByteToMessageDecoder {
 		}
 		in.markReaderIndex();
 		Integer length = in.readInt();
-        //System.out.println("接收Response包长度:"+length+",readble:"+in.readableBytes());
 		if(in.readableBytes() < length) {  
 	       in.resetReaderIndex();  
 	       return false;  
-	    } 
-		//System.out.println("接收包长度:"+length);
+	    }
 		byte[] binbytes = new byte[length];
 		in.readBytes(binbytes);
 		

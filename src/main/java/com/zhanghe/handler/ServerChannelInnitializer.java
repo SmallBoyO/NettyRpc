@@ -20,7 +20,6 @@ public class ServerChannelInnitializer extends ChannelInitializer<SocketChannel>
 	@Override
 	protected void initChannel( SocketChannel socketChannel ) throws Exception {
 		ChannelPipeline pipeline = socketChannel.pipeline();
-		//pipeline.addLast(new LineBasedFrameDecoder(Integer.MAX_VALUE));
 		pipeline.addLast(new ResponseToByteEncoder());
 		pipeline.addLast(new ByteToRequestDecoder());
         pipeline.addLast(new ServerHandler(handlerMap));

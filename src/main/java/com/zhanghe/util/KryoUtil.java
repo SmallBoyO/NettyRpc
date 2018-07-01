@@ -12,6 +12,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.protocol.RpcResponse;
+import io.netty.buffer.ByteBuf;
 
 public class KryoUtil {
 	public static void main( String[] args ) throws FileNotFoundException {
@@ -48,5 +49,15 @@ public class KryoUtil {
 	    input.close();
 	    System.out.println(b);
 		
+	}
+
+	public static void ObjectToByteAndWriteToByteBuff(Object obj,ByteBuf out){
+		Kryo kryo = new Kryo();
+		Output output =new Output(1024,Integer.MAX_VALUE);
+		kryo.writeObject(output, obj);
+		int length = output.toBytes().length;
+		out.writeInt(length);
+		out.writeBytes(output.toBytes());
+		output.close();
 	}
 }
