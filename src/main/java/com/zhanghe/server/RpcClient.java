@@ -21,18 +21,18 @@ public class RpcClient {
 	private InetSocketAddress socketaddress;
 	public Bootstrap b ;
 	MessageSendProxy proxy;
-	
-	public RpcClient( String host ,int port ){
+	EventLoopGroup group;
+	public RpcClient( String host ,int port ) throws InterruptedException{
 		super();
 		this.host = host;
 		this.port = port;
 		init();
 	}
 	
-	public void init(){
+	public void init() throws InterruptedException{
 		this.socketaddress = new InetSocketAddress(host, port);
 		b = new Bootstrap();
-		EventLoopGroup group = new NioEventLoopGroup();
+		group = new NioEventLoopGroup();
 		b.group(group)
 			.channel(NioSocketChannel.class)
 			.remoteAddress(socketaddress)
@@ -40,11 +40,18 @@ public class RpcClient {
 		this.proxy = new MessageSendProxy<>(b);
 	}
 	
+	public void close() throws InterruptedException{
+		proxy.close();
+		if(group!=null){
+			group.shutdownGracefully().sync();
+		}
+	}
+	
 	public Object proxy(String serviceName) throws ClassNotFoundException{
-		Class clazz = Class.forName(serviceName);
+		Class<?> clazz = Class.forName(serviceName);
 		return Proxy.newProxyInstance(
 				clazz.getClassLoader(),
-                new Class<?>[]{ clazz},
+                new Class<?>[]{ clazz },
                 proxy
         );
 	}

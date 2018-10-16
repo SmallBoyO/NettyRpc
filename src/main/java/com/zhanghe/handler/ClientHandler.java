@@ -7,7 +7,6 @@ import com.zhanghe.protocol.RpcRequest;
 import com.zhanghe.protocol.RpcResponse;
 import com.zhanghe.proxy.MessageCallBack;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

@@ -11,7 +11,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import com.zhanghe.handler.ServerChannelInnitializer;
-import com.zhanghe.handler.ServerHandler;
 import com.zhanghe.service.TestServiceImpl;
 
 public class RpcServer {
@@ -52,6 +51,7 @@ public class RpcServer {
 		Map<String, Object> handlerMap = new HashMap<>();
 		handlerMap.put(test.getClass().getInterfaces()[0].getName(), test);
 		new RpcServer(6666,handlerMap).start();
+		
 	}
 
 	@Override

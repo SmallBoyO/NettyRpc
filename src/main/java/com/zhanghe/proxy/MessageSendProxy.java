@@ -13,17 +13,20 @@ import com.zhanghe.protocol.RpcRequest;
 public class MessageSendProxy<T> implements InvocationHandler {
 	
 	private Bootstrap b ;
+	private ChannelFuture f;
 	
-	
-	public MessageSendProxy( Bootstrap b ){
+	public MessageSendProxy( Bootstrap b ) throws InterruptedException{
 		super();
 		this.b = b;
+		f = b.connect().sync();
 	}
-
+	
+	public void close() throws InterruptedException{
+		f.channel().closeFuture().sync();
+	}
 
 	@Override
 	public Object invoke( Object proxy ,Method method ,Object[] args ) throws Throwable {
-		ChannelFuture f = b.connect().sync();
 		f.channel().pipeline().get(ClientHandler.class).setChannel(f.channel());
 		RpcRequest req = new RpcRequest();
 		req.setId(UUID.randomUUID().toString());
@@ -33,7 +36,8 @@ public class MessageSendProxy<T> implements InvocationHandler {
 		req.setTypeParameters(method.getParameterTypes());
 		
 		MessageCallBack callback = f.channel().pipeline().get(ClientHandler.class).sendRequest(req);
-		return callback.start();
+		Object res = callback.start();
+		return res;
 	}
 
 }
