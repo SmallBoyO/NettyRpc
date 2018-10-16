@@ -2,9 +2,15 @@ package com.zhanghe.handler;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
+
+import javax.xml.ws.Response;
+
 import com.zhanghe.ThreadPool.RpcThreadPool;
 import com.zhanghe.protocol.RpcRequest;
+import com.zhanghe.protocol.RpcResponse;
 
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -33,6 +39,13 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
 	@Override
 	public void channelRead( ChannelHandlerContext ctx ,Object msg ) throws Exception {
 		RpcRequest req = (RpcRequest) msg;
+		if(req.getType()==-1){
+			RpcResponse res = new RpcResponse();
+			res.setId(req.getId());
+			res.setType(-1);
+			ctx.writeAndFlush(res).addListener(ChannelFutureListener.CLOSE);
+			return;
+		}
 	    excutor.execute(new ServerMethodExcutor(req, handlerMap,ctx.channel()));
 		
 	}

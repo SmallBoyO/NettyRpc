@@ -3,17 +3,24 @@ package com.zhanghe.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.oio.OioServerSocketChannel;
 
 import com.zhanghe.handler.ServerChannelInnitializer;
 import com.zhanghe.service.TestServiceImpl;
 
 public class RpcServer {
+	
+	private static Logger logger = LoggerFactory.getLogger(RpcServer.class);
 	
 	private int port;
 	
@@ -38,7 +45,7 @@ public class RpcServer {
         		.childHandler(new ServerChannelInnitializer(handlerMap));
         	
         	ChannelFuture f = b.bind().sync();
-        	System.out.println("started and listening for connections on " + port);
+        	logger.info("Rpc 服务在端口{}上启动成功.",port);
         	f.channel().closeFuture().sync();
 		}finally{
         	workerGroup.shutdownGracefully().sync();

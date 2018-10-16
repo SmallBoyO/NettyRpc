@@ -7,6 +7,12 @@ public class RpcResponse {
 	 */
 	public String id;
 	/**
+	 * 调用类型
+	 * -1: 断开连接
+	 *  1: Rpc 调用
+	 */
+	public Integer type;
+	/**
 	 * 异常
 	 */
 	public Exception exception;
@@ -33,9 +39,17 @@ public class RpcResponse {
 	public void setResult( Object result ) {
 		this.result = result;
 	}
+	
+	public Integer getType() {
+		return type;
+	}
+	public void setType( Integer type ) {
+		this.type = type;
+	}
 	@Override
 	public String toString() {
-		return "RpcResponse [id=" + id + ", exception=" + exception + ", result=" + result + "]";
+		return "RpcResponse [id=" + id + ", type=" + type + ", exception=" + exception + ", result=" + result + "]";
 	}
+	
 	
 }

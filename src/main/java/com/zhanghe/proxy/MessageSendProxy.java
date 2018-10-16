@@ -22,6 +22,12 @@ public class MessageSendProxy<T> implements InvocationHandler {
 	}
 	
 	public void close() throws InterruptedException{
+		RpcRequest req = new RpcRequest();
+		req.setId(UUID.randomUUID().toString());
+		req.setType(-1);
+//		f.channel().writeAndFlush(req);
+		MessageCallBack callback = f.channel().pipeline().get(ClientHandler.class).sendRequest(req);
+		callback.start();
 		f.channel().closeFuture().sync();
 	}
 
@@ -30,6 +36,7 @@ public class MessageSendProxy<T> implements InvocationHandler {
 		f.channel().pipeline().get(ClientHandler.class).setChannel(f.channel());
 		RpcRequest req = new RpcRequest();
 		req.setId(UUID.randomUUID().toString());
+		req.setType(1);
 		req.setClassName(method.getDeclaringClass().getName());
 		req.setMethodName(method.getName());
 		req.setParametersVal(args);

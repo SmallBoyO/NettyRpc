@@ -8,6 +8,14 @@ public class RpcRequest {
 	 * 调用id
 	 */
 	public String id;
+	
+	/**
+	 * 调用类型
+	 * -1: 断开连接
+	 *  1: Rpc 调用
+	 */
+	public Integer type;
+	
 	/**
 	 * 类名
 	 */
@@ -55,10 +63,18 @@ public class RpcRequest {
 	public void setParametersVal( Object[] parametersVal ) {
 		this.parametersVal = parametersVal;
 	}
+	
+	public Integer getType() {
+		return type;
+	}
+	public void setType( Integer type ) {
+		this.type = type;
+	}
 	@Override
 	public String toString() {
-		return "RpcRequest [id=" + id + ", className=" + className + ", methodName=" + methodName + ", typeParameters="
+		return "RpcRequest [id=" + id + ", type=" + type + ", className=" + className + ", methodName=" + methodName + ", typeParameters="
 				+ Arrays.toString(typeParameters) + ", parametersVal=" + Arrays.toString(parametersVal) + "]";
 	}
+	
 	
 }
