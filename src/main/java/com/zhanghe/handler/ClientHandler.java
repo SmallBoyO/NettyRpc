@@ -14,6 +14,8 @@ import io.netty.channel.ChannelHandler.Sharable;
 @Sharable
 public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 	
+	public static final ClientHandler INSTANCE = new ClientHandler();
+	
 	private ConcurrentHashMap<String, MessageCallBack> mapCallBack = new ConcurrentHashMap<String, MessageCallBack>();
 
     private volatile Channel channel;

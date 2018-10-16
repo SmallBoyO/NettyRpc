@@ -27,15 +27,7 @@ public class ByteToRequestDecoder extends ByteToMessageDecoder {
 	}
 	
 	public boolean doDecode(ChannelHandlerContext ctx ,ByteBuf in ,List<Object> out){
-		if(in.readableBytes() < 4){
-			return false;
-		}
-		in.markReaderIndex();
 		Integer length = in.readInt();
-        if(in.readableBytes() < length) {  
-            in.resetReaderIndex();  
-            return false;  
-        }
 		byte[] binbytes = new byte[length];
 		in.readBytes(binbytes);
 		ByteArrayInputStream bain = new ByteArrayInputStream(binbytes);

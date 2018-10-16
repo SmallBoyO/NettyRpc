@@ -24,7 +24,7 @@ public class JHMTest {
 
     private TestService service ;
     @Setup
-    public void init() {
+    public void init() throws InterruptedException {
         client = new RpcClient("127.0.0.1",6666);
         try {
             service = (TestService)client.proxy("com.zhanghe.service.TestService");
@@ -36,9 +36,8 @@ public class JHMTest {
     public void hello(){
         service.hello();
     }
-
     public static void main(String[] args) throws RunnerException{
-        Options opt = new OptionsBuilder().include(JHMTest.class.getSimpleName()).forks(1).build();
+        Options opt = new OptionsBuilder().mode(Mode.AverageTime).include(JHMTest.class.getSimpleName()).forks(1).build();
         new Runner(opt).run();
     }
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class benchmark {
-	public static void main( String[] args ) throws ClassNotFoundException {
+	public static void main( String[] args ) throws ClassNotFoundException, InterruptedException {
 		final TestServiceImpl service = new TestServiceImpl();
 		
 		long start = System.currentTimeMillis();
@@ -22,7 +22,6 @@ public class benchmark {
 		System.out.println("本地调用耗时:"+(end-start));
 		
 		RpcClient r = new RpcClient("127.0.0.1", 6666);
-		r.init();
 		final TestService testService = (TestService) r.proxy(TestService.class.getName());
 		testService.hello();
 		start = System.currentTimeMillis();

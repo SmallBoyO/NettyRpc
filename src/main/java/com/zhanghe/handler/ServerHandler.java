@@ -20,7 +20,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
 	
 	public ServerHandler( Map<String, Object> handlerMap ){
 		super();
-		this.excutor = RpcThreadPool.getExecutor(parallel, 0);
+		this.excutor = RpcThreadPool.getExecutor(parallel, 1000);
 		this.handlerMap = handlerMap;
 	}
 	@Override
