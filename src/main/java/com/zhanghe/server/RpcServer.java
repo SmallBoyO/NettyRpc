@@ -41,10 +41,11 @@ public class RpcServer {
         	b.group(bossGroup, workerGroup)
         		.channel(NioServerSocketChannel.class)
         		.localAddress(port)
-        		.option(ChannelOption.SO_KEEPALIVE,true)
+//        		.option(ChannelOption.SO_KEEPALIVE,true)
         		.childHandler(new ServerChannelInnitializer(handlerMap));
         	
         	ChannelFuture f = b.bind().sync();
+        	System.out.println("success");
         	logger.info("Rpc 服务在端口{}上启动成功.",port);
         	f.channel().closeFuture().sync();
 		}finally{
@@ -57,7 +58,7 @@ public class RpcServer {
 		TestServiceImpl test = new TestServiceImpl();
 		Map<String, Object> handlerMap = new HashMap<>();
 		handlerMap.put(test.getClass().getInterfaces()[0].getName(), test);
-		new RpcServer(6666,handlerMap).start();
+		new RpcServer(6266,handlerMap).start();
 		
 	}
 
