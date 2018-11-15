@@ -1,4 +1,4 @@
-package com.zhanghe.protocol;
+package com.zhanghe.protocol.v1;
 
 
 public enum Command {

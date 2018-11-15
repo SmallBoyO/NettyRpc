@@ -1,13 +1,15 @@
 package com.zhanghe.protocol.request;
 
 import com.zhanghe.protocol.v1.CommandType;
-import com.zhanghe.protocol.Packet;
+import com.zhanghe.protocol.v1.Packet;
 /**
  * 心跳请求包
  *
  * @author zhanghe
  */
 public class HeartBeatRequest extends Packet {
+
+    public static final HeartBeatRequest INSTANCE = new HeartBeatRequest();
 
     @Override
     public Byte getCommand() {

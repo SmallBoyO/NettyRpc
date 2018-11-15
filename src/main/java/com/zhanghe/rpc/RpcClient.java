@@ -1,5 +1,6 @@
 package com.zhanghe.rpc;
 
+import com.zhanghe.channel.ClientChannelInitializer;
 import com.zhanghe.channel.ServerChannelInitializer;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.Bootstrap;
@@ -10,6 +11,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
 /**
@@ -30,13 +32,13 @@ public class RpcClient {
 
     public void init() throws InterruptedException{
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
-
+        InetSocketAddress socketaddress = new InetSocketAddress(serverIp, serverPort);
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
-                .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
-                .handler(new ServerChannelInitializer());
-        ChannelFuture future = bootstrap.bind(serverIp,serverPort);
-        future.sync();
+                .channel(NioSocketChannel.class)
+                .handler(new ClientChannelInitializer())
+                .remoteAddress(socketaddress);
+        ChannelFuture future = bootstrap.connect().sync();
         logger.debug("连接服务端成功");
     }
 }

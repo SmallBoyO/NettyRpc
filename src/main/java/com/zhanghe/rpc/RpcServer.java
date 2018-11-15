@@ -2,6 +2,9 @@ package com.zhanghe.rpc;
 
 import com.zhanghe.ThreadPool.RpcThreadPoolFactory;
 import com.zhanghe.channel.ServerChannelInitializer;
+import com.zhanghe.protocol.serializer.SerializerAlgorithm;
+import com.zhanghe.protocol.serializer.SerializerManager;
+import com.zhanghe.protocol.serializer.impl.JsonSerializer;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -58,7 +61,7 @@ public class RpcServer {
 
     private static final EventLoopGroup bossGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
 
-    private static final EventLoopGroup workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+    private static final EventLoopGroup workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
 
     //设置即I/O操作和用户自定义任务的执行时间比
     static {
@@ -67,6 +70,8 @@ public class RpcServer {
         } else if (workerGroup instanceof EpollEventLoopGroup) {
             ((EpollEventLoopGroup) workerGroup).setIoRatio(50);
         }
+        //注册序列化方式
+        SerializerManager.register(SerializerAlgorithm.JSON,JsonSerializer.INSTANCE);
     }
 
     private ServerBootstrap bootstrap;
