@@ -2,6 +2,10 @@ package com.zhanghe.rpc;
 
 import com.zhanghe.channel.ClientChannelInitializer;
 import com.zhanghe.channel.ServerChannelInitializer;
+import com.zhanghe.protocol.serializer.SerializerAlgorithm;
+import com.zhanghe.protocol.serializer.SerializerManager;
+import com.zhanghe.protocol.serializer.impl.JsonSerializer;
+import com.zhanghe.protocol.serializer.impl.KyroSerializer;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -31,6 +35,7 @@ public class RpcClient {
     }
 
     public void init() throws InterruptedException{
+        SerializerManager.setDefault(SerializerAlgorithm.JSON);
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
         InetSocketAddress socketaddress = new InetSocketAddress(serverIp, serverPort);
         Bootstrap bootstrap = new Bootstrap();

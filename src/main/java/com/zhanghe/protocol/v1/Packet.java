@@ -22,6 +22,7 @@ public abstract class Packet {
      */
     public abstract boolean needSerilize();
 
+
     public Byte getVersion() {
         return version;
     }

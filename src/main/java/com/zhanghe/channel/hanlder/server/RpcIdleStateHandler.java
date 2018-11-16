@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 超时处理器
+ * @author zhanghe
+ */
 public class RpcIdleStateHandler extends IdleStateHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RpcIdleStateHandler.class);

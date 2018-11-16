@@ -21,7 +21,8 @@ public class JsonSerializer implements Serializer {
 
     @Override
     public <T> T deserialize(Class<T> clazz, byte[] bytes) {
-        return null;
+        String str = new String(bytes,CharsetUtil.UTF_8);
+        return JSONObject.parseObject(str,clazz);
     }
 
     @Override

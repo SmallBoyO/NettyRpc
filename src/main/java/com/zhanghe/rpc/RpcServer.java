@@ -5,12 +5,17 @@ import com.zhanghe.channel.ServerChannelInitializer;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.serializer.impl.JsonSerializer;
+import com.zhanghe.protocol.serializer.impl.KyroSerializer;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,18 +75,19 @@ public class RpcServer {
         } else if (workerGroup instanceof EpollEventLoopGroup) {
             ((EpollEventLoopGroup) workerGroup).setIoRatio(50);
         }
-        //注册序列化方式
-        SerializerManager.register(SerializerAlgorithm.JSON,JsonSerializer.INSTANCE);
     }
 
     private ServerBootstrap bootstrap;
 
     public void doInit(){
+        SerializerManager.setDefault(SerializerAlgorithm.JSON);
         this.bootstrap = new ServerBootstrap();
         this.bootstrap.group(bossGroup,workerGroup)
                 .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
+                .handler(new LoggingHandler(LogLevel.DEBUG))
                 .childHandler(new ServerChannelInitializer());
-
+        this.bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         this.bootstrap.childHandler(ServerChannelInitializer.INSTANCE);
     }
     private ChannelFuture future ;

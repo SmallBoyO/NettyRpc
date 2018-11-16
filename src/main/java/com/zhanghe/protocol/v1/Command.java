@@ -1,33 +1,30 @@
 package com.zhanghe.protocol.v1;
 
 
-public enum Command {
-    HEART_BEAT_REQUEST("心跳发送包",(byte)1),
-    HEART_BEAT_RESPONSE("心跳回复包",(byte)2);
+import com.zhanghe.protocol.request.HeartBeatRequest;
+import com.zhanghe.protocol.request.RpcRequest;
+import com.zhanghe.protocol.response.HeartBeatResponse;
 
+import java.util.concurrent.ConcurrentHashMap;
 
-    private String name;
+public class Command {
 
-    private Byte command;
+    private static ConcurrentHashMap<Byte,Class> commamdClassMap = new ConcurrentHashMap<>();
 
-    Command(String name,byte command) {
-        this.name = name;
-        this.command = command;
+    static{
+        rigester(CommandType.HEART_BEAT_REQUEST,HeartBeatRequest.class);
+        rigester(CommandType.HEART_BEAT_RESPONSE,HeartBeatResponse.class);
+        rigester(CommandType.RPC_REQUEST,RpcRequest.class);
+    }
+    public static void rigester(Byte command,Class type){
+        if(commamdClassMap.containsKey(command)){
+            throw new RuntimeException("Command has been rigestered!");
+        }
+        commamdClassMap.put(command,type);
     }
 
-    public String getName() {
-        return name;
+    public static Class getCommandClass(Byte command){
+       return commamdClassMap.get(command);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Byte getCommand() {
-        return command;
-    }
-
-    public void setCommand(Byte command) {
-        this.command = command;
-    }
 }

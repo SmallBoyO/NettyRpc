@@ -1,5 +1,8 @@
 package com.zhanghe.protocol.serializer;
 
+import com.zhanghe.protocol.serializer.impl.JsonSerializer;
+import com.zhanghe.protocol.serializer.impl.KyroSerializer;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -10,6 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SerializerManager {
 
     public static ConcurrentHashMap<Byte,Serializer> serializers = new ConcurrentHashMap<>(10);
+
+    static{
+        serializers.put(SerializerAlgorithm.JSON,JsonSerializer.INSTANCE);
+        serializers.put(SerializerAlgorithm.KYRO,KyroSerializer.INSTANCE);
+    }
 
     private static Serializer defaultSerializer;
 
@@ -27,12 +35,11 @@ public class SerializerManager {
         return serializers.remove(algorithm);
     }
 
-    public static void setDefault(Byte algorithm,Serializer serializer){
-        if(defaultSerializer!=null){
-            throw new RuntimeException("defaultSerializer has exists!");
+    public static void setDefault(Byte algorithm){
+        if(!serializers.containsKey(algorithm)){
+            throw new RuntimeException("Serializer has not registered!");
         }
-        register(algorithm,serializer);
-        defaultSerializer = serializer;
+        defaultSerializer = serializers.get(algorithm);
     }
 
     public static Serializer getDefault(){

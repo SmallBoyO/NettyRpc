@@ -2,6 +2,8 @@ package com.zhanghe.channel.hanlder.server;
 
 import com.zhanghe.protocol.request.HeartBeatRequest;
 import com.zhanghe.protocol.response.HeartBeatResponse;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -9,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ *  处理接收到的心跳请求
  * @author zhanghe
  */
 @ChannelHandler.Sharable

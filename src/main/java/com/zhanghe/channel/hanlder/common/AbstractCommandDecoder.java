@@ -6,6 +6,7 @@ import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.serializer.impl.JsonSerializer;
 import com.zhanghe.protocol.serializer.impl.KyroSerializer;
+import com.zhanghe.protocol.v1.Command;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -14,7 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-
+/**
+ * 默认解码器
+ * @author zhanghe
+ */
 public class AbstractCommandDecoder extends ByteToMessageDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractCommandDecoder.class);
@@ -24,12 +28,9 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
         int magic_num = byteBuf.readInt();
         Byte version = byteBuf.readByte();
         Byte command = byteBuf.readByte();
-
-
-        logger.debug("recive command:{}",command);
+        Byte serializerAlgorithm = byteBuf.readByte();
         int length = byteBuf.readInt();
         if(length>0){
-            Byte serializerAlgorithm = byteBuf.readByte();
             Serializer serializer = SerializerManager.getSerializer(serializerAlgorithm);
 
             if(serializer==null){
@@ -37,12 +38,12 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
                 channelHandlerContext.channel().close();
                 return;
             }
-
-            byte[] bytes = new byte[length - 1 ];
+            byte[] bytes = new byte[length];
             byteBuf.readBytes(bytes);
 
-            Object obj = serializer.deserialize(bytes);
-            logger.debug("recive packet:{}",obj.getClass());
+            Class clazz = Command.getCommandClass(command);
+            Object obj = serializer.deserialize(clazz,bytes);
+            logger.debug("recive command,clazz:{},version:{},command:{},size:{},serializerAlgorithm:{},Packet:{}",clazz,version,command,length,serializerAlgorithm,obj);
             list.add(obj);
         }else{
             if(command==1){
