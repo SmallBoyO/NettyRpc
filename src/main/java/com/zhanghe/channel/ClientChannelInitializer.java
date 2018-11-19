@@ -2,6 +2,7 @@ package com.zhanghe.channel;
 
 import com.zhanghe.channel.hanlder.client.HeartBeatResponseHanlder;
 import com.zhanghe.channel.hanlder.client.HeartBeatTimerHanlder;
+import com.zhanghe.channel.hanlder.client.RpcResponseHandler;
 import com.zhanghe.channel.hanlder.client.SendRpcRequestHandler;
 import com.zhanghe.channel.hanlder.common.AbstractCommandDecoder;
 import com.zhanghe.channel.hanlder.common.AbstractCommandEncoder;
@@ -16,7 +17,7 @@ public class ClientChannelInitializer  extends ChannelInitializer {
         channel.pipeline().addLast(AbstractCommandEncoder.INSTANCE);
         channel.pipeline().addLast(new AbstractCommandDecoder());
         channel.pipeline().addLast(HeartBeatTimerHanlder.INSTANCE);
-        channel.pipeline().addLast(new SendRpcRequestHandler());
+        channel.pipeline().addLast(RpcResponseHandler.INSTANCE);
         channel.pipeline().addLast(HeartBeatResponseHanlder.INSTANCE);
     }
 }

@@ -4,6 +4,7 @@ package com.zhanghe.protocol.v1;
 import com.zhanghe.protocol.request.HeartBeatRequest;
 import com.zhanghe.protocol.request.RpcRequest;
 import com.zhanghe.protocol.response.HeartBeatResponse;
+import com.zhanghe.protocol.response.RpcResponse;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +16,7 @@ public class Command {
         rigester(CommandType.HEART_BEAT_REQUEST,HeartBeatRequest.class);
         rigester(CommandType.HEART_BEAT_RESPONSE,HeartBeatResponse.class);
         rigester(CommandType.RPC_REQUEST,RpcRequest.class);
+        rigester(CommandType.RPC_RESPONSE,RpcResponse.class);
     }
     public static void rigester(Byte command,Class type){
         if(commamdClassMap.containsKey(command)){

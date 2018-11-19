@@ -15,6 +15,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
@@ -36,7 +37,7 @@ public class RpcClient {
 
     public void init() throws InterruptedException{
         SerializerManager.setDefault(SerializerAlgorithm.JSON);
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(10);
         InetSocketAddress socketaddress = new InetSocketAddress(serverIp, serverPort);
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
@@ -44,6 +45,19 @@ public class RpcClient {
                 .handler(new ClientChannelInitializer())
                 .remoteAddress(socketaddress);
         ChannelFuture future = bootstrap.connect().sync();
+        this.proxy = new RpcRequestProxy(future.channel());
         logger.debug("连接服务端成功");
+    }
+
+    private RpcRequestProxy proxy;
+
+    public Object proxy(String serviceName) throws ClassNotFoundException{
+        logger.info("Rpc客户端代理接口:{}"+serviceName);
+        Class<?> clazz = Class.forName(serviceName);
+        return Proxy.newProxyInstance(
+                clazz.getClassLoader(),
+                new Class<?>[]{ clazz },
+                proxy
+        );
     }
 }

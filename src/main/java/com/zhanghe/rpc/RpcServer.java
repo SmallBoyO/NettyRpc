@@ -2,10 +2,10 @@ package com.zhanghe.rpc;
 
 import com.zhanghe.ThreadPool.RpcThreadPoolFactory;
 import com.zhanghe.channel.ServerChannelInitializer;
+import com.zhanghe.channel.hanlder.server.BindRpcServiceHandler;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.protocol.serializer.impl.JsonSerializer;
-import com.zhanghe.protocol.serializer.impl.KyroSerializer;
+import com.zhanghe.service.TestServiceImpl;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -89,7 +90,13 @@ public class RpcServer {
         this.bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         this.bootstrap.childHandler(ServerChannelInitializer.INSTANCE);
+
+        TestServiceImpl test = new TestServiceImpl();
+        ConcurrentHashMap<String,Object> map = new ConcurrentHashMap<>();
+        map.put(test.getClass().getInterfaces()[0].getName(), test);
+        BindRpcServiceHandler.INSTANCE.setServiceMap(map);
     }
+
     private ChannelFuture future ;
 
     public boolean doStart() throws InterruptedException{

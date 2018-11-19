@@ -1,16 +1,22 @@
 package com.zhanghe.channel.hanlder.server;
 
+import com.zhanghe.attribute.Attributes;
 import com.zhanghe.protocol.request.RpcRequest;
+import com.zhanghe.protocol.response.RpcResponse;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * 处理接收到的rpc请求
  * @author zhanghe
  */
+@ChannelHandler.Sharable
 public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(RpcRequestHandler.class);
@@ -20,16 +26,26 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcRequest rpcRequest) throws Exception {
         logger.debug("recive rpcRequest:{}",rpcRequest);
-        Future<Object> f = channelHandlerContext.executor().submit(()->{
+        Future<RpcResponse> f = channelHandlerContext.executor().submit(()->{
+            RpcResponse rpcResponse = new RpcResponse();
             try {
-                Thread.sleep(100);
+                rpcResponse.setRequestId(rpcRequest.getRequestId());
+                String className = rpcRequest.getClassName();
+                Map mserverMap = channelHandlerContext.channel().attr(Attributes.servers).get();
+                Object serviceBean = mserverMap.get(className);
+                Object result = serviceBean.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getTypeParameters()).invoke(serviceBean,rpcRequest.getParametersVal());
+                rpcResponse.setResult(result);
+                return rpcResponse;
             }catch (Exception e){
-
+                e.printStackTrace();
+                rpcResponse.setException(e);
+                return rpcResponse;
             }
-            return 1;
         });
-         f.addListener((future)->{
-            System.out.println(future.get());
+        f.addListener((future)->{
+            RpcResponse rpcResponse = (RpcResponse)future.get();
+            System.out.println(rpcResponse);
+            channelHandlerContext.channel().writeAndFlush(rpcResponse);
         });
     }
 }
