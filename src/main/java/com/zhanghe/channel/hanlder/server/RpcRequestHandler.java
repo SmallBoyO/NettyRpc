@@ -35,10 +35,12 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
                 Object serviceBean = mserverMap.get(className);
                 Object result = serviceBean.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getTypeParameters()).invoke(serviceBean,rpcRequest.getParametersVal());
                 rpcResponse.setResult(result);
+                rpcResponse.setSuccess(true);
                 return rpcResponse;
             }catch (Exception e){
                 e.printStackTrace();
                 rpcResponse.setException(e);
+                rpcResponse.setSuccess(false);
                 return rpcResponse;
             }
         });

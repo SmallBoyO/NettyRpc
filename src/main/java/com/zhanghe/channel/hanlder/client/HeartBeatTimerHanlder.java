@@ -28,8 +28,10 @@ public class HeartBeatTimerHanlder extends ChannelInboundHandlerAdapter {
     private void heartBeat(ChannelHandlerContext ctx){
         logger.debug("send heartBeatPacket.");
         ctx.executor().schedule(()->{
-            ctx.channel().writeAndFlush(HeartBeatRequest.INSTANCE);
-            heartBeat(ctx);
+            if(ctx.channel().isActive()) {
+                ctx.channel().writeAndFlush(HeartBeatRequest.INSTANCE);
+                heartBeat(ctx);
+            }
         },HEARTBEAT_INTERVAL,TimeUnit.SECONDS);
     }
 }

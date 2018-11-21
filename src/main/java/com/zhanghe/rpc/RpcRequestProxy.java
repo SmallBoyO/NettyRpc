@@ -1,6 +1,7 @@
 package com.zhanghe.rpc;
 
 import com.zhanghe.protocol.request.RpcRequest;
+import com.zhanghe.protocol.response.RpcResponse;
 import com.zhanghe.service.TestService;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
@@ -31,9 +32,19 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         RpcRequestCallBack callBack = new RpcRequestCallBack();
         RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(),callBack);
         channel.writeAndFlush(rpcRequest);
-        logger.debug("----------------------------------");
-        Object result = callBack.start();
-        logger.debug("RpcRequest result:{},"+result);
-        return null;
+        RpcResponse result = callBack.start();
+        if(result.isSuccess()){
+            return result.getResult();
+        }else{
+            throw result.getException();
+        }
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 }

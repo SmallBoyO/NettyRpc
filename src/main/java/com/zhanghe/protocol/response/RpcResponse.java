@@ -7,6 +7,8 @@ public class RpcResponse extends Packet {
 
     public String RequestId;
 
+    public boolean success;
+
     public Object result;
 
     public Exception exception;
@@ -43,6 +45,14 @@ public class RpcResponse extends Packet {
 
     public void setException(Exception exception) {
         this.exception = exception;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
     @Override
