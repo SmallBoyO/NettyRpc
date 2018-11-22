@@ -1,6 +1,7 @@
 package com.zhanghe.channel.hanlder.client;
 
 import com.zhanghe.protocol.v1.request.HeartBeatRequest;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 客户端心跳
  */
+@ChannelHandler.Sharable
 public class HeartBeatTimerHanlder extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(HeartBeatTimerHanlder.class);

@@ -2,24 +2,19 @@ package com.zhanghe.rpc;
 
 import com.zhanghe.ThreadPool.RpcThreadPoolFactory;
 import com.zhanghe.channel.ClientChannelInitializer;
-import com.zhanghe.channel.ServerChannelInitializer;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.protocol.serializer.impl.JsonSerializer;
-import com.zhanghe.protocol.serializer.impl.KyroSerializer;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
-import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -42,7 +37,7 @@ public class RpcClient {
 
     private Bootstrap bootstrap;
 
-    private static final EventLoopGroup workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss")) ;
+    private  EventLoopGroup workerGroup;
 
     public void start(){
         if(stared.compareAndSet(false,true)){
@@ -63,6 +58,7 @@ public class RpcClient {
 
     public void init() {
         SerializerManager.setDefault(SerializerAlgorithm.JSON);
+        workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));
         bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -71,10 +67,38 @@ public class RpcClient {
     }
 
     public void doStart() throws InterruptedException{
-        ChannelFuture future = bootstrap.connect().sync();
-        this.proxy = new RpcRequestProxy(future.channel());
+        ChannelFuture future;
+        synchronized (this){
+            future = bootstrap.connect().sync();
+            Channel channel = future.channel();
+            this.proxy = new RpcRequestProxy(channel);
+        }
+        future.channel().closeFuture().addListener((closeFuture)->{
+            logger.debug("client disdonnect.{}",closeFuture.isSuccess());
+            reconnect();
+        });
     }
 
+    /**
+     * 重连
+     */
+    public void reconnect(){
+        logger.debug("ready reconnect to server.");
+        //关闭以前的连接
+        try{
+            init();
+            doStart();
+            logger.debug("reconnect to server success.");
+        }catch (Exception e){
+            e.printStackTrace();
+            try {
+                Thread.sleep(1000);
+            }catch (Exception a){
+
+            }
+            reconnect();
+        }
+    }
     private RpcRequestProxy proxy;
 
     public Object proxy(String serviceName) throws ClassNotFoundException{
