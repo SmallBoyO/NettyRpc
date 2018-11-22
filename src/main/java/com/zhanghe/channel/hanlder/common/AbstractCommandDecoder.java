@@ -1,11 +1,9 @@
 package com.zhanghe.channel.hanlder.common;
 
-import com.zhanghe.protocol.request.HeartBeatRequest;
-import com.zhanghe.protocol.response.HeartBeatResponse;
+import com.zhanghe.protocol.v1.request.HeartBeatRequest;
+import com.zhanghe.protocol.v1.response.HeartBeatResponse;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.protocol.serializer.impl.JsonSerializer;
-import com.zhanghe.protocol.serializer.impl.KyroSerializer;
 import com.zhanghe.protocol.v1.Command;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

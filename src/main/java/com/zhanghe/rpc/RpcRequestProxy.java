@@ -1,7 +1,7 @@
 package com.zhanghe.rpc;
 
-import com.zhanghe.protocol.request.RpcRequest;
-import com.zhanghe.protocol.response.RpcResponse;
+import com.zhanghe.protocol.v1.request.RpcRequest;
+import com.zhanghe.protocol.v1.response.RpcResponse;
 import com.zhanghe.service.TestService;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;

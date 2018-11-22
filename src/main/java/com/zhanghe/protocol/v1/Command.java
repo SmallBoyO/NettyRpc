@@ -1,10 +1,10 @@
 package com.zhanghe.protocol.v1;
 
 
-import com.zhanghe.protocol.request.HeartBeatRequest;
-import com.zhanghe.protocol.request.RpcRequest;
-import com.zhanghe.protocol.response.HeartBeatResponse;
-import com.zhanghe.protocol.response.RpcResponse;
+import com.zhanghe.protocol.v1.request.HeartBeatRequest;
+import com.zhanghe.protocol.v1.request.RpcRequest;
+import com.zhanghe.protocol.v1.response.HeartBeatResponse;
+import com.zhanghe.protocol.v1.response.RpcResponse;
 
 import java.util.concurrent.ConcurrentHashMap;
 

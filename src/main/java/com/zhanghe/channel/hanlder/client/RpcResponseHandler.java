@@ -1,6 +1,6 @@
 package com.zhanghe.channel.hanlder.client;
 
-import com.zhanghe.protocol.response.RpcResponse;
+import com.zhanghe.protocol.v1.response.RpcResponse;
 import com.zhanghe.rpc.RpcRequestCallBack;
 import com.zhanghe.rpc.RpcRequestCallBackholder;
 import io.netty.channel.ChannelHandler;

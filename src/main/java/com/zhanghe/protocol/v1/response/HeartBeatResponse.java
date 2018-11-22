@@ -1,4 +1,4 @@
-package com.zhanghe.protocol.response;
+package com.zhanghe.protocol.v1.response;
 
 import com.zhanghe.protocol.v1.CommandType;
 import com.zhanghe.protocol.v1.Packet;

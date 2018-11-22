@@ -1,7 +1,6 @@
 package com.zhanghe.channel.hanlder.client;
 
-import com.zhanghe.protocol.request.HeartBeatRequest;
-import com.zhanghe.protocol.response.HeartBeatResponse;
+import com.zhanghe.protocol.v1.response.HeartBeatResponse;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

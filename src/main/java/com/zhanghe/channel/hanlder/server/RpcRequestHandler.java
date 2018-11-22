@@ -1,8 +1,8 @@
 package com.zhanghe.channel.hanlder.server;
 
 import com.zhanghe.attribute.Attributes;
-import com.zhanghe.protocol.request.RpcRequest;
-import com.zhanghe.protocol.response.RpcResponse;
+import com.zhanghe.protocol.v1.request.RpcRequest;
+import com.zhanghe.protocol.v1.response.RpcResponse;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

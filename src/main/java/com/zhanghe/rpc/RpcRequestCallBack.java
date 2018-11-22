@@ -1,7 +1,7 @@
 package com.zhanghe.rpc;
 
 
-import com.zhanghe.protocol.response.RpcResponse;
+import com.zhanghe.protocol.v1.response.RpcResponse;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
