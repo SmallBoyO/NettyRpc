@@ -4,12 +4,16 @@ import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.protocol.v1.response.RpcResponse;
 import com.zhanghe.service.TestService;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RpcRequestProxy<T> implements InvocationHandler {
 
@@ -17,34 +21,69 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
     private Channel channel;
 
+    private AtomicBoolean serverConnected = new AtomicBoolean(false);
+
+    private Lock channelLock = new ReentrantLock();
+
+    public RpcRequestProxy() {
+    }
+
     public RpcRequestProxy(Channel channel) {
         this.channel = channel;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        try{
+            channelLock.lock();
+            if (!serverConnected.get()) {
+                throw new IllegalStateException("rpc server disconneted!");
+            }
+        }finally {
+            channelLock.unlock();
+        }
         RpcRequest rpcRequest = new RpcRequest();
-        rpcRequest.setRequestId(UUID.randomUUID().toString());
+        String requestId = UUID.randomUUID().toString();
+        rpcRequest.setRequestId(requestId);
         rpcRequest.setClassName(TestService.class.getName());
         rpcRequest.setMethodName("hello");
         rpcRequest.setTypeParameters(new Class[]{});
         rpcRequest.setParametersVal(new Object[]{});
-        RpcRequestCallBack callBack = new RpcRequestCallBack();
-        RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(),callBack);
+        RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
+        RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
         channel.writeAndFlush(rpcRequest);
         RpcResponse result = callBack.start();
-        if(result.isSuccess()){
+        if (result.isSuccess()) {
             return result.getResult();
-        }else{
+            } else {
             throw result.getException();
         }
     }
 
+
+
+    public void connect(Channel channel){
+        try{
+            channelLock.lock();
+            setChannel(channel);
+            serverConnected.getAndSet(true);
+        }finally {
+            channelLock.unlock();
+        }
+    }
     public Channel getChannel() {
         return channel;
     }
 
     public void setChannel(Channel channel) {
         this.channel = channel;
+    }
+
+    public AtomicBoolean getServerConnected() {
+        return serverConnected;
+    }
+
+    public void setServerConnected(AtomicBoolean serverConnected) {
+        this.serverConnected = serverConnected;
     }
 }

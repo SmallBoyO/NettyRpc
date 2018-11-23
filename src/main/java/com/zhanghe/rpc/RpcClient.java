@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Rpc客户端
@@ -37,7 +40,7 @@ public class RpcClient {
 
     private Bootstrap bootstrap;
 
-    private  EventLoopGroup workerGroup;
+    private static final EventLoopGroup workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
 
     public void start(){
         if(stared.compareAndSet(false,true)){
@@ -58,7 +61,6 @@ public class RpcClient {
 
     public void init() {
         SerializerManager.setDefault(SerializerAlgorithm.JSON);
-        workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));
         bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -67,47 +69,98 @@ public class RpcClient {
     }
 
     public void doStart() throws InterruptedException{
-        ChannelFuture future;
-        synchronized (this){
-            future = bootstrap.connect().sync();
-            Channel channel = future.channel();
-            this.proxy = new RpcRequestProxy(channel);
-        }
-        future.channel().closeFuture().addListener((closeFuture)->{
-            logger.debug("client disdonnect.{}",closeFuture.isSuccess());
-            reconnect();
-        });
+        connect();
     }
 
-    /**
-     * 重连
-     */
-    public void reconnect(){
-        logger.debug("ready reconnect to server.");
-        //关闭以前的连接
-        try{
-            init();
-            doStart();
-            logger.debug("reconnect to server success.");
-        }catch (Exception e){
-            e.printStackTrace();
-            try {
-                Thread.sleep(1000);
-            }catch (Exception a){
+    private Lock proxyLock = new ReentrantLock();
 
-            }
-            reconnect();
+    private Condition proxyCondition = proxyLock.newCondition();
+
+    public void connect(){
+        logger.debug("ready connect to server.");
+        try {
+            proxyLock.lock();
+            ChannelFuture future = bootstrap.connect();
+            future.addListener((f) -> {
+                if (future.isSuccess()) {
+                    //连接成功后 在断开连接之后绑定重新连接的逻辑
+                    Channel channel = future.channel();
+                    channel.closeFuture().addListener((closeFuture) -> {
+                        //当channel断开
+                        logger.debug("client disdonnect.ready toreconnetc!");
+                        //修改 proxy的状态为断线
+                        try {
+                            proxyLock.lock();
+                            proxy.getServerConnected().getAndSet(false);
+                        }finally {
+                            proxyLock.unlock();
+                        }
+                        //重连
+                        connect();
+                    });
+                    try {
+                        //修改prox代理所使用的的channel
+                        if(proxy == null) {
+                            this.proxy = new RpcRequestProxy();
+                            this.proxy.connect(channel);
+                        }else{
+                            this.proxy.connect(channel);
+                        }
+                        proxyLock.lock();
+                        proxyCondition.signalAll();
+                    }finally {
+                        proxyLock.unlock();
+                    }
+                    logger.debug("connect to server success.");
+                } else {
+                    logger.debug("connect to server failed,cause:{}.", f.cause().getMessage());
+                    //连接失败之后 休眠一段时间重连
+                    sleepSomeTime(1000);
+                    connect();
+                }
+            });
+        }finally {
+            proxyLock.unlock();
         }
     }
+
     private RpcRequestProxy proxy;
 
     public Object proxy(String serviceName) throws ClassNotFoundException{
-        logger.info("Rpc客户端代理接口:{}",serviceName);
-        Class<?> clazz = Class.forName(serviceName);
-        return Proxy.newProxyInstance(
-                clazz.getClassLoader(),
-                new Class<?>[]{ clazz },
-                proxy
-        );
+        try{
+            proxyLock.lock();
+            if (proxy != null && proxy.getServerConnected().get()){
+                //如果已经连接上服务端
+                logger.info("Rpc客户端代理接口:{}",serviceName);
+                Class<?> clazz = Class.forName(serviceName);
+                return Proxy.newProxyInstance(
+                        clazz.getClassLoader(),
+                        new Class<?>[]{ clazz },
+                        proxy
+                );
+            }else{
+                proxyCondition.await();
+                logger.info("Rpc客户端代理接口:{}",serviceName);
+                Class<?> clazz = Class.forName(serviceName);
+                return Proxy.newProxyInstance(
+                        clazz.getClassLoader(),
+                        new Class<?>[]{ clazz },
+                        proxy
+                );
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }finally {
+            proxyLock.unlock();
+        }
+    }
+
+    private void sleepSomeTime(long times){
+        try {
+            Thread.sleep(1000);
+        } catch (Exception s) {
+
+        }
     }
 }

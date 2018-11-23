@@ -19,7 +19,13 @@ public class RpcRequestCallBack {
 
     private Condition condition = lock.newCondition();
 
+    private String requestId;
+
     private RpcResponse result;
+
+    public RpcRequestCallBack(String requestId) {
+        this.requestId = requestId;
+    }
 
     public RpcResponse start(){
         try{
@@ -30,8 +36,12 @@ public class RpcRequestCallBack {
                 //阻塞住 直到收到服务端rpc请求
                 condition.await(10*1000,TimeUnit.MILLISECONDS);
                 if(result!=null){
+                    //删除此次rpc调用的request
+                    RpcRequestCallBackholder.callBackMap.remove(requestId);
                     return result;
                 }else{
+                    //删除此次rpc调用的request
+                    RpcRequestCallBackholder.callBackMap.remove(requestId);
                     return null;
                 }
             }
