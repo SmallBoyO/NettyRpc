@@ -81,20 +81,15 @@ public class RpcServer {
     private ServerBootstrap bootstrap;
 
     public void doInit(){
-        SerializerManager.setDefault(SerializerAlgorithm.JSON);
+        SerializerManager.setDefault(SerializerAlgorithm.KYRO);
         this.bootstrap = new ServerBootstrap();
         this.bootstrap.group(bossGroup,workerGroup)
                 .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
-                .handler(new LoggingHandler(LogLevel.DEBUG))
+//                .handler(new LoggingHandler(LogLevel.DEBUG))
                 .childHandler(new ServerChannelInitializer());
         this.bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         this.bootstrap.childHandler(ServerChannelInitializer.INSTANCE);
-
-        TestServiceImpl test = new TestServiceImpl();
-        ConcurrentHashMap<String,Object> map = new ConcurrentHashMap<>();
-        map.put(test.getClass().getInterfaces()[0].getName(), test);
-        BindRpcServiceHandler.INSTANCE.setServiceMap(map);
     }
 
     private ChannelFuture future ;
@@ -105,4 +100,7 @@ public class RpcServer {
         return this.future.isSuccess();
     }
 
+    public void bind(Object obj){
+        BindRpcServiceHandler.INSTANCE.getServiceMap().put(obj.getClass().getInterfaces()[0].getName(), obj);
+    }
 }

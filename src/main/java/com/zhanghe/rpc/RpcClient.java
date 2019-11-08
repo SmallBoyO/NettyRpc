@@ -60,7 +60,7 @@ public class RpcClient {
     }
 
     public void init() {
-        SerializerManager.setDefault(SerializerAlgorithm.JSON);
+        SerializerManager.setDefault(SerializerAlgorithm.KYRO);
         bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
