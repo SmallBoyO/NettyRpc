@@ -23,7 +23,7 @@ public class KyroSerializer implements Serializer {
         Kryo kryo = new Kryo();
         kryo.addDefaultSerializer(Collection.class, new JavaSerializer());
         Output output =new Output(1024,Integer.MAX_VALUE);
-        kryo.writeClass(output, object.getClass());
+        kryo.writeObject(output,object);
         return output.toBytes();
     }
 
@@ -42,4 +42,5 @@ public class KyroSerializer implements Serializer {
         kryo.addDefaultSerializer(Collection.class, new JavaSerializer());
         return kryo.readClassAndObject(input);
     }
+
 }

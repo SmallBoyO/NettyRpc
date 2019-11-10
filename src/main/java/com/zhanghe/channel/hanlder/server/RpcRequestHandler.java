@@ -46,7 +46,6 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
         });
         f.addListener((future)->{
             RpcResponse rpcResponse = (RpcResponse)future.get();
-            System.out.println(rpcResponse);
             channelHandlerContext.channel().writeAndFlush(rpcResponse);
         });
     }

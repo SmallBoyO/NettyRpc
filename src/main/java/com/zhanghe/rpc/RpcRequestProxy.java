@@ -34,6 +34,9 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if(method.getName().equals("toString")){
+            method.invoke(proxy,args);
+        }
         try{
             channelLock.lock();
             if (!serverConnected.get()) {
@@ -45,11 +48,12 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         RpcRequest rpcRequest = new RpcRequest();
         String requestId = UUID.randomUUID().toString();
         rpcRequest.setRequestId(requestId);
-        rpcRequest.setClassName(TestService.class.getName());
-        rpcRequest.setMethodName("hello");
-        rpcRequest.setTypeParameters(new Class[]{});
-        rpcRequest.setParametersVal(new Object[]{});
+        rpcRequest.setClassName(proxy.getClass().getInterfaces()[0].getName());
+        rpcRequest.setMethodName(method.getName());
+        rpcRequest.setTypeParameters(method.getParameterTypes());
+        rpcRequest.setParametersVal(args);
         RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
+
         RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
         channel.writeAndFlush(rpcRequest);
         RpcResponse result = callBack.start();

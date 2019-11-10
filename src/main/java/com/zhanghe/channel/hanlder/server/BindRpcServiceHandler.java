@@ -12,7 +12,7 @@ public class BindRpcServiceHandler extends ChannelInboundHandlerAdapter {
 
     public static BindRpcServiceHandler INSTANCE = new BindRpcServiceHandler();
 
-    private ConcurrentHashMap<String,Object> serviceMap;
+    private ConcurrentHashMap<String,Object> serviceMap = new ConcurrentHashMap<>();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
