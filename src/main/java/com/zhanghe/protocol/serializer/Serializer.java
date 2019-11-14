@@ -33,6 +33,6 @@ public interface Serializer {
      * @param bytes
      * @return
      */
-    public Object deserialize( byte[] bytes);
+    Object deserialize( byte[] bytes);
 
 }

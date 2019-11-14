@@ -50,7 +50,16 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.51</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+            <version>1.6.2</version>
+        </dependency>
     </dependencies>
    <build>
         <plugins>
