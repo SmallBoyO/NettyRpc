@@ -15,6 +15,7 @@ public class ClientChannelInitializer  extends ChannelInitializer {
         channel.pipeline().addLast(AbstractCommandEncoder.INSTANCE);
         channel.pipeline().addLast(new AbstractCommandDecoder());
         channel.pipeline().addLast(HeartBeatTimerHanlder.INSTANCE);
+        channel.pipeline().addLast(new GetRegisterServiceResponseHandler());
         channel.pipeline().addLast(RpcResponseHandler.INSTANCE);
         channel.pipeline().addLast(HeartBeatResponseHanlder.INSTANCE);
     }

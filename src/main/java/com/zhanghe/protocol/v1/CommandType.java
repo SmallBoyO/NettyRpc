@@ -10,4 +10,8 @@ public class CommandType {
 
     public static final Byte RPC_RESPONSE = 4 ;
 
+    public static final Byte GET_REGISTER_SERVICE_REQUEST = 5 ;
+
+    public static final Byte GET_REGISTER_SERVICE_RESPONSE = 6 ;
+
 }

@@ -23,6 +23,8 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
     private AtomicBoolean serverConnected = new AtomicBoolean(false);
 
+    private AtomicBoolean servicesInited = new AtomicBoolean(false);
+
     private Lock channelLock = new ReentrantLock();
 
     public RpcRequestProxy() {
@@ -34,9 +36,6 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if(method.getName().equals("toString")){
-            method.invoke(proxy,args);
-        }
         try{
             channelLock.lock();
             if (!serverConnected.get()) {
@@ -70,11 +69,20 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         try{
             channelLock.lock();
             setChannel(channel);
+        }finally {
+            channelLock.unlock();
+        }
+    }
+
+    public void initServices(){
+        try{
+            channelLock.lock();
             serverConnected.getAndSet(true);
         }finally {
             channelLock.unlock();
         }
     }
+
     public Channel getChannel() {
         return channel;
     }
@@ -89,5 +97,13 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
     public void setServerConnected(AtomicBoolean serverConnected) {
         this.serverConnected = serverConnected;
+    }
+
+    public AtomicBoolean getServicesInited() {
+        return servicesInited;
+    }
+
+    public void setServicesInited(AtomicBoolean servicesInited) {
+        this.servicesInited = servicesInited;
     }
 }

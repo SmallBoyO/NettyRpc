@@ -1,5 +1,7 @@
 package com.zhanghe.channel.hanlder.common;
 
+import com.zhanghe.protocol.serializer.impl.KyroSerializer;
+import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
 import com.zhanghe.protocol.v1.request.HeartBeatRequest;
 import com.zhanghe.protocol.v1.response.HeartBeatResponse;
 import com.zhanghe.protocol.serializer.Serializer;
@@ -48,6 +50,8 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
                 list.add(HeartBeatRequest.INSTANCE);
             }else if(command==2){
                 list.add(HeartBeatResponse.INSTANCE);
+            }else if (command == 5){
+                list.add(GetRegisterServiceRequest.INSTANCE);
             }
         }
     }

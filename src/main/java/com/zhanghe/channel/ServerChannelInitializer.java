@@ -2,6 +2,7 @@ package com.zhanghe.channel;
 
 import com.zhanghe.channel.hanlder.common.Spliter;
 import com.zhanghe.channel.hanlder.server.BindRpcServiceHandler;
+import com.zhanghe.channel.hanlder.server.GetRegisterServiceRequestHandler;
 import com.zhanghe.channel.hanlder.server.HeartBeatRequestHanlder;
 import com.zhanghe.channel.hanlder.server.RpcIdleStateHandler;
 import com.zhanghe.channel.hanlder.common.AbstractCommandDecoder;
@@ -22,6 +23,7 @@ public class ServerChannelInitializer extends ChannelInitializer {
         channel.pipeline().addLast(AbstractCommandEncoder.INSTANCE);
         channel.pipeline().addLast(new AbstractCommandDecoder());
         channel.pipeline().addLast(HeartBeatRequestHanlder.INSTANCE);
+        channel.pipeline().addLast(new GetRegisterServiceRequestHandler());
         channel.pipeline().addLast(RpcRequestHandler.INSTANCE);
     }
 

@@ -4,12 +4,16 @@ import com.zhanghe.ThreadPool.RpcThreadPoolFactory;
 import com.zhanghe.channel.ClientChannelInitializer;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
+import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.AttributeKey;
+import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +44,13 @@ public class RpcClient {
 
     private Bootstrap bootstrap;
 
+    private Channel activeChannel;
+
     private static final EventLoopGroup workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
 
     public void start(){
         if(stared.compareAndSet(false,true)){
-            logger.info("Ready start RpcClient toconnect {}:{}.",serverIp,serverPort);
+            logger.info("Ready start RpcClient,connect address {}:{}.",serverIp,serverPort);
             try{
                 init();
                 doStart();
@@ -66,6 +72,14 @@ public class RpcClient {
                 .channel(NioSocketChannel.class)
                 .handler(new ClientChannelInitializer())
                 .remoteAddress(new InetSocketAddress(serverIp, serverPort));
+        //注册退出事件
+        Runtime.getRuntime().addShutdownHook(new Thread(()->
+        {
+            logger.debug("ShutdownHook execute start...");
+            activeChannel.close();
+            workerGroup.shutdownGracefully();
+            logger.debug("ShutdownHook execute end...");
+        },""));
     }
 
     public void doStart() throws InterruptedException{
@@ -85,9 +99,13 @@ public class RpcClient {
                 if (future.isSuccess()) {
                     //连接成功后 在断开连接之后绑定重新连接的逻辑
                     Channel channel = future.channel();
+                    activeChannel = channel;
+                    channel.attr(AttributeKey.valueOf("rpcClient")).set(this);
+                    //查询服务端接口列表
+                    channel.writeAndFlush(GetRegisterServiceRequest.INSTANCE);
                     channel.closeFuture().addListener((closeFuture) -> {
                         //当channel断开
-                        logger.debug("client disdonnect.ready toreconnetc!");
+                        logger.debug("client disconnect.ready to reconnect!");
                         //修改 proxy的状态为断线
                         try {
                             proxyLock.lock();
@@ -99,15 +117,14 @@ public class RpcClient {
                         connect();
                     });
                     try {
-                        //修改prox代理所使用的的channel
+                        proxyLock.lock();
+                        //修改proxy代理所使用的的channel
                         if(proxy == null) {
                             this.proxy = new RpcRequestProxy();
                             this.proxy.connect(channel);
                         }else{
                             this.proxy.connect(channel);
                         }
-                        proxyLock.lock();
-                        proxyCondition.signalAll();
                     }finally {
                         proxyLock.unlock();
                     }
@@ -126,34 +143,50 @@ public class RpcClient {
 
     private RpcRequestProxy proxy;
 
+    private Set<String> registeredServices;
+
     public Object proxy(String serviceName) throws ClassNotFoundException{
         try{
             proxyLock.lock();
-            if (proxy != null && proxy.getServerConnected().get()){
-                //如果已经连接上服务端
-                logger.info("Rpc客户端代理接口:{}",serviceName);
-                Class<?> clazz = Class.forName(serviceName);
-                return Proxy.newProxyInstance(
-                        clazz.getClassLoader(),
-                        new Class<?>[]{ clazz },
-                        proxy
-                );
-            }else{
+            if (proxy == null || !proxy.getServerConnected().get()){
+                //还没连接上服务端
+                logger.info("Rpc客户端等待连接服务器");
                 proxyCondition.await();
-                logger.info("Rpc客户端代理接口:{}",serviceName);
-                Class<?> clazz = Class.forName(serviceName);
-                return Proxy.newProxyInstance(
-                        clazz.getClassLoader(),
-                        new Class<?>[]{ clazz },
-                        proxy
-                );
+                logger.info("Rpc客户端连上服务器");
             }
+            logger.info("Rpc客户端代理接口:{}",serviceName);
+            return realProxy(serviceName);
         }catch (Exception e){
             e.printStackTrace();
             return null;
         }finally {
             proxyLock.unlock();
         }
+    }
+
+    public void setRegisterServices(Set<String> services){
+        try{
+            proxyLock.lock();
+            registeredServices = services;
+            proxy.initServices();
+            proxyCondition.signalAll();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            proxyLock.unlock();
+        }
+    }
+
+    public Object realProxy(String serviceName) throws ClassNotFoundException{
+        if(!registeredServices.contains(serviceName)){
+            throw new RuntimeException("服务端未提供此service");
+        }
+        Class<?> clazz = Class.forName(serviceName);
+        return Proxy.newProxyInstance(
+            clazz.getClassLoader(),
+            new Class<?>[]{ clazz },
+            proxy
+        );
     }
 
     private void sleepSomeTime(long times){
