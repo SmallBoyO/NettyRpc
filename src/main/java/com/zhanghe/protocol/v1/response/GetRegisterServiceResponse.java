@@ -1,10 +1,10 @@
 package com.zhanghe.protocol.v1.response;
 
 import com.zhanghe.protocol.v1.CommandType;
-import com.zhanghe.protocol.v1.Packet;
+import com.zhanghe.protocol.v1.BasePacket;
 import java.util.Set;
 
-public class GetRegisterServiceResponse extends Packet {
+public class GetRegisterServiceResponse extends BasePacket {
 
   public Set<String> services;
 

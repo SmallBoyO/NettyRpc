@@ -1,4 +1,4 @@
-package com.zhanghe.ThreadPool;
+package com.zhanghe.threadpool;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,8 +9,8 @@ public class RpcThreadPoolFactory implements ThreadFactory {
     private final String        namePrefix;
     private final boolean       isDaemon;
     private final ThreadGroup   group;
-    private static final AtomicInteger pollNum = new AtomicInteger(1);
-    private static final AtomicInteger threadNum = new AtomicInteger(1);
+    private static final AtomicInteger POOL_NAME = new AtomicInteger(1);
+    private static final AtomicInteger THREAD_NUM = new AtomicInteger(1);
     public RpcThreadPoolFactory() {
         this("thread-pool");
     }
@@ -23,12 +23,12 @@ public class RpcThreadPoolFactory implements ThreadFactory {
         this.isDaemon = isDaemon;
         SecurityManager s = System.getSecurityManager();
         group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-        this.namePrefix = namePrefix + "-" + pollNum.getAndIncrement() +"-thread-";
+        this.namePrefix = namePrefix + "-" + POOL_NAME.getAndIncrement() +"-thread-";
     }
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread thread = new Thread(group,r,namePrefix+threadNum.getAndIncrement(),0);
+        Thread thread = new Thread(group,r,namePrefix+ THREAD_NUM.getAndIncrement(),0);
         thread.setDaemon(isDaemon);
         //设置线程优先级
         if(thread.getPriority() != Thread.NORM_PRIORITY){

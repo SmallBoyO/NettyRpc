@@ -1,6 +1,6 @@
 package com.zhanghe.rpc;
 
-import com.zhanghe.ThreadPool.RpcThreadPoolFactory;
+import com.zhanghe.threadpool.RpcThreadPoolFactory;
 import com.zhanghe.channel.ClientChannelInitializer;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
@@ -12,7 +12,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
-import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,7 @@ public class RpcClient {
 
     private Channel activeChannel;
 
-    private static final EventLoopGroup workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
+    private static final EventLoopGroup WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
 
     public void start(){
         if(stared.compareAndSet(false,true)){
@@ -68,7 +67,7 @@ public class RpcClient {
     public void init() {
         SerializerManager.setDefault(SerializerAlgorithm.KYRO);
         bootstrap = new Bootstrap();
-        bootstrap.group(workerGroup)
+        bootstrap.group(WORKER_GROUP)
                 .channel(NioSocketChannel.class)
                 .handler(new ClientChannelInitializer())
                 .remoteAddress(new InetSocketAddress(serverIp, serverPort));
@@ -77,7 +76,7 @@ public class RpcClient {
         {
             logger.debug("ShutdownHook execute start...");
             activeChannel.close();
-            workerGroup.shutdownGracefully();
+            WORKER_GROUP.shutdownGracefully();
             logger.debug("ShutdownHook execute end...");
         },""));
     }

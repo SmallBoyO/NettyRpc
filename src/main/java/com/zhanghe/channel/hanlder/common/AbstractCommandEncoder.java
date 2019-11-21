@@ -4,7 +4,7 @@ import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.serializer.impl.JsonSerializer;
 import com.zhanghe.protocol.v1.Command;
-import com.zhanghe.protocol.v1.Packet;
+import com.zhanghe.protocol.v1.BasePacket;
 import com.zhanghe.protocol.serializer.impl.KyroSerializer;
 import com.zhanghe.protocol.v1.MagicNum;
 import io.netty.buffer.ByteBuf;
@@ -18,14 +18,14 @@ import org.slf4j.LoggerFactory;
  * @author zhanghe
  */
 @ChannelHandler.Sharable
-public class AbstractCommandEncoder extends MessageToByteEncoder<Packet> {
+public class AbstractCommandEncoder extends MessageToByteEncoder<BasePacket> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractCommandEncoder.class);
 
     public static final AbstractCommandEncoder INSTANCE = new AbstractCommandEncoder();
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, Packet packet, ByteBuf byteBuf) throws Exception {
+    protected void encode(ChannelHandlerContext channelHandlerContext, BasePacket packet, ByteBuf byteBuf) throws Exception {
         logger.debug("send packet:"+packet);
         //填写魔数
         byteBuf.writeInt(MagicNum.MAGIC_NUM);

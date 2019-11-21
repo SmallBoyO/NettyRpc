@@ -5,6 +5,12 @@ import com.zhanghe.protocol.serializer.impl.KyroSerializer;
 import com.zhanghe.protocol.serializer.impl.ProtostuffSerializer;
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.rpc.RpcClient;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -34,20 +40,40 @@ public class SerilizerBenchMark {
 
 
   @Benchmark
-  public void KryoSerializerBenchMark(Blackhole bh){
+  public void kryoSerializerBenchMark(Blackhole bh){
     byte[] bytes = KyroSerializer.INSTANCE.serialize(rpcRequest);
     bh.consume(KyroSerializer.INSTANCE.deserialize(RpcRequest.class,bytes));
   }
   @Benchmark
-  public void ProtostuffSerializerBenchMark(Blackhole bh){
+  public void protostuffSerializerBenchMark(Blackhole bh){
     byte[] bytes = ProtostuffSerializer.INSTANCE.serialize(rpcRequest);
     bh.consume(ProtostuffSerializer.INSTANCE.deserialize(RpcRequest.class,bytes));
+  }
+  @Benchmark
+  public void jvmSerializerBenchMark(Blackhole bh){
+    try {
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      ObjectOutputStream os = new ObjectOutputStream(bos);
+      os.writeObject(rpcRequest);
+      os.flush();
+      byte[] bytes = bos.toByteArray();
+      os.close();
+      bos.close();
+      ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+      ObjectInputStream ois = new ObjectInputStream(bis);
+      Object obj = ois.readObject();
+      ois.close();
+      bis.close();
+      bh.consume((RpcRequest)obj);
+    }catch (Exception e){
+      e.printStackTrace();
+    }
   }
 
   public static void main(String[] args) throws RunnerException {
     Options opt = new OptionsBuilder()
         .include(SerilizerBenchMark.class.getSimpleName())
-        .forks(1)
+        .forks(2)
         .build();
     new Runner(opt).run();
   }

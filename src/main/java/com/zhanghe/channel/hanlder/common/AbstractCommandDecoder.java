@@ -1,6 +1,7 @@
 package com.zhanghe.channel.hanlder.common;
 
 import com.zhanghe.protocol.serializer.impl.KyroSerializer;
+import com.zhanghe.protocol.v1.CommandType;
 import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
 import com.zhanghe.protocol.v1.request.HeartBeatRequest;
 import com.zhanghe.protocol.v1.response.HeartBeatResponse;
@@ -25,9 +26,9 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-        int magic_num = byteBuf.readInt();
+        int magicNum = byteBuf.readInt();
         Byte version = byteBuf.readByte();
-        Byte command = byteBuf.readByte();
+        final byte command = byteBuf.readByte();
         Byte serializerAlgorithm = byteBuf.readByte();
         int length = byteBuf.readInt();
         if(length>0){
@@ -46,12 +47,16 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
             logger.debug("recive command,clazz:{},version:{},command:{},size:{},serializerAlgorithm:{},Packet:{}",clazz,version,command,length,serializerAlgorithm,obj);
             list.add(obj);
         }else{
-            if(command==1){
-                list.add(HeartBeatRequest.INSTANCE);
-            }else if(command==2){
-                list.add(HeartBeatResponse.INSTANCE);
-            }else if (command == 5){
-                list.add(GetRegisterServiceRequest.INSTANCE);
+            switch (command){
+                case CommandType.HEART_BEAT_REQUEST:
+                    list.add(HeartBeatRequest.INSTANCE);
+                    break;
+                case 2:
+                    list.add(HeartBeatResponse.INSTANCE);
+                    break;
+                case 5:
+                    list.add(GetRegisterServiceRequest.INSTANCE);
+                    break;
             }
         }
     }

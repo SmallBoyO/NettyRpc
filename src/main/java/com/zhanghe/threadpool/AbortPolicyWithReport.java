@@ -1,4 +1,4 @@
-package com.zhanghe.ThreadPool;
+package com.zhanghe.threadpool;
 
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;

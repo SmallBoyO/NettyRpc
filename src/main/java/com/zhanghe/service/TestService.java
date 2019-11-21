@@ -2,6 +2,10 @@ package com.zhanghe.service;
 
 public interface TestService {
 
-	public String hello();
+	/**
+	 * 	测试方法
+	 * @return
+	 */
+	String hello();
 	
 }

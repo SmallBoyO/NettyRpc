@@ -4,7 +4,7 @@ package com.zhanghe.protocol.v1;
 /**
  *
  */
-public abstract class Packet {
+public abstract class BasePacket {
     /**
      * 协议版本
      */

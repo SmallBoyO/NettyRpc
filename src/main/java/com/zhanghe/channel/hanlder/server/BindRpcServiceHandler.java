@@ -17,7 +17,7 @@ public class BindRpcServiceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if(serviceMap!=null) {
-            ctx.channel().attr(Attributes.servers).set(serviceMap);
+            ctx.channel().attr(Attributes.SERVERS).set(serviceMap);
         }
         //绑定完成之后 移除自己
         ctx.pipeline().remove(this);

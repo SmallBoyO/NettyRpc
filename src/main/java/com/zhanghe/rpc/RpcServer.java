@@ -1,11 +1,10 @@
 package com.zhanghe.rpc;
 
-import com.zhanghe.ThreadPool.RpcThreadPoolFactory;
+import com.zhanghe.threadpool.RpcThreadPoolFactory;
 import com.zhanghe.channel.ServerChannelInitializer;
 import com.zhanghe.channel.hanlder.server.BindRpcServiceHandler;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.service.TestServiceImpl;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -14,13 +13,10 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -65,16 +61,16 @@ public class RpcServer {
         }
     }
 
-    private static final EventLoopGroup bossGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+    private static final EventLoopGroup BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
 
-    private static final EventLoopGroup workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
+    private static final EventLoopGroup WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
 
     //设置即I/O操作和用户自定义任务的执行时间比
     static {
-        if (workerGroup instanceof NioEventLoopGroup) {
-            ((NioEventLoopGroup) workerGroup).setIoRatio(50);
-        } else if (workerGroup instanceof EpollEventLoopGroup) {
-            ((EpollEventLoopGroup) workerGroup).setIoRatio(50);
+        if (WORKER_GROUP instanceof NioEventLoopGroup) {
+            ((NioEventLoopGroup) WORKER_GROUP).setIoRatio(50);
+        } else if (WORKER_GROUP instanceof EpollEventLoopGroup) {
+            ((EpollEventLoopGroup) WORKER_GROUP).setIoRatio(50);
         }
     }
 
@@ -83,7 +79,7 @@ public class RpcServer {
     public void doInit(){
         SerializerManager.setDefault(SerializerAlgorithm.KYRO);
         this.bootstrap = new ServerBootstrap();
-        this.bootstrap.group(bossGroup,workerGroup)
+        this.bootstrap.group(BOSS_GROUP, WORKER_GROUP)
                 .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
 //                .handler(new LoggingHandler(LogLevel.DEBUG))
                 .childHandler(new ServerChannelInitializer());

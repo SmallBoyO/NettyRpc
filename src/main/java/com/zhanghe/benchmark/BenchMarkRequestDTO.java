@@ -1,6 +1,8 @@
 package com.zhanghe.benchmark;
 
-public class BenchMarkRequestDTO {
+import java.io.Serializable;
+
+public class BenchMarkRequestDTO implements Serializable {
 
   public String requestInfo;
 
@@ -10,5 +12,12 @@ public class BenchMarkRequestDTO {
 
   public void setRequestInfo(String requestInfo) {
     this.requestInfo = requestInfo;
+  }
+
+  @Override
+  public String toString() {
+    return "BenchMarkRequestDTO{" +
+        "requestInfo='" + requestInfo + '\'' +
+        '}';
   }
 }

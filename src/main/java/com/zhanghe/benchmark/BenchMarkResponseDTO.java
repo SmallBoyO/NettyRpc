@@ -11,4 +11,11 @@ public class BenchMarkResponseDTO {
   public void setResponseInfo(String responseInfo) {
     this.responseInfo = responseInfo;
   }
+
+  @Override
+  public String toString() {
+    return "BenchMarkResponseDTO{" +
+        "responseInfo='" + responseInfo + '\'' +
+        '}';
+  }
 }

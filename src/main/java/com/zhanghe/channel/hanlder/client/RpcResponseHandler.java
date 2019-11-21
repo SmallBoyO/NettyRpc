@@ -19,7 +19,7 @@ public class RpcResponseHandler extends SimpleChannelInboundHandler<RpcResponse>
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
         logger.debug("recive rpc response:{}",rpcResponse);
-        RpcRequestCallBack callBack = RpcRequestCallBackholder.callBackMap.remove(rpcResponse.RequestId);
+        RpcRequestCallBack callBack = RpcRequestCallBackholder.callBackMap.remove(rpcResponse.requestId);
         if(callBack!=null) {
             callBack.callBack(rpcResponse);
         }

@@ -15,9 +15,13 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+/**
+ * @author zhanghe
+ * @date 2019-11-21
+ */
 @BenchmarkMode(Mode.Throughput)
 @State(Scope.Thread)
-public class JMHBenchMark {
+public class RpcBenchMark {
 
   private BenchMarkService service;
 
@@ -32,7 +36,7 @@ public class JMHBenchMark {
   }
 
   @Benchmark
-  public void benchMark_with_proxy(Blackhole bh){
+  public void benchMarkWithProxy(Blackhole bh){
     BenchMarkRequestDTO benchMarkRequestDTO = new BenchMarkRequestDTO();
     benchMarkRequestDTO.setRequestInfo("test ");
     bh.consume(service.call(benchMarkRequestDTO));
@@ -47,7 +51,7 @@ public class JMHBenchMark {
 
   public static void main(String[] args) throws RunnerException {
     Options opt = new OptionsBuilder()
-        .include(JMHBenchMark.class.getSimpleName())
+        .include(RpcBenchMark.class.getSimpleName())
         .forks(1)
         .build();
     new Runner(opt).run();

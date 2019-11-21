@@ -1,11 +1,11 @@
 package com.zhanghe.protocol.v1.response;
 
 import com.zhanghe.protocol.v1.CommandType;
-import com.zhanghe.protocol.v1.Packet;
+import com.zhanghe.protocol.v1.BasePacket;
 
-public class RpcResponse extends Packet {
+public class RpcResponse extends BasePacket {
 
-    public String RequestId;
+    public String requestId;
 
     public boolean success;
 
@@ -24,11 +24,11 @@ public class RpcResponse extends Packet {
     }
 
     public String getRequestId() {
-        return RequestId;
+        return requestId;
     }
 
     public void setRequestId(String requestId) {
-        RequestId = requestId;
+        this.requestId = requestId;
     }
 
     public Object getResult() {
@@ -58,7 +58,7 @@ public class RpcResponse extends Packet {
     @Override
     public String toString() {
         return "RpcResponse{" +
-                "RequestId='" + RequestId + '\'' +
+                "requestId='" + requestId + '\'' +
                 ", result=" + result +
                 ", exception=" + exception +
                 '}';
