@@ -1,6 +1,5 @@
 package com.zhanghe.channel.hanlder.common;
 
-import com.zhanghe.protocol.serializer.impl.KyroSerializer;
 import com.zhanghe.protocol.v1.CommandType;
 import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
 import com.zhanghe.protocol.v1.request.HeartBeatRequest;
@@ -8,6 +7,7 @@ import com.zhanghe.protocol.v1.response.HeartBeatResponse;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.v1.Command;
+import com.zhanghe.util.CRC32Util;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -35,16 +35,21 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
             Serializer serializer = SerializerManager.getSerializer(serializerAlgorithm);
 
             if(serializer==null){
-                logger.error("Serializer {} does not rigestered!");
+                logger.error("Serializer {} does not registered!",serializerAlgorithm);
                 channelHandlerContext.channel().close();
                 return;
             }
-            byte[] bytes = new byte[length];
+            byte[] bytes = new byte[length-8];
             byteBuf.readBytes(bytes);
-
+            long crcValue = CRC32Util.getCrcValue(bytes);
+            long clientCrcValue = byteBuf.readLong();
+            if(crcValue!=clientCrcValue){
+                logger.error("CRC check failed!");
+                channelHandlerContext.channel().close();
+            }
             Class clazz = Command.getCommandClass(command);
             Object obj = serializer.deserialize(clazz,bytes);
-            logger.debug("recive command,clazz:{},version:{},command:{},size:{},serializerAlgorithm:{},Packet:{}",clazz,version,command,length,serializerAlgorithm,obj);
+            logger.debug("receive command,clazz:{},version:{},command:{},size:{},serializerAlgorithm:{},Packet:{}",clazz,version,command,length,serializerAlgorithm,obj);
             list.add(obj);
         }else{
             switch (command){

@@ -7,6 +7,7 @@ import com.zhanghe.protocol.v1.Command;
 import com.zhanghe.protocol.v1.BasePacket;
 import com.zhanghe.protocol.serializer.impl.KyroSerializer;
 import com.zhanghe.protocol.v1.MagicNum;
+import com.zhanghe.util.CRC32Util;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -41,8 +42,10 @@ public class AbstractCommandEncoder extends MessageToByteEncoder<BasePacket> {
             byte[] bytes = serializer.serialize(packet);
             int length = bytes.length;
             //填写二进制流的长度
-            byteBuf.writeInt( length  );
+            byteBuf.writeInt( length + 8 );
             byteBuf.writeBytes(bytes);
+            long crcValue = CRC32Util.getCrcValue(bytes);
+            byteBuf.writeLong(crcValue);
             logger.debug("send packet,serializer:{},length:{}",serializer,length);
         }else{
             byteBuf.writeInt(0);
