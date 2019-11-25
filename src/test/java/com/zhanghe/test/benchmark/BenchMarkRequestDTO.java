@@ -1,4 +1,4 @@
-package com.zhanghe.benchmark;
+package com.zhanghe.test.benchmark;
 
 import java.io.Serializable;
 
