@@ -1,11 +1,10 @@
-package com.zhanghe.benchmark;
+package com.zhanghe.test.benchmark;
 
 import com.zhanghe.rpc.RpcClient;
-import java.util.concurrent.TimeUnit;
+import com.zhanghe.rpc.RpcServer;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -29,6 +28,9 @@ public class RpcBenchMark {
 
   @Setup
   public void init() throws ClassNotFoundException{
+    RpcServer rpcServer = new RpcServer(7777);
+    rpcServer.bind(new BenchMarkServiceImpl());
+    rpcServer.start();
     RpcClient rpcClient = new RpcClient("127.0.0.1",7777);
     rpcClient.start();
     service = (BenchMarkService)rpcClient.proxy(BenchMarkService.class.getName());

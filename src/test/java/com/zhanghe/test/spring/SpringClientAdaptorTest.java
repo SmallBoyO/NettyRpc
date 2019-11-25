@@ -15,7 +15,7 @@ public class SpringClientAdaptorTest {
 
   @Before
   public void initRpcServer(){
-    rpcServer = new RpcServer("127.0.0.1",7777);
+    rpcServer = new RpcServer("0.0.0.0",7777);
     rpcServer.start();
   }
 
