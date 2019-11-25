@@ -39,7 +39,7 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         try{
             channelLock.lock();
             if (!serverConnected.get()) {
-                throw new IllegalStateException("rpc server disconneted!");
+                throw new IllegalStateException("rpc server disconnected!");
             }
         }finally {
             channelLock.unlock();
@@ -56,9 +56,12 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
         channel.writeAndFlush(rpcRequest);
         RpcResponse result = callBack.start();
+        if(result == null && !serverConnected.get()){
+            throw new IllegalStateException("rpc server disconnected!");
+        }
         if (result.isSuccess()) {
-            return result.getResult();
-            } else {
+                return result.getResult();
+        } else {
             throw result.getException();
         }
     }

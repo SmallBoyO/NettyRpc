@@ -121,7 +121,19 @@ public class RpcClient {
                     channel.attr(AttributeKey.valueOf("rpcClient")).set(this);
                     //查询服务端接口列表
                     channel.writeAndFlush(GetRegisterServiceRequest.INSTANCE);
-
+                    channel.closeFuture().addListener((closeFuture) -> {
+                        //当channel断开
+                        logger.debug("client disconnect.ready to reconnect!");
+                        //修改 proxy的状态为断线
+                        try {
+                            proxyLock.lock();
+                            proxy.getServerConnected().getAndSet(false);
+                        }finally {
+                            proxyLock.unlock();
+                        }
+                        //重连
+                        connect();
+                    });
                     try {
                         proxyLock.lock();
                         //修改proxy代理所使用的的channel

@@ -50,6 +50,7 @@ public class RpcServer {
                 doInit();
                 doStart();
             }catch (Exception e){
+                stared.set(false);
                 logger.error("ERROR:RpcServer started failed.reason:{}",e.getMessage());
                 throw new IllegalStateException(e);
             }
@@ -61,9 +62,9 @@ public class RpcServer {
         }
     }
 
-    private static final EventLoopGroup BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+    private static EventLoopGroup BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
 
-    private static final EventLoopGroup WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
+    private static EventLoopGroup WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
 
     //设置即I/O操作和用户自定义任务的执行时间比
     static {
@@ -103,7 +104,13 @@ public class RpcServer {
 
     public void stop(){
         try{
-            doStop();
+            if(stared.getAndSet(false)) {
+                doStop();
+            }else{
+                String error = "ERROR:RpcServer not started!";
+                logger.error(error);
+                throw new IllegalStateException(error);
+            }
         }catch (Exception e){
             logger.error("ERROR:RpcServer stop failed.reason:{}",e.getMessage());
             throw new IllegalStateException(e);
@@ -112,5 +119,10 @@ public class RpcServer {
 
     public void bind(Object obj){
         BindRpcServiceHandler.INSTANCE.getServiceMap().put(obj.getClass().getInterfaces()[0].getName(), obj);
+    }
+
+    public static void resetWorkGroup(){
+        BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+        WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
     }
 }
