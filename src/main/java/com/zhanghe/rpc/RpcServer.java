@@ -96,6 +96,20 @@ public class RpcServer {
         return this.future.isSuccess();
     }
 
+    public void doStop() throws InterruptedException{
+        BOSS_GROUP.shutdownGracefully().sync();
+        WORKER_GROUP.shutdownGracefully().sync();
+    }
+
+    public void stop(){
+        try{
+            doStop();
+        }catch (Exception e){
+            logger.error("ERROR:RpcServer stop failed.reason:{}",e.getMessage());
+            throw new IllegalStateException(e);
+        }
+    }
+
     public void bind(Object obj){
         BindRpcServiceHandler.INSTANCE.getServiceMap().put(obj.getClass().getInterfaces()[0].getName(), obj);
     }

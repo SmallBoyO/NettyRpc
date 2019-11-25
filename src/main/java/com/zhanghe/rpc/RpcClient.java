@@ -81,8 +81,27 @@ public class RpcClient {
         },""));
     }
 
-    public void doStart() throws InterruptedException{
-        connect();
+    public void doStart(){
+       connect();
+    }
+
+    public void stop(){
+        try {
+            if(stared.compareAndSet(true,false)) {
+                doStop();
+            }else{
+                String error = "ERROR:RpcClient already stop!";
+                logger.error(error);
+                throw new IllegalStateException(error);
+            }
+        }catch (Exception e){
+            logger.info("ERROR:RpcClient stop failed! Reason:{}",e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public void doStop() throws InterruptedException{
+        WORKER_GROUP.shutdownGracefully().sync();
     }
 
     private Lock proxyLock = new ReentrantLock();
@@ -102,19 +121,7 @@ public class RpcClient {
                     channel.attr(AttributeKey.valueOf("rpcClient")).set(this);
                     //查询服务端接口列表
                     channel.writeAndFlush(GetRegisterServiceRequest.INSTANCE);
-                    channel.closeFuture().addListener((closeFuture) -> {
-                        //当channel断开
-                        logger.debug("client disconnect.ready to reconnect!");
-                        //修改 proxy的状态为断线
-                        try {
-                            proxyLock.lock();
-                            proxy.getServerConnected().getAndSet(false);
-                        }finally {
-                            proxyLock.unlock();
-                        }
-                        //重连
-                        connect();
-                    });
+
                     try {
                         proxyLock.lock();
                         //修改proxy代理所使用的的channel
@@ -129,10 +136,12 @@ public class RpcClient {
                     }
                     logger.debug("connect to server success.");
                 } else {
-                    logger.debug("connect to server failed,cause:{}.", f.cause().getMessage());
-                    //连接失败之后 休眠一段时间重连
-                    sleepSomeTime(1000);
-                    connect();
+                    if(stared.get()){
+                        logger.debug("connect to server failed,cause:{}.", f.cause().getMessage());
+                        //连接失败之后 休眠一段时间重连
+                        sleepSomeTime(1000);
+                        connect();
+                    }
                 }
             });
         }finally {
