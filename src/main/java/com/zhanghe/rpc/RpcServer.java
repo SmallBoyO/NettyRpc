@@ -13,6 +13,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,22 +63,14 @@ public class RpcServer {
         }
     }
 
-    private static EventLoopGroup BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+    private EventLoopGroup BOSS_GROUP;
 
-    private static EventLoopGroup WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
-
-    //设置即I/O操作和用户自定义任务的执行时间比
-    static {
-        if (WORKER_GROUP instanceof NioEventLoopGroup) {
-            ((NioEventLoopGroup) WORKER_GROUP).setIoRatio(50);
-        } else if (WORKER_GROUP instanceof EpollEventLoopGroup) {
-            ((EpollEventLoopGroup) WORKER_GROUP).setIoRatio(50);
-        }
-    }
+    private EventLoopGroup WORKER_GROUP;
 
     private ServerBootstrap bootstrap;
 
     public void doInit(){
+        resetWorkGroup();
         SerializerManager.setDefault(SerializerAlgorithm.KYRO);
         this.bootstrap = new ServerBootstrap();
         this.bootstrap.group(BOSS_GROUP, WORKER_GROUP)
@@ -117,12 +110,25 @@ public class RpcServer {
         }
     }
 
-    public void bind(Object obj){
-        BindRpcServiceHandler.INSTANCE.getServiceMap().put(obj.getClass().getInterfaces()[0].getName(), obj);
+    public void bind(Object service){
+        logger.info("bind service:"+service.getClass().getName());
+        BindRpcServiceHandler.INSTANCE.getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
     }
 
-    public static void resetWorkGroup(){
+    public void bind(List<Object> services){
+        services.forEach(service -> {
+            logger.info("bind service:" + service.getClass().getInterfaces()[0].getName());
+            BindRpcServiceHandler.INSTANCE.getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+        });
+    }
+
+    public void resetWorkGroup(){
         BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
         WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
+        if (WORKER_GROUP instanceof NioEventLoopGroup) {
+            ((NioEventLoopGroup) WORKER_GROUP).setIoRatio(50);
+        } else if (WORKER_GROUP instanceof EpollEventLoopGroup) {
+            ((EpollEventLoopGroup) WORKER_GROUP).setIoRatio(50);
+        }
     }
 }

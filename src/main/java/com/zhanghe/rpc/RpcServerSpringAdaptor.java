@@ -1,6 +1,7 @@
 package com.zhanghe.rpc;
 
 import com.zhanghe.config.RpcConfig;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,8 @@ public class RpcServerSpringAdaptor {
   String ip = RpcConfig.DEFAULT_IP;
 
   int port  = RpcConfig.DEFAULT_PORT;
+
+  List<Object> services;
 
   public String getIp() {
     return ip;
@@ -28,12 +31,21 @@ public class RpcServerSpringAdaptor {
     this.port = port;
   }
 
+  public List<Object> getServices() {
+    return services;
+  }
+
+  public void setServices(List<Object> services) {
+    this.services = services;
+  }
+
   private RpcServer rpcServer;
 
   public void init(){
     logger.info("Rpc Server ready to init");
     System.out.println(this);
     rpcServer = new RpcServer(ip,port);
+    rpcServer.bind(services);
     rpcServer.start();
     logger.info("Rpc Server init finish");
   }

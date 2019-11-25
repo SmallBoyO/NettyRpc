@@ -1,9 +1,7 @@
 package com.zhanghe.protocol.serializer.impl;
 
-import com.zhanghe.benchmark.BenchMarkRequestDTO;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
-import com.zhanghe.protocol.v1.request.RpcRequest;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;

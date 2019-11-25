@@ -71,7 +71,6 @@ public class ClientReconnectTest {
 
   public void startServer(){
     try {
-      RpcServer.resetWorkGroup();
       rpcServer = new RpcServer(7777);
       rpcServer.bind(new DemoServiceImpl());
       rpcServer.start();

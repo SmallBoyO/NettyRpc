@@ -10,6 +10,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import java.util.Set;
@@ -45,7 +47,7 @@ public class RpcClient {
 
     private Channel activeChannel;
 
-    private static final EventLoopGroup WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
+    private EventLoopGroup WORKER_GROUP;
 
     public void start(){
         if(stared.compareAndSet(false,true)){
@@ -65,20 +67,13 @@ public class RpcClient {
     }
 
     public void init() {
+        resetWorkGroup();
         SerializerManager.setDefault(SerializerAlgorithm.KYRO);
         bootstrap = new Bootstrap();
         bootstrap.group(WORKER_GROUP)
                 .channel(NioSocketChannel.class)
                 .handler(new ClientChannelInitializer())
                 .remoteAddress(new InetSocketAddress(serverIp, serverPort));
-        //注册退出事件
-        Runtime.getRuntime().addShutdownHook(new Thread(()->
-        {
-            logger.debug("ShutdownHook execute start...");
-            activeChannel.close();
-            WORKER_GROUP.shutdownGracefully();
-            logger.debug("ShutdownHook execute end...");
-        },""));
     }
 
     public void doStart(){
@@ -208,7 +203,9 @@ public class RpcClient {
             proxy
         );
     }
-
+    public void resetWorkGroup(){
+        WORKER_GROUP =  NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
+    }
     private void sleepSomeTime(long times){
         try {
             Thread.sleep(1000);
