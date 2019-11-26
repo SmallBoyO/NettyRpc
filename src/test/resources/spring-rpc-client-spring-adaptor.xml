@@ -7,4 +7,8 @@
     <property name="ip" value="127.0.0.1"></property>
     <property name="port" value="7777"></property>
   </bean>
+
+  <bean id="demoService" factory-bean="client" factory-method="proxy" >
+    <constructor-arg value="com.zhanghe.test.spring.DemoService"></constructor-arg>
+  </bean>
 </beans>

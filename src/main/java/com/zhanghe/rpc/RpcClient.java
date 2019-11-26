@@ -160,7 +160,7 @@ public class RpcClient {
 
     private Set<String> registeredServices;
 
-    public Object proxy(String serviceName) throws ClassNotFoundException{
+    public Object proxy(String serviceName) {
         try{
             proxyLock.lock();
             if (proxy == null || !proxy.getServerConnected().get()){

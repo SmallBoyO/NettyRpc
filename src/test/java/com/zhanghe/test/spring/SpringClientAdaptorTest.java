@@ -16,6 +16,7 @@ public class SpringClientAdaptorTest {
   @Before
   public void initRpcServer(){
     rpcServer = new RpcServer("0.0.0.0",7777);
+    rpcServer.bind(new DemoServiceImpl());
     rpcServer.start();
   }
 
@@ -25,6 +26,11 @@ public class SpringClientAdaptorTest {
         "spring-rpc-client-spring-adaptor.xml");
     RpcClientSpringAdaptor adaptor = (RpcClientSpringAdaptor)context.getBean("client");
     Assert.assertNotNull(adaptor);
+    DemoService demoService = (DemoService)context.getBean("demoService");
+    Assert.assertNotNull(demoService);
+    String str = "Random str:"+Math.random();
+    String rpcRes = demoService.call(str);
+    Assert.assertEquals("requestParam:" + str,rpcRes);
     ((ClassPathXmlApplicationContext) context).close();
   }
 

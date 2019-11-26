@@ -27,6 +27,10 @@ public class RpcClientSpringAdaptor {
     logger.info("Rpc client destroy finish");
   }
 
+  public Object proxy(String service){
+    return rpcClient.proxy(service);
+  }
+
   public String getIp() {
     return ip;
   }

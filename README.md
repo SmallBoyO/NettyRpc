@@ -13,30 +13,23 @@
 
 1.1 客户端配置
 ```
-<!--  配置rpc服务的ip和端口-->
-<bean id="rpcClient" class="com.zhanghe.server.RpcClient">
-    <constructor-arg name="host" value="127.0.0.1"></constructor-arg>
-    <constructor-arg name="port" value="6666"></constructor-arg>
-</bean>
-<!-- 通过proxy方法代理相应接口  -->	  	
-<bean id="testService" class="com.zhanghe.service.TestService" factory-bean="rpcClient" factory-method="proxy">
-    <constructor-arg name="serviceName" value="com.zhanghe.service.TestService"></constructor-arg>
-</bean>
+  <bean name="client" class="com.zhanghe.rpc.RpcClientSpringAdaptor" init-method="init" destroy-method="destroy">
+    <property name="ip" value="127.0.0.1"></property>
+    <property name="port" value="7777"></property>
+  </bean>
 ```
 1.2 服务端配置
 ```
-<!-- 配置需要绑定的服务 -->
-<bean id="dateService" class="com.zhanghe.service.TestServiceImpl"></bean>
-	  
-<!-- 配置rpcServer监听端口,并且指定需要绑定的服务 -->	  
-<bean id="rpcServer" class="com.zhanghe.server.RpcServer">
-    <constructor-arg value="6666" name="port">
-    </constructor-arg>
-    <constructor-arg name="handlerMap">
-        <map>
-            <entry key="com.zhanghe.service.TestService" value-ref="dateService"></entry>
-        </map>
-    </constructor-arg>
-</bean>
+  <bean name="demoService" class="com.zhanghe.test.spring.DemoServiceImpl"></bean>
+
+  <bean name="adaptor" class="com.zhanghe.rpc.RpcServerSpringAdaptor" init-method="init" destroy-method="destroy">
+    <property name="ip" value="127.0.0.1"></property>
+    <property name="port" value="777"></property>
+    <property name="services">
+      <list>
+        <ref bean="demoService"></ref>
+      </list>
+    </property>
+  </bean>
 
 ```
