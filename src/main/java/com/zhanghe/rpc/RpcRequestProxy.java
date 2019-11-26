@@ -21,10 +21,6 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
     private Channel channel;
 
-    private AtomicBoolean serverConnected = new AtomicBoolean(false);
-
-    private AtomicBoolean servicesInited = new AtomicBoolean(false);
-
     private Lock channelLock = new ReentrantLock();
 
     public RpcRequestProxy() {
@@ -36,13 +32,8 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        try{
-            channelLock.lock();
-            if (!serverConnected.get()) {
-                throw new IllegalStateException("rpc server disconnected!");
-            }
-        }finally {
-            channelLock.unlock();
+        if (!channel.isActive()) {
+                  throw new IllegalStateException("rpc server disconnected!");
         }
         RpcRequest rpcRequest = new RpcRequest();
         String requestId = UUID.randomUUID().toString();
@@ -56,33 +47,13 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
         channel.writeAndFlush(rpcRequest);
         RpcResponse result = callBack.start();
-        if(result == null && !serverConnected.get()){
+        if(result == null && !channel.isActive()){
             throw new IllegalStateException("rpc server disconnected!");
         }
         if (result.isSuccess()) {
                 return result.getResult();
         } else {
             throw result.getException();
-        }
-    }
-
-
-
-    public void connect(Channel channel){
-        try{
-            channelLock.lock();
-            setChannel(channel);
-        }finally {
-            channelLock.unlock();
-        }
-    }
-
-    public void initServices(){
-        try{
-            channelLock.lock();
-            serverConnected.getAndSet(true);
-        }finally {
-            channelLock.unlock();
         }
     }
 
@@ -94,19 +65,4 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         this.channel = channel;
     }
 
-    public AtomicBoolean getServerConnected() {
-        return serverConnected;
-    }
-
-    public void setServerConnected(AtomicBoolean serverConnected) {
-        this.serverConnected = serverConnected;
-    }
-
-    public AtomicBoolean getServicesInited() {
-        return servicesInited;
-    }
-
-    public void setServicesInited(AtomicBoolean servicesInited) {
-        this.servicesInited = servicesInited;
-    }
 }
