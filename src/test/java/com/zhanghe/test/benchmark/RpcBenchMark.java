@@ -1,6 +1,6 @@
 package com.zhanghe.test.benchmark;
 
-import com.zhanghe.rpc.RpcClient;
+import com.zhanghe.rpc.RpcClientConnector;
 import com.zhanghe.rpc.RpcServer;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -31,9 +31,9 @@ public class RpcBenchMark {
     RpcServer rpcServer = new RpcServer(7777);
     rpcServer.bind(new BenchMarkServiceImpl());
     rpcServer.start();
-    RpcClient rpcClient = new RpcClient("127.0.0.1",7777);
-    rpcClient.start();
-    service = (BenchMarkService)rpcClient.proxy(BenchMarkService.class.getName());
+    RpcClientConnector rpcClientConnector = new RpcClientConnector("127.0.0.1",7777);
+    rpcClientConnector.start();
+//    service = (BenchMarkService) rpcClientConnector.proxy(BenchMarkService.class.getName());
     localService = new BenchMarkServiceImpl();
   }
 

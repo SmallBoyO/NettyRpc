@@ -1,216 +1,109 @@
 package com.zhanghe.rpc;
 
-import com.zhanghe.threadpool.RpcThreadPoolFactory;
-import com.zhanghe.channel.ClientChannelInitializer;
-import com.zhanghe.protocol.serializer.SerializerAlgorithm;
-import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
-import com.zhanghe.util.NettyEventLoopGroupUtil;
-import io.netty.bootstrap.Bootstrap;
+import com.zhanghe.config.RpcConfig;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.AttributeKey;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Set;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Rpc客户端
- */
-public class RpcClient {
+public class RpcClient implements RpcClientHolder{
 
-    private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
+  private static Logger logger = LoggerFactory.getLogger(RpcClientSpringAdaptor.class);
 
-    private String serverIp;
+  private String ip;
 
-    private int serverPort;
+  private int port = RpcConfig.DEFAULT_PORT;
 
-    private AtomicBoolean stared = new AtomicBoolean(false);
+  private RpcClientConnector rpcClientConnector;
 
-    public RpcClient(String serverIp, int serverPort) {
-        this.serverIp = serverIp;
-        this.serverPort = serverPort;
+  private RpcRequestProxy proxy;
+
+  private Set<String> registeredServices;
+
+  private Lock lock = new ReentrantLock();
+
+  private Condition servicesInitCondition = lock.newCondition();
+
+  public RpcClient() {
+    this.proxy = new RpcRequestProxy<>();
+  }
+
+  public RpcClient(String ip, int port) {
+    this.ip = ip;
+    this.port = port;
+    this.proxy = new RpcRequestProxy<>();
+  }
+
+  public void init(){
+    logger.info("Rpc client ready to init");
+    rpcClientConnector = new RpcClientConnector(ip,port);
+    rpcClientConnector.setRpcClientHolder(this);
+    rpcClientConnector.start();
+    logger.info("Rpc client init finish");
+  }
+
+  public void destroy(){
+    logger.info("Rpc client ready to destroy");
+    rpcClientConnector.stop();
+    logger.info("Rpc client destroy finish");
+  }
+
+  public Object proxy(String service) throws ClassNotFoundException,InterruptedException{
+    lock.lock();
+    try {
+      System.out.println("proxy:"+rpcClientConnector.getGetServices().get());
+      if( !rpcClientConnector.getGetServices().get()){
+        servicesInitCondition.await();
+      }
+      if (!registeredServices.contains(service)) {
+        throw new RuntimeException("服务端未提供此service");
+      }
+      Class<?> clazz = Class.forName(service);
+      return Proxy.newProxyInstance(
+          clazz.getClassLoader(),
+          new Class<?>[]{clazz},
+          proxy
+      );
+    }finally {
+      lock.unlock();
     }
+  }
 
-    private Bootstrap bootstrap;
-
-    private Channel activeChannel;
-
-    private EventLoopGroup WORKER_GROUP;
-
-    public void start(){
-        if(stared.compareAndSet(false,true)){
-            logger.info("Ready start RpcClient,connect address {}:{}.",serverIp,serverPort);
-            try{
-                init();
-                doStart();
-            }catch (Exception e){
-                logger.info("ERROR:RpcClient started failed! Reason:{}",e);
-                throw new IllegalStateException(e);
-            }
-        }else{
-            String error = "ERROR:RpcClient already stared!";
-            logger.error(error);
-            throw new IllegalStateException(error);
-        }
+  @Override
+  public void setServices(String address, Set<String> services) {
+    this.registeredServices = services;
+    lock.lock();
+    try {
+      servicesInitCondition.signalAll();
+    }finally {
+      lock.unlock();
     }
+  }
 
-    public void init() {
-        resetWorkGroup();
-        SerializerManager.setDefault(SerializerAlgorithm.KYRO);
-        bootstrap = new Bootstrap();
-        bootstrap.group(WORKER_GROUP)
-                .channel(NioSocketChannel.class)
-                .handler(new ClientChannelInitializer())
-                .remoteAddress(new InetSocketAddress(serverIp, serverPort));
-    }
+  @Override
+  public void setChannel(String address, Channel channel) {
+    proxy.setChannel(channel);
+  }
 
-    public void doStart(){
-       connect();
-    }
+  public String getIp() {
+    return ip;
+  }
 
-    public void stop(){
-        try {
-            if(stared.compareAndSet(true,false)) {
-                doStop();
-            }else{
-                String error = "ERROR:RpcClient already stop!";
-                logger.error(error);
-                throw new IllegalStateException(error);
-            }
-        }catch (Exception e){
-            logger.info("ERROR:RpcClient stop failed! Reason:{}",e);
-            throw new IllegalStateException(e);
-        }
-    }
+  public void setIp(String ip) {
+    this.ip = ip;
+  }
 
-    public void doStop() throws InterruptedException{
-        WORKER_GROUP.shutdownGracefully().sync();
-    }
+  public int getPort() {
+    return port;
+  }
 
-    private Lock proxyLock = new ReentrantLock();
+  public void setPort(int port) {
+    this.port = port;
+  }
 
-    private Condition proxyCondition = proxyLock.newCondition();
-
-    public void connect(){
-        logger.debug("ready connect to server.");
-        try {
-            proxyLock.lock();
-            ChannelFuture future = bootstrap.connect();
-            future.addListener((f) -> {
-                if (future.isSuccess()) {
-                    //连接成功后 在断开连接之后绑定重新连接的逻辑
-                    Channel channel = future.channel();
-                    activeChannel = channel;
-                    channel.attr(AttributeKey.valueOf("rpcClient")).set(this);
-                    //查询服务端接口列表
-                    channel.writeAndFlush(GetRegisterServiceRequest.INSTANCE);
-                    channel.closeFuture().addListener((closeFuture) -> {
-                        //当channel断开
-                        logger.debug("client disconnect.ready to reconnect!");
-                        //修改 proxy的状态为断线
-                        try {
-                            proxyLock.lock();
-                            proxy.getServerConnected().getAndSet(false);
-                        }finally {
-                            proxyLock.unlock();
-                        }
-                        //重连
-                        connect();
-                    });
-                    try {
-                        proxyLock.lock();
-                        //修改proxy代理所使用的的channel
-                        if(proxy == null) {
-                            this.proxy = new RpcRequestProxy();
-                            this.proxy.connect(channel);
-                        }else{
-                            this.proxy.connect(channel);
-                        }
-                    }finally {
-                        proxyLock.unlock();
-                    }
-                    logger.debug("connect to server success.");
-                } else {
-                    if(stared.get()){
-                        logger.debug("connect to server failed,cause:{}.", f.cause().getMessage());
-                        //连接失败之后 休眠一段时间重连
-                        sleepSomeTime(1000);
-                        connect();
-                    }
-                }
-            });
-        }finally {
-            proxyLock.unlock();
-        }
-    }
-
-    private RpcRequestProxy proxy;
-
-    private Set<String> registeredServices;
-
-    public Object proxy(String serviceName) {
-        try{
-            proxyLock.lock();
-            if (proxy == null || !proxy.getServerConnected().get()){
-                //还没连接上服务端
-                logger.info("Rpc客户端等待连接服务器");
-                proxyCondition.await();
-                logger.info("Rpc客户端连上服务器");
-            }
-            logger.info("Rpc客户端代理接口:{}",serviceName);
-            return realProxy(serviceName);
-        }catch (Exception e){
-            e.printStackTrace();
-            return null;
-        }finally {
-            proxyLock.unlock();
-        }
-    }
-
-    public void setRegisterServices(Set<String> services){
-        try{
-            proxyLock.lock();
-            registeredServices = services;
-            proxy.initServices();
-            proxyCondition.signalAll();
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            proxyLock.unlock();
-        }
-    }
-
-    public Object realProxy(String serviceName) throws ClassNotFoundException{
-        if(!registeredServices.contains(serviceName)){
-            throw new RuntimeException("服务端未提供此service");
-        }
-        Class<?> clazz = Class.forName(serviceName);
-        return Proxy.newProxyInstance(
-            clazz.getClassLoader(),
-            new Class<?>[]{ clazz },
-            proxy
-        );
-    }
-    public void resetWorkGroup(){
-        WORKER_GROUP =  NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
-    }
-    private void sleepSomeTime(long times){
-        try {
-            Thread.sleep(1000);
-        } catch (Exception s) {
-
-        }
-    }
 }

@@ -1,7 +1,7 @@
 package com.zhanghe.channel.hanlder.client;
 
 import com.zhanghe.protocol.v1.response.GetRegisterServiceResponse;
-import com.zhanghe.rpc.RpcClient;
+import com.zhanghe.rpc.RpcClientConnector;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.AttributeKey;
@@ -15,6 +15,6 @@ public class GetRegisterServiceResponseHandler extends SimpleChannelInboundHandl
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, GetRegisterServiceResponse msg) throws Exception {
     logger.debug("服务器提供的接口:{}",msg.getServices());
-    ((RpcClient)ctx.channel().attr(AttributeKey.valueOf("rpcClient")).get()).setRegisterServices(msg.getServices());
+    ((RpcClientConnector)ctx.channel().attr(AttributeKey.valueOf("rpcClient")).get()).setRegisterServices(msg.getServices());
   }
 }
