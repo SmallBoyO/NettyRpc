@@ -21,13 +21,13 @@ public class client {
 //        DateService dateService = (DateService)rpcClient.proxy(DateService.class.getName());
 //        TestService testService = (TestService)rpcClient.proxy(TestService.class.getName());
 //        System.out.println(dateService.now());
-        RpcServer rpcServer1 = new RpcServer("127.0.0.10",7777);
-        RpcServer rpcServer2 = new RpcServer("127.0.0.10",7778);
-        DateServiceImpl dateService = new DateServiceImpl();
-        rpcServer1.bind(dateService);
-        rpcServer2.bind(dateService);
-        rpcServer1.start();
-        rpcServer2.start();
+//        RpcServer rpcServer1 = new RpcServer("127.0.0.10",7777);
+//        RpcServer rpcServer2 = new RpcServer("127.0.0.10",7778);
+//        DateServiceImpl dateService = new DateServiceImpl();
+//        rpcServer1.bind(dateService);
+//        rpcServer2.bind(dateService);
+//        rpcServer1.start();
+//        rpcServer2.start();
         RpcLoadBalanceAdaptor rpcLoadBalanceAdaptor = new RpcLoadBalanceAdaptor();
         RpcServerInfo rpcServerInfo = new RpcServerInfo();
         rpcServerInfo.setIp("127.0.0.1");
@@ -45,6 +45,7 @@ public class client {
 
         DateService dateServiceprox = (DateService) rpcLoadBalanceAdaptor.proxy(DateService.class.getName());
         System.out.println(dateServiceprox.now());
+        Thread.sleep(100000);
         rpcLoadBalanceAdaptor.destroy();
 //        RpcClient rpcClient = new RpcClient("127.0.0.1",7777);
 //        rpcClient.init();

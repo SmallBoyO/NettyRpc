@@ -1,9 +1,11 @@
 package com.zhanghe.rpc;
 
+import com.zhanghe.util.IpAddressUtil;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,13 +20,19 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
   public List<RpcServerInfo> servers;
 
-  public Map<RpcServerInfo,RpcClientConnector> serversMap;
+  public Map<String,RpcClientConnector> serversMap;
+
+  public Map<String,RpcServerInfo> serversInfoMap;
+
+  List<RpcClientConnector> activeServer;
 
   private LoadBalanceProxy loadBalanceProxy;
 
   public RpcLoadBalanceAdaptor() {
     serversMap = new HashMap<>();
     this.loadBalanceProxy = new LoadBalanceProxy();
+    serversInfoMap = new HashMap<>();
+    activeServer = new ArrayList<>();
   }
 
   public void init(){
@@ -32,7 +40,9 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
         RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
-        serversMap.put(rpcServerInfo, rpcClientConnector);
+        serversMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(), rpcClientConnector);
+        serversInfoMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo);
+        rpcClientConnector.setRpcClientHolder(this);
         rpcClientConnector.start();
       logger.info("client {}:{} init finish",rpcServerInfo.getIp(),rpcServerInfo.getPort());
     });
@@ -51,12 +61,13 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
   @Override
   public void setServices(String address, Set<String> services) {
-    System.out.println(address+"get Services");
+    logger.info("server[{}] get services:{}",address,services);
+    activeServer.add(serversMap.get(address));
   }
 
   @Override
   public void setChannel(String address, Channel channel) {
-    System.out.println(address+"get channel");
+    logger.info("server[{}] get channel",address);
   }
 
   public Object proxy(String service){

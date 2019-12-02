@@ -1,5 +1,6 @@
 package com.zhanghe.test.testClient;
 
+import com.zhanghe.rpc.RpcClient;
 import com.zhanghe.rpc.RpcClientConnector;
 import com.zhanghe.rpc.RpcServer;
 import org.junit.After;
@@ -11,7 +12,7 @@ public class ClientReconnectTest {
 
   private RpcServer rpcServer;
 
-  private RpcClientConnector rpcClientConnector;
+  private RpcClient rpcClient;
 
   private DemoService demoService;
 
@@ -25,7 +26,7 @@ public class ClientReconnectTest {
   @After
   public void destroy(){
     rpcServer.stop();
-    rpcClientConnector.stop();
+    rpcClient.destroy();
   }
   @Test
   public void testConnectAndCall() throws ClassNotFoundException,InterruptedException{
@@ -37,10 +38,10 @@ public class ClientReconnectTest {
     call();
   }
 
-  public void connect() throws ClassNotFoundException{
-    rpcClientConnector = new RpcClientConnector("127.0.0.1",7777);
-    rpcClientConnector.start();
-//    demoService = (DemoService) rpcClientConnector.proxy(DemoService.class.getName());
+  public void connect() throws ClassNotFoundException,InterruptedException{
+    rpcClient = new RpcClient("127.0.0.1",7777);
+    rpcClient.init();
+    demoService = (DemoService) rpcClient.proxy(DemoService.class.getName());
     Assert.assertNotNull(demoService);
   }
 
