@@ -2,12 +2,8 @@ package com.zhanghe.rpc;
 
 import com.zhanghe.config.RpcConfig;
 import io.netty.channel.Channel;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Set;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,19 +15,12 @@ public class RpcClient implements RpcClientHolder{
 
   private int port = RpcConfig.DEFAULT_PORT;
 
+  private RpcServerInfo rpcServerInfo;
+
   private RpcClientConnector rpcClientConnector;
 
   private RpcRequestProxy proxy;
 
-  private Set<String> registeredServices;
-
-  private Lock lock = new ReentrantLock();
-
-  private Condition servicesInitCondition = lock.newCondition();
-
-  public RpcClient() {
-    this.proxy = new RpcRequestProxy<>();
-  }
 
   public RpcClient(String ip, int port) {
     this.ip = ip;
@@ -41,6 +30,11 @@ public class RpcClient implements RpcClientHolder{
 
   public void init(){
     logger.info("Rpc client ready to init");
+    if(rpcServerInfo == null){
+      rpcServerInfo = new RpcServerInfo();
+      rpcServerInfo.setIp(ip);
+      rpcServerInfo.setPort(port);
+    }
     rpcClientConnector = new RpcClientConnector(ip,port);
     rpcClientConnector.setRpcClientHolder(this);
     rpcClientConnector.start();
@@ -54,13 +48,8 @@ public class RpcClient implements RpcClientHolder{
   }
 
   public Object proxy(String service) throws ClassNotFoundException,InterruptedException{
-    lock.lock();
-    try {
-      System.out.println("proxy:"+rpcClientConnector.getGetServices().get());
-      if( !rpcClientConnector.getGetServices().get()){
-        servicesInitCondition.await();
-      }
-      if (!registeredServices.contains(service)) {
+      rpcServerInfo.waitServerUseful();
+      if (!rpcServerInfo.getServices().contains(service)) {
         throw new RuntimeException("服务端未提供此service");
       }
       Class<?> clazz = Class.forName(service);
@@ -69,20 +58,12 @@ public class RpcClient implements RpcClientHolder{
           new Class<?>[]{clazz},
           proxy
       );
-    }finally {
-      lock.unlock();
-    }
   }
 
   @Override
   public void setServices(String address, Set<String> services) {
-    this.registeredServices = services;
-    lock.lock();
-    try {
-      servicesInitCondition.signalAll();
-    }finally {
-      lock.unlock();
-    }
+    rpcServerInfo.setServices(services);
+    rpcServerInfo.signalServerUseful();
   }
 
   @Override

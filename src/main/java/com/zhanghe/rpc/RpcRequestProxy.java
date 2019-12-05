@@ -33,7 +33,7 @@ public class RpcRequestProxy<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (!channel.isActive()) {
-                  throw new IllegalStateException("rpc server disconnected!");
+            throw new IllegalStateException("rpc server disconnected!");
         }
         RpcRequest rpcRequest = new RpcRequest();
         String requestId = UUID.randomUUID().toString();

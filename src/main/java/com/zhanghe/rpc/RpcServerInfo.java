@@ -2,6 +2,7 @@ package com.zhanghe.rpc;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -21,7 +22,7 @@ public class RpcServerInfo {
 
   private Condition statusCondition;
 
-  List<String> services;
+  private Set<String> services;
 
   public RpcServerInfo() {
     useful = new AtomicBoolean(false);
@@ -29,11 +30,26 @@ public class RpcServerInfo {
     statusCondition = statusLock.newCondition();
   }
 
-  public void waitServerUserful(){
+  public void waitServerUseful(){
     statusLock.lock();
     try {
+      if(!useful.get()){
+        //服务目前不可用,等待可用
+        statusCondition.await();
+      }
+    }catch (Exception e){
+        throw new IllegalStateException(e);
+    }finally {
+      statusLock.unlock();
+    }
+  }
 
-
+  public void signalServerUseful(){
+    statusLock.lock();
+    try {
+      statusCondition.signalAll();
+    }catch (Exception e){
+      throw new IllegalStateException(e);
     }finally {
       statusLock.unlock();
     }
@@ -67,12 +83,21 @@ public class RpcServerInfo {
     return ip + ":" + port;
   }
 
-  public List<String> getServices() {
+  public Set<String> getServices() {
     return services;
   }
 
-  public void setServices(List<String> services) {
+  public void setServices(Set<String> services) {
     this.services = services;
+    signalServerUseful();
+  }
+
+  public AtomicBoolean getUseful() {
+    return useful;
+  }
+
+  public void setUseful(AtomicBoolean useful) {
+    this.useful = useful;
   }
 
   @Override

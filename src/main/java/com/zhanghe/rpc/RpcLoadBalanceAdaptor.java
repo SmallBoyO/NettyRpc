@@ -1,6 +1,5 @@
 package com.zhanghe.rpc;
 
-import com.zhanghe.util.IpAddressUtil;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -62,6 +61,7 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
   @Override
   public void setServices(String address, Set<String> services) {
     logger.info("server[{}] get services:{}",address,services);
+    serversInfoMap.get(address).setServices(services);
     activeServer.add(serversMap.get(address));
   }
 
@@ -71,6 +71,10 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
   }
 
   public Object proxy(String service){
+    //等待每一个服务端获取到service列表
+    serversInfoMap.forEach((s, rpcServerInfo) -> {
+      rpcServerInfo.waitServerUseful();
+    });
     try {
       Class<?> clazz = Class.forName(service);
       return Proxy.newProxyInstance(
@@ -99,10 +103,18 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
       System.out.println("invoke");
-//      RpcServerInfo rpcServerInfo = servers.get(random.nextInt()%servers.size());
+      RpcServerInfo server = chooseServer();
+      if(!server.getUseful().get()){
+        throw new IllegalStateException("server ["+server.getIp()+":"+server.getPort()+"] disconnected!");
+      }
 
       return null;
     }
+
+    private RpcServerInfo chooseServer(){
+      return servers.get(random.nextInt()%servers.size());
+    }
+
   }
 
 }

@@ -12,6 +12,9 @@ public class Server {
         Byte request = 7;
         Byte response = 8;
         rpcServer.start();
+        RpcServer rpcServer2 = new RpcServer(7777);
+        rpcServer2.bind(new DateServiceImpl());
+        rpcServer2.start();
     }
 
 }
