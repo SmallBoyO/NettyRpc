@@ -112,7 +112,8 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
     }
 
     private RpcServerInfo chooseServer(){
-      return servers.get(random.nextInt()%servers.size());
+      Integer num = random.nextInt()%servers.size();
+      return servers.get(num);
     }
 
   }

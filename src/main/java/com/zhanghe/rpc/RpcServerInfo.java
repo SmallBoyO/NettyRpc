@@ -89,6 +89,7 @@ public class RpcServerInfo {
 
   public void setServices(Set<String> services) {
     this.services = services;
+    this.useful.set(true);
     signalServerUseful();
   }
 
