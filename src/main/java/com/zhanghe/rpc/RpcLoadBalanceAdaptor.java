@@ -1,5 +1,7 @@
 package com.zhanghe.rpc;
 
+import com.zhanghe.protocol.v1.request.RpcRequest;
+import com.zhanghe.protocol.v1.response.RpcResponse;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -9,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,7 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
         RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
+        rpcServerInfo.setRpcClientConnector(rpcClientConnector);
         serversMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(), rpcClientConnector);
         serversInfoMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo);
         rpcClientConnector.setRpcClientHolder(this);
@@ -107,8 +111,27 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
       if(!server.getUseful().get()){
         throw new IllegalStateException("server ["+server.getIp()+":"+server.getPort()+"] disconnected!");
       }
+      Channel channel = server.getRpcClientConnector().getActiveChannel();
+      RpcRequest rpcRequest = new RpcRequest();
+      String requestId = UUID.randomUUID().toString();
+      rpcRequest.setRequestId(requestId);
+      rpcRequest.setClassName(proxy.getClass().getInterfaces()[0].getName());
+      rpcRequest.setMethodName(method.getName());
+      rpcRequest.setTypeParameters(method.getParameterTypes());
+      rpcRequest.setParametersVal(args);
+      RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
 
-      return null;
+      RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
+      channel.writeAndFlush(rpcRequest);
+      RpcResponse result = callBack.start();
+      if(result == null && !channel.isActive()){
+        throw new IllegalStateException("rpc server disconnected!");
+      }
+      if (result.isSuccess()) {
+        return result.getResult();
+      } else {
+        throw result.getException();
+      }
     }
 
     private RpcServerInfo chooseServer(){

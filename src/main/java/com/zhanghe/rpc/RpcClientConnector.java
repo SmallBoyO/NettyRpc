@@ -148,6 +148,14 @@ public class RpcClientConnector {
         return rpcClientHolder;
     }
 
+    public Channel getActiveChannel() {
+        return activeChannel;
+    }
+
+    public void setActiveChannel(Channel activeChannel) {
+        this.activeChannel = activeChannel;
+    }
+
     public void setRpcClientHolder(RpcClientHolder rpcClientHolder) {
         this.rpcClientHolder = rpcClientHolder;
     }

@@ -44,6 +44,7 @@ public class client {
         rpcLoadBalanceAdaptor.init();
 
         DateService dateServiceprox = (DateService) rpcLoadBalanceAdaptor.proxy(DateService.class.getName());
+        System.out.println("-----------------------");
         System.out.println(dateServiceprox.now());
         Thread.sleep(100000);
         rpcLoadBalanceAdaptor.destroy();

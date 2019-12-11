@@ -24,6 +24,8 @@ public class RpcServerInfo {
 
   private Set<String> services;
 
+  private RpcClientConnector rpcClientConnector;
+
   public RpcServerInfo() {
     useful = new AtomicBoolean(false);
     statusLock = new ReentrantLock();
@@ -99,6 +101,14 @@ public class RpcServerInfo {
 
   public void setUseful(AtomicBoolean useful) {
     this.useful = useful;
+  }
+
+  public RpcClientConnector getRpcClientConnector() {
+    return rpcClientConnector;
+  }
+
+  public void setRpcClientConnector(RpcClientConnector rpcClientConnector) {
+    this.rpcClientConnector = rpcClientConnector;
   }
 
   @Override
