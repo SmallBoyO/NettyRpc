@@ -2,6 +2,9 @@ package com.zhanghe.rpc;
 
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.protocol.v1.response.RpcResponse;
+import com.zhanghe.rpc.loadbalance.LoadBalance;
+import com.zhanghe.rpc.loadbalance.LoadBalanceService;
+import com.zhanghe.rpc.loadbalance.RandomLoadBalance;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -30,6 +33,8 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
   private LoadBalanceProxy loadBalanceProxy;
 
+  private LoadBalance<RpcServerInfo> loadBalance;
+
   public RpcLoadBalanceAdaptor() {
     serversMap = new HashMap<>();
     this.loadBalanceProxy = new LoadBalanceProxy();
@@ -38,7 +43,8 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
   }
 
   public void init(){
-    logger.info("Rpc loadbalance client ready to init");
+    logger.info("Rpc load balance client ready to init");
+    loadBalance = new RandomLoadBalance<>();
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
         RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
@@ -47,19 +53,20 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
         serversInfoMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo);
         rpcClientConnector.setRpcClientHolder(this);
         rpcClientConnector.start();
+        loadBalance.addService(LoadBalanceService.of("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo,rpcServerInfo.weight));
       logger.info("client {}:{} init finish",rpcServerInfo.getIp(),rpcServerInfo.getPort());
     });
-    logger.info("Rpc loadbalance client init finish");
+    logger.info("Rpc load balance client init finish");
   }
 
   public void destroy(){
-    logger.info("Rpc loadbalance client ready to destroy");
+    logger.info("Rpc load balance client ready to destroy");
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to destroy",rpcServerInfo.getIp(),rpcServerInfo.getPort());
-      serversMap.get(rpcServerInfo).stop();
+      serversMap.get("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort()).stop();
       logger.info("client {}:{} destroy finish",rpcServerInfo.getIp(),rpcServerInfo.getPort());
     });
-    logger.info("Rpc loadbalance client destroy finish");
+    logger.info("Rpc load balance client destroy finish");
   }
 
   @Override
@@ -106,8 +113,8 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      System.out.println("invoke");
-      RpcServerInfo server = chooseServer();
+      RpcServerInfo server = loadBalance.next();
+      logger.debug("choose server:[{}:{}]",server.getIp(),server.getPort());
       if(!server.getUseful().get()){
         throw new IllegalStateException("server ["+server.getIp()+":"+server.getPort()+"] disconnected!");
       }
@@ -132,11 +139,6 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
       } else {
         throw result.getException();
       }
-    }
-
-    private RpcServerInfo chooseServer(){
-      Integer num = random.nextInt()%servers.size();
-      return servers.get(num);
     }
 
   }

@@ -45,7 +45,9 @@ public class client {
 
         DateService dateServiceprox = (DateService) rpcLoadBalanceAdaptor.proxy(DateService.class.getName());
         System.out.println("-----------------------");
-        System.out.println(dateServiceprox.now());
+        for(int i =0;i<1000;i++) {
+            System.out.println(dateServiceprox.now());
+        }
         Thread.sleep(100000);
         rpcLoadBalanceAdaptor.destroy();
 //        RpcClient rpcClient = new RpcClient("127.0.0.1",7777);
