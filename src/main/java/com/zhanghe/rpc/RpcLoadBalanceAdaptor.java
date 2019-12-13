@@ -5,6 +5,7 @@ import com.zhanghe.protocol.v1.response.RpcResponse;
 import com.zhanghe.rpc.loadbalance.LoadBalance;
 import com.zhanghe.rpc.loadbalance.LoadBalanceService;
 import com.zhanghe.rpc.loadbalance.RandomLoadBalance;
+import com.zhanghe.rpc.loadbalance.RoundLoadBalance;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -44,7 +45,7 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
   public void init(){
     logger.info("Rpc load balance client ready to init");
-    loadBalance = new RandomLoadBalance<>();
+    loadBalance = new RoundLoadBalance<>();
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
         RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
