@@ -104,6 +104,7 @@ public class RpcServer {
                 logger.error(error);
                 throw new IllegalStateException(error);
             }
+            logger.info("RpcServer {}:{} stoped.",ip,port);
         }catch (Exception e){
             logger.error("ERROR:RpcServer stop failed.reason:{}",e.getMessage());
             throw new IllegalStateException(e);

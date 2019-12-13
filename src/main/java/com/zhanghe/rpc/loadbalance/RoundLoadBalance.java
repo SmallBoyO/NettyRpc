@@ -8,8 +8,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class RoundLoadBalance<T> implements LoadBalance {
 
-  ThreadLocalRandom random = ThreadLocalRandom.current();
-
   private List<T> services;
 
   private AtomicInteger position;

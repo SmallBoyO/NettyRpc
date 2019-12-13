@@ -6,6 +6,7 @@ import com.zhanghe.rpc.loadbalance.LoadBalance;
 import com.zhanghe.rpc.loadbalance.LoadBalanceService;
 import com.zhanghe.rpc.loadbalance.RandomLoadBalance;
 import com.zhanghe.rpc.loadbalance.RoundLoadBalance;
+import com.zhanghe.rpc.loadbalance.WeightRandomLoadBalance;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -34,7 +35,9 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
   private LoadBalanceProxy loadBalanceProxy;
 
-  private LoadBalance<RpcServerInfo> loadBalance;
+  private LoadBalance<RpcServerInfo> loadBalancer;
+
+  private String loadBalance = "";
 
   public RpcLoadBalanceAdaptor() {
     serversMap = new HashMap<>();
@@ -45,7 +48,7 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
   public void init(){
     logger.info("Rpc load balance client ready to init");
-    loadBalance = new RoundLoadBalance<>();
+    initLoadBalancer();
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
         RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
@@ -54,10 +57,31 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
         serversInfoMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo);
         rpcClientConnector.setRpcClientHolder(this);
         rpcClientConnector.start();
-        loadBalance.addService(LoadBalanceService.of("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo,rpcServerInfo.weight));
+        loadBalancer.addService(LoadBalanceService.of("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo,rpcServerInfo.weight));
       logger.info("client {}:{} init finish",rpcServerInfo.getIp(),rpcServerInfo.getPort());
     });
     logger.info("Rpc load balance client init finish");
+  }
+
+  private void initLoadBalancer(){
+    switch (loadBalance){
+      case "random":
+        loadBalancer = new RandomLoadBalance<>();
+        logger.info("Rpc load balance client use RandomLoadBalance");
+        break;
+      case "weight_random":
+        loadBalancer = new WeightRandomLoadBalance<>();
+        logger.info("Rpc load balance client use WeightRandomLoadBalance");
+        break;
+      case "round":
+        loadBalancer = new RoundLoadBalance<>();
+        logger.info("Rpc load balance client use RoundLoadBalance");
+        break;
+      default:
+        loadBalancer = new RandomLoadBalance<>();
+        logger.info("Rpc load balance client use default RandomLoadBalance");
+        break;
+    }
   }
 
   public void destroy(){
@@ -114,7 +138,7 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      RpcServerInfo server = loadBalance.next();
+      RpcServerInfo server = loadBalancer.next();
       logger.debug("choose server:[{}:{}]",server.getIp(),server.getPort());
       if(!server.getUseful().get()){
         throw new IllegalStateException("server ["+server.getIp()+":"+server.getPort()+"] disconnected!");
