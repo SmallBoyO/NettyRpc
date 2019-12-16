@@ -13,13 +13,13 @@ import io.netty.channel.ChannelInitializer;
 
 public class ServerChannelInitializer extends ChannelInitializer {
 
-    public static ServerChannelInitializer INSTANCE = new ServerChannelInitializer();
+    private BindRpcServiceHandler bindRpcServiceHandler = new BindRpcServiceHandler();
 
     @Override
     protected void initChannel(Channel channel) throws Exception {
         channel.pipeline().addLast(new Spliter(Integer.MAX_VALUE,7,4));
         channel.pipeline().addLast(new RpcIdleStateHandler());
-        channel.pipeline().addLast(BindRpcServiceHandler.INSTANCE);
+        channel.pipeline().addLast(bindRpcServiceHandler);
         channel.pipeline().addLast(AbstractCommandEncoder.INSTANCE);
         channel.pipeline().addLast(new AbstractCommandDecoder());
         channel.pipeline().addLast(HeartBeatRequestHanlder.INSTANCE);
@@ -27,4 +27,12 @@ public class ServerChannelInitializer extends ChannelInitializer {
         channel.pipeline().addLast(RpcRequestHandler.INSTANCE);
     }
 
+    public BindRpcServiceHandler getBindRpcServiceHandler() {
+        return bindRpcServiceHandler;
+    }
+
+    public void setBindRpcServiceHandler(
+        BindRpcServiceHandler bindRpcServiceHandler) {
+        this.bindRpcServiceHandler = bindRpcServiceHandler;
+    }
 }

@@ -168,4 +168,11 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
 
   }
 
+  public String getLoadBalance() {
+    return loadBalance;
+  }
+
+  public void setLoadBalance(String loadBalance) {
+    this.loadBalance = loadBalance;
+  }
 }

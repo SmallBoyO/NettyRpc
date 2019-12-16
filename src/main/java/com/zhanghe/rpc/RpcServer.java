@@ -42,6 +42,7 @@ public class RpcServer {
     public RpcServer(String ip, int port) {
         this.ip = ip;
         this.port = port;
+        this.serverChannelInitializer = new ServerChannelInitializer();
     }
 
     public void start(){
@@ -69,6 +70,9 @@ public class RpcServer {
 
     private ServerBootstrap bootstrap;
 
+
+    private ServerChannelInitializer serverChannelInitializer;
+
     public void doInit(){
         resetWorkGroup();
         SerializerManager.setDefault(SerializerAlgorithm.KYRO);
@@ -76,10 +80,9 @@ public class RpcServer {
         this.bootstrap.group(BOSS_GROUP, WORKER_GROUP)
                 .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
 //                .handler(new LoggingHandler(LogLevel.DEBUG))
-                .childHandler(new ServerChannelInitializer());
+                .childHandler(serverChannelInitializer);
         this.bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-        this.bootstrap.childHandler(ServerChannelInitializer.INSTANCE);
     }
 
     private ChannelFuture future ;
@@ -111,15 +114,16 @@ public class RpcServer {
         }
     }
 
+
     public void bind(Object service){
         logger.info("bind service:"+service.getClass().getName());
-        BindRpcServiceHandler.INSTANCE.getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+        serverChannelInitializer.getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
     }
 
     public void bind(List<Object> services){
         services.forEach(service -> {
             logger.info("bind service:" + service.getClass().getInterfaces()[0].getName());
-            BindRpcServiceHandler.INSTANCE.getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+            serverChannelInitializer.getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
         });
     }
 

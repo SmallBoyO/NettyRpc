@@ -1,15 +1,18 @@
-package com.zhanghe.test.testClient;
+package com.zhanghe.test.testClient.loadbalance;
 
 import com.zhanghe.rpc.RpcLoadBalanceAdaptor;
 import com.zhanghe.rpc.RpcServer;
 import com.zhanghe.rpc.RpcServerInfo;
+import com.zhanghe.test.testClient.DemoService;
+import com.zhanghe.test.testClient.DemoServiceLoadBalanceImpl;
 import java.util.ArrayList;
+import java.util.Random;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LoadBalanceClientTest {
+public class RandomLoadBalanceClientTest {
 
   private RpcServer server1;
 
@@ -19,16 +22,20 @@ public class LoadBalanceClientTest {
 
   private DemoService demoService;
 
+  private DemoServiceLoadBalanceImpl demoService1;
+
+  private DemoServiceLoadBalanceImpl demoService2;
+
   @Before
   public void init() {
     server1 = new RpcServer(7777);
-    server1.bind(new DemoServiceImpl());
+    demoService1 = new DemoServiceLoadBalanceImpl("server1");
+    server1.bind(demoService1);
     server1.start();
-    server1.bind(new DemoServiceLoadBalanceImpl("127.0.0.1:7777"));
     server2 = new RpcServer(7778);
-    server2.bind(new DemoServiceImpl());
+    demoService2 = new DemoServiceLoadBalanceImpl("server2");
+    server2.bind(demoService2);
     server2.start();
-    server2.bind(new DemoServiceLoadBalanceImpl("127.0.0.1:8888"));
   }
   @After
   public void destroy(){
@@ -44,7 +51,20 @@ public class LoadBalanceClientTest {
   }
 
   public void call(){
-    demoService.call("call");
+    Random random = new Random(System.currentTimeMillis());
+    int total = random.nextInt(100000);
+    int server1Num = 0;
+    int server2Num = 0;
+    for(int i = 0; i < total ;i++){
+      String result = demoService.call("call");
+      if (result.startsWith("server1")){
+        server1Num++;
+      }
+      if (result.startsWith("server2")){
+        server2Num++;
+      }
+    }
+    Assert.assertTrue(Math.abs(server1Num-server2Num)< (total/10));
   }
 
   public void connect(){
