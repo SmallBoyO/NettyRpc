@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns="http://www.zhanghe.com/schema/rpc"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.zhanghe.com/schema/rpc">
+
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+  <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+  <xsd:import namespace="http://www.springframework.org/schema/tool"/>
+
+  <xsd:annotation>
+    <xsd:documentation><![CDATA[ Namespace support for the myns test. ]]></xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:complexType name="serverNormalType">
+    <xsd:attribute name="id" type="xsd:ID">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="ip" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="port" type="xsd:int" use="required">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="serverType">
+  <xsd:complexContent>
+    <xsd:extension base="serverNormalType">
+      <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+        <xsd:element ref="service" minOccurs="0" maxOccurs="unbounded" />
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+  </xsd:complexType>
+
+
+  <xsd:element name="service" type="servicesType">
+  <xsd:annotation>
+    <xsd:documentation><![CDATA[ this is desc ]]></xsd:documentation>
+  </xsd:annotation>
+  </xsd:element>
+
+  <xsd:complexType name="servicesType">
+    <xsd:attribute name="value" type="xsd:string" use="required">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ this is desc ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+
+  <xsd:element name="server" type="serverType">
+    <xsd:annotation>
+      <xsd:documentation><![CDATA[ The mybean config ]]></xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+</xsd:schema>
