@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="DEBUG">
   <Appenders>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout>
-        <MarkerPatternSelector defaultPattern="%sn. %msg: Logger=%logger%n">
-          <PatternMatch key="CLASS" pattern="%sn. %msg: Class=%class%n"/>
-        </MarkerPatternSelector>
-      </PatternLayout>
-    </Console>
+    <console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="[%d{HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
+    </console>
   </Appenders>
   <Loggers>
     <Root level="INFO">

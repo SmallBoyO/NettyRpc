@@ -47,7 +47,7 @@ public class RpcClient implements RpcClientHolder{
     logger.info("Rpc client destroy finish");
   }
 
-  public Object proxy(String service) throws ClassNotFoundException,InterruptedException{
+  public Object proxy(String service) throws ClassNotFoundException{
       rpcServerInfo.waitServerUseful();
       if (!rpcServerInfo.getServices().contains(service)) {
         throw new RuntimeException("服务端未提供此service");
