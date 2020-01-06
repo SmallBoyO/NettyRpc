@@ -7,10 +7,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-@ChannelHandler.Sharable
 public class BindRpcServiceHandler extends ChannelInboundHandlerAdapter {
-
-    public static BindRpcServiceHandler INSTANCE = new BindRpcServiceHandler();
 
     private ConcurrentHashMap<String,Object> serviceMap = new ConcurrentHashMap<>();
 

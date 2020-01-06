@@ -15,6 +15,10 @@ public class RpcServerSpringAdaptor {
 
   List<Object> services;
 
+  public void setService(Object service) {
+    services.add(service);
+  }
+
   public String getIp() {
     return ip;
   }

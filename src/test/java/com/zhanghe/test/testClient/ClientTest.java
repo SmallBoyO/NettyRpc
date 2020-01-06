@@ -25,18 +25,18 @@ public class ClientTest {
   @After
   public void destroy(){
     rpcServer.stop();
-    rpcClient.stop();
+    rpcClient.destroy();
   }
   @Test
-  public void testConnectAndCall() throws ClassNotFoundException{
+  public void testConnectAndCall() throws ClassNotFoundException,InterruptedException{
     connect();
     call();
   }
 
-  public void connect() throws ClassNotFoundException{
+  public void connect() throws ClassNotFoundException,InterruptedException{
     rpcClient = new RpcClient("127.0.0.1",7777);
-    rpcClient.start();
-    demoService = (DemoService)rpcClient.proxy(DemoService.class.getName());
+    rpcClient.init();
+    demoService = (DemoService) rpcClient.proxy(DemoService.class.getName());
     Assert.assertNotNull(demoService);
   }
 
