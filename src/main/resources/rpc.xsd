@@ -61,4 +61,48 @@
     </xsd:annotation>
   </xsd:element>
 
+
+  <xsd:element name="client" type="clientType">
+    <xsd:annotation>
+      <xsd:documentation><![CDATA[ The mybean config ]]></xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:complexType name="clientType">
+    <xsd:attribute name="id" type="xsd:ID">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="ip" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="port" type="xsd:int" use="required">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:element name="clientService" type="clientServiceType">
+    <xsd:annotation>
+      <xsd:documentation><![CDATA[ The mybean config ]]></xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:complexType name="clientServiceType">
+    <xsd:attribute name="id" type="xsd:ID">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="class" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
 </xsd:schema>

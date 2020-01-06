@@ -1,14 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+  xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.zhanghe.com/schema/rpc
+  http://www.zhanghe.com/schema/rpc.xsd">
 
-  <bean name="client" class="com.zhanghe.rpc.RpcClientSpringAdaptor" init-method="init" destroy-method="destroy">
-    <property name="ip" value="127.0.0.1"></property>
-    <property name="port" value="7777"></property>
-  </bean>
+  <rpc:client id="client" port="7777" ip="127.0.0.1"></rpc:client>
 
-  <bean id="demoService" factory-bean="client" factory-method="proxy" >
-    <constructor-arg value="com.zhanghe.test.spring.DemoService"></constructor-arg>
-  </bean>
+  <rpc:clientService id="demoService" class="com.zhanghe.test.spring.DemoService"></rpc:clientService>
 </beans>
