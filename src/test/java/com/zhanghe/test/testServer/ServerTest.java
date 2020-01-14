@@ -1,6 +1,6 @@
 package com.zhanghe.test.testServer;
 
-import com.zhanghe.rpc.RpcServer;
+import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,16 +12,17 @@ public class ServerTest {
   }
 
   private void testService(){
-    RpcServer rpcServer = new RpcServer("0.0.0.0",1111);
+    AbstractRpcServer rpcServer = new AbstractRpcServer("0.0.0.0",1111);
     try{
-      rpcServer.start();
+      rpcServer.init();
     }catch (Exception e){
+      e.printStackTrace();
       Assert.fail("Should not reach here");
     }
 
-    RpcServer rpcServer2 = new RpcServer("0.0.0.0",1111);
+    AbstractRpcServer rpcServer2 = new AbstractRpcServer("0.0.0.0",1111);
     try{
-      rpcServer2.start();
+      rpcServer2.init();
       Assert.fail("Should not reach here");
     }catch (Exception e){
     }

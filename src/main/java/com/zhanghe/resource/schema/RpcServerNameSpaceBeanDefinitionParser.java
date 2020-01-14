@@ -1,6 +1,6 @@
 package com.zhanghe.resource.schema;
 
-import com.zhanghe.rpc.RpcServerSpringAdaptor;
+import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -14,7 +14,7 @@ public class RpcServerNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
 
   @Override
   protected Class getBeanClass(Element ele){
-    return RpcServerSpringAdaptor.class;
+    return AbstractRpcServer.class;
   }
 
   @Override

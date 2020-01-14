@@ -1,7 +1,7 @@
 package com.zhanghe.test.spring;
 
-import com.zhanghe.rpc.RpcClientSpringAdaptor;
-import com.zhanghe.rpc.RpcServer;
+import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
+import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,13 +11,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SpringClientAdaptorTest {
 
-  private RpcServer rpcServer;
+  private AbstractRpcServer rpcServer;
 
   @Before
   public void initRpcServer(){
-    rpcServer = new RpcServer("0.0.0.0",7777);
+    rpcServer = new AbstractRpcServer("0.0.0.0",7777);
     rpcServer.bind(new DemoServiceImpl());
-    rpcServer.start();
+    rpcServer.init();
   }
 
   @Test

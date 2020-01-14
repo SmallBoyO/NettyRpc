@@ -31,9 +31,9 @@ public class RpcServer {
 
     private AtomicBoolean stared = new AtomicBoolean(false);
 
-    private String ip;
+    String ip;
 
-    private int port;
+    int port;
 
     public RpcServer(int port) {
        this("127.0.0.1",port);
@@ -69,7 +69,6 @@ public class RpcServer {
     private EventLoopGroup WORKER_GROUP;
 
     private ServerBootstrap bootstrap;
-
 
     private ServerChannelInitializer serverChannelInitializer;
 

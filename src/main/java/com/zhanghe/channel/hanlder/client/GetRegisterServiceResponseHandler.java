@@ -1,7 +1,7 @@
 package com.zhanghe.channel.hanlder.client;
 
 import com.zhanghe.protocol.v1.response.GetRegisterServiceResponse;
-import com.zhanghe.rpc.RpcClientConnector;
+import com.zhanghe.rpc.core.client.RpcClientConnector;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.AttributeKey;

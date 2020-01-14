@@ -1,12 +1,12 @@
-package com.zhanghe.rpc;
+package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.protocol.v1.response.RpcResponse;
-import com.zhanghe.rpc.loadbalance.LoadBalance;
-import com.zhanghe.rpc.loadbalance.LoadBalanceService;
-import com.zhanghe.rpc.loadbalance.RandomLoadBalance;
-import com.zhanghe.rpc.loadbalance.RoundLoadBalance;
-import com.zhanghe.rpc.loadbalance.WeightRandomLoadBalance;
+import com.zhanghe.rpc.core.client.loadbalance.LoadBalance;
+import com.zhanghe.rpc.core.client.loadbalance.LoadBalanceService;
+import com.zhanghe.rpc.core.client.loadbalance.RandomLoadBalance;
+import com.zhanghe.rpc.core.client.loadbalance.RoundLoadBalance;
+import com.zhanghe.rpc.core.client.loadbalance.WeightRandomLoadBalance;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RpcLoadBalanceAdaptor implements RpcClientHolder{
+public class RpcLoadBalanceAdaptor implements Client{
 
   private static Logger logger = LoggerFactory.getLogger(RpcLoadBalanceAdaptor.class);
 
@@ -46,6 +46,7 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
     activeServer = new ArrayList<>();
   }
 
+  @Override
   public void init(){
     logger.info("Rpc load balance client ready to init");
     initLoadBalancer();
@@ -55,7 +56,7 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
         rpcServerInfo.setRpcClientConnector(rpcClientConnector);
         serversMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(), rpcClientConnector);
         serversInfoMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo);
-        rpcClientConnector.setRpcClientHolder(this);
+        rpcClientConnector.setClient(this);
         rpcClientConnector.start();
         loadBalancer.addService(LoadBalanceService.of("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo,rpcServerInfo.weight));
       logger.info("client {}:{} init finish",rpcServerInfo.getIp(),rpcServerInfo.getPort());
@@ -83,7 +84,7 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
         break;
     }
   }
-
+  @Override
   public void destroy(){
     logger.info("Rpc load balance client ready to destroy");
     servers.forEach(rpcServerInfo -> {
@@ -106,22 +107,18 @@ public class RpcLoadBalanceAdaptor implements RpcClientHolder{
     logger.info("server[{}] get channel",address);
   }
 
-  public Object proxy(String service){
+  @Override
+  public Object proxy(String service) throws ClassNotFoundException{
     //等待每一个服务端获取到service列表
     serversInfoMap.forEach((s, rpcServerInfo) -> {
       rpcServerInfo.waitServerUseful();
     });
-    try {
-      Class<?> clazz = Class.forName(service);
-      return Proxy.newProxyInstance(
-          clazz.getClassLoader(),
-          new Class<?>[]{ clazz },
-          loadBalanceProxy
-      );
-    }catch (ClassNotFoundException e){
-      e.printStackTrace();
-      return null;
-    }
+    Class<?> clazz = Class.forName(service);
+    return Proxy.newProxyInstance(
+        clazz.getClassLoader(),
+        new Class<?>[]{ clazz },
+        loadBalanceProxy
+    );
   }
 
   public List<RpcServerInfo> getServers() {
