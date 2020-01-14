@@ -1,11 +1,12 @@
 package com.zhanghe.protocol.v1.request;
 
 import com.zhanghe.protocol.v1.CommandType;
-import com.zhanghe.protocol.v1.Packet;
+import com.zhanghe.protocol.v1.BasePacket;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class RpcRequest extends Packet {
+public class RpcRequest extends BasePacket implements Serializable {
     /**
      * 请求id
      */

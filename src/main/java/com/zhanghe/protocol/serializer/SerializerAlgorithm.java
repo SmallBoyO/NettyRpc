@@ -9,4 +9,6 @@ public interface SerializerAlgorithm {
      * JSON 序列化标识
      */
     byte JSON = 2;
+
+    byte PROTOSTUFF = 3;
 }

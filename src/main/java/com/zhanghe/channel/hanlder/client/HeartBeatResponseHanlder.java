@@ -22,4 +22,10 @@ public class HeartBeatResponseHanlder extends SimpleChannelInboundHandler<HeartB
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, HeartBeatResponse heartBeatResponse) throws Exception {
         logger.debug("hertbeatresponse recived.");
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.channel().close();
+        super.exceptionCaught(ctx, cause);
+    }
 }

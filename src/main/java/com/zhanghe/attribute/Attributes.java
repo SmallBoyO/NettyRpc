@@ -7,6 +7,6 @@ import java.util.Map;
 
 public interface Attributes {
 
-    AttributeKey<Map<String ,Object>> servers = AttributeKey.newInstance("servers");
+    AttributeKey<Map<String ,Object>> SERVERS = AttributeKey.newInstance("SERVERS");
 
 }

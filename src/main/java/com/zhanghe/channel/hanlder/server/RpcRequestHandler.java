@@ -31,7 +31,7 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
             try {
                 rpcResponse.setRequestId(rpcRequest.getRequestId());
                 String className = rpcRequest.getClassName();
-                Map mserverMap = channelHandlerContext.channel().attr(Attributes.servers).get();
+                Map mserverMap = channelHandlerContext.channel().attr(Attributes.SERVERS).get();
                 Object serviceBean = mserverMap.get(className);
                 Object result = serviceBean.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getTypeParameters()).invoke(serviceBean,rpcRequest.getParametersVal());
                 rpcResponse.setResult(result);
@@ -46,7 +46,6 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
         });
         f.addListener((future)->{
             RpcResponse rpcResponse = (RpcResponse)future.get();
-            System.out.println(rpcResponse);
             channelHandlerContext.channel().writeAndFlush(rpcResponse);
         });
     }

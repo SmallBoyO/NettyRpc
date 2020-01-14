@@ -1,11 +1,10 @@
 package com.zhanghe.rpc;
 
-import com.zhanghe.ThreadPool.RpcThreadPoolFactory;
+import com.zhanghe.threadpool.RpcThreadPoolFactory;
 import com.zhanghe.channel.ServerChannelInitializer;
 import com.zhanghe.channel.hanlder.server.BindRpcServiceHandler;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.service.TestServiceImpl;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -14,13 +13,11 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -34,9 +31,9 @@ public class RpcServer {
 
     private AtomicBoolean stared = new AtomicBoolean(false);
 
-    private String ip;
+    String ip;
 
-    private int port;
+    int port;
 
     public RpcServer(int port) {
        this("127.0.0.1",port);
@@ -45,6 +42,7 @@ public class RpcServer {
     public RpcServer(String ip, int port) {
         this.ip = ip;
         this.port = port;
+        this.serverChannelInitializer = new ServerChannelInitializer();
     }
 
     public void start(){
@@ -54,6 +52,7 @@ public class RpcServer {
                 doInit();
                 doStart();
             }catch (Exception e){
+                stared.set(false);
                 logger.error("ERROR:RpcServer started failed.reason:{}",e.getMessage());
                 throw new IllegalStateException(e);
             }
@@ -65,36 +64,24 @@ public class RpcServer {
         }
     }
 
-    private static final EventLoopGroup bossGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+    private EventLoopGroup BOSS_GROUP;
 
-    private static final EventLoopGroup workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
-
-    //设置即I/O操作和用户自定义任务的执行时间比
-    static {
-        if (workerGroup instanceof NioEventLoopGroup) {
-            ((NioEventLoopGroup) workerGroup).setIoRatio(50);
-        } else if (workerGroup instanceof EpollEventLoopGroup) {
-            ((EpollEventLoopGroup) workerGroup).setIoRatio(50);
-        }
-    }
+    private EventLoopGroup WORKER_GROUP;
 
     private ServerBootstrap bootstrap;
 
+    private ServerChannelInitializer serverChannelInitializer;
+
     public void doInit(){
-        SerializerManager.setDefault(SerializerAlgorithm.JSON);
+        resetWorkGroup();
+        SerializerManager.setDefault(SerializerAlgorithm.KYRO);
         this.bootstrap = new ServerBootstrap();
-        this.bootstrap.group(bossGroup,workerGroup)
+        this.bootstrap.group(BOSS_GROUP, WORKER_GROUP)
                 .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
-                .handler(new LoggingHandler(LogLevel.DEBUG))
-                .childHandler(new ServerChannelInitializer());
+//                .handler(new LoggingHandler(LogLevel.DEBUG))
+                .childHandler(serverChannelInitializer);
         this.bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-        this.bootstrap.childHandler(ServerChannelInitializer.INSTANCE);
-
-        TestServiceImpl test = new TestServiceImpl();
-        ConcurrentHashMap<String,Object> map = new ConcurrentHashMap<>();
-        map.put(test.getClass().getInterfaces()[0].getName(), test);
-        BindRpcServiceHandler.INSTANCE.setServiceMap(map);
     }
 
     private ChannelFuture future ;
@@ -105,4 +92,47 @@ public class RpcServer {
         return this.future.isSuccess();
     }
 
+    public void doStop() throws InterruptedException{
+        BOSS_GROUP.shutdownGracefully().sync();
+        WORKER_GROUP.shutdownGracefully().sync();
+    }
+
+    public void stop(){
+        try{
+            if(stared.getAndSet(false)) {
+                doStop();
+            }else{
+                String error = "ERROR:RpcServer not started!";
+                logger.error(error);
+                throw new IllegalStateException(error);
+            }
+            logger.info("RpcServer {}:{} stoped.",ip,port);
+        }catch (Exception e){
+            logger.error("ERROR:RpcServer stop failed.reason:{}",e.getMessage());
+            throw new IllegalStateException(e);
+        }
+    }
+
+
+    public void bind(Object service){
+        logger.info("bind service:"+service.getClass().getName());
+        serverChannelInitializer.getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+    }
+
+    public void bind(List<Object> services){
+        services.forEach(service -> {
+            logger.info("bind service:" + service.getClass().getInterfaces()[0].getName());
+            serverChannelInitializer.getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+        });
+    }
+
+    public void resetWorkGroup(){
+        BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+        WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
+        if (WORKER_GROUP instanceof NioEventLoopGroup) {
+            ((NioEventLoopGroup) WORKER_GROUP).setIoRatio(50);
+        } else if (WORKER_GROUP instanceof EpollEventLoopGroup) {
+            ((EpollEventLoopGroup) WORKER_GROUP).setIoRatio(50);
+        }
+    }
 }

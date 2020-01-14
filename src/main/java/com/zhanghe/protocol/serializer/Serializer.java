@@ -22,6 +22,7 @@ public interface Serializer {
 
     /**
      * 二进制转换成 java 对象
+     * @param clazz
      * @param bytes
      * @param <T>
      * @return
@@ -33,6 +34,6 @@ public interface Serializer {
      * @param bytes
      * @return
      */
-    public Object deserialize( byte[] bytes);
+    Object deserialize( byte[] bytes);
 
 }

@@ -1,7 +1,10 @@
 package com.zhanghe.service;
 
-import java.util.Date;
-
 public interface DateService {
+
+	/**
+	 * 获取当前时间
+	 * @return
+	 */
 	public String now();
 }

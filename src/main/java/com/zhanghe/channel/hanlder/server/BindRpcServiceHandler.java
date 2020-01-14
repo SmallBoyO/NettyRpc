@@ -7,17 +7,14 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-@ChannelHandler.Sharable
 public class BindRpcServiceHandler extends ChannelInboundHandlerAdapter {
 
-    public static BindRpcServiceHandler INSTANCE = new BindRpcServiceHandler();
-
-    private ConcurrentHashMap<String,Object> serviceMap;
+    private ConcurrentHashMap<String,Object> serviceMap = new ConcurrentHashMap<>();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if(serviceMap!=null) {
-            ctx.channel().attr(Attributes.servers).set(serviceMap);
+            ctx.channel().attr(Attributes.SERVERS).set(serviceMap);
         }
         //绑定完成之后 移除自己
         ctx.pipeline().remove(this);

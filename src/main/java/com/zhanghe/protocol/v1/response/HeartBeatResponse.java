@@ -1,9 +1,9 @@
 package com.zhanghe.protocol.v1.response;
 
 import com.zhanghe.protocol.v1.CommandType;
-import com.zhanghe.protocol.v1.Packet;
+import com.zhanghe.protocol.v1.BasePacket;
 
-public class HeartBeatResponse extends Packet {
+public class HeartBeatResponse extends BasePacket {
 
     public static final HeartBeatResponse INSTANCE = new HeartBeatResponse();
 

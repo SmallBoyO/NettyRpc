@@ -1,0 +1,11 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.zhanghe.com/schema/rpc
+  http://www.zhanghe.com/schema/rpc.xsd">
+
+  <rpc:client id="client" port="7777" ip="127.0.0.1"></rpc:client>
+
+  <rpc:clientService id="demoService" class="com.zhanghe.test.spring.DemoService"></rpc:clientService>
+</beans>
