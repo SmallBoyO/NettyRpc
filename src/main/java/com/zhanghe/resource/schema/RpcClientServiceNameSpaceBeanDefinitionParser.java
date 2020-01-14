@@ -1,7 +1,5 @@
 package com.zhanghe.resource.schema;
 
-import com.zhanghe.rpc.RpcClientSpringAdaptor;
-import com.zhanghe.rpc.RpcServerSpringAdaptor;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;

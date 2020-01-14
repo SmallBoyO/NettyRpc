@@ -1,6 +1,6 @@
 package com.zhanghe.test.spring;
 
-import com.zhanghe.rpc.RpcServerSpringAdaptor;
+import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -12,7 +12,7 @@ public class SpringServerAdaptorTest {
   public void testSpringServerAdaptor(){
     ApplicationContext context = new ClassPathXmlApplicationContext(
         "spring-rpc-server-spring-adaptor.xml");
-    RpcServerSpringAdaptor adaptor = (RpcServerSpringAdaptor)context.getBean("adaptor");
+    AbstractRpcServer adaptor = (AbstractRpcServer)context.getBean("adaptor");
     Assert.assertNotNull(adaptor);
     ((ClassPathXmlApplicationContext) context).close();
   }

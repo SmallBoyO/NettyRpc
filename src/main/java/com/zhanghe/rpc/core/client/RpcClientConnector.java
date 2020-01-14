@@ -1,10 +1,10 @@
-package com.zhanghe.rpc;
+package com.zhanghe.rpc.core.client;
 
-import com.zhanghe.threadpool.RpcThreadPoolFactory;
 import com.zhanghe.channel.ClientChannelInitializer;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
+import com.zhanghe.threadpool.RpcThreadPoolFactory;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -12,13 +12,11 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
+import java.net.InetSocketAddress;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Proxy;
-import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Rpc客户端
@@ -46,7 +44,7 @@ public class RpcClientConnector {
 
     private EventLoopGroup WORKER_GROUP;
 
-    private RpcClientHolder rpcClientHolder;
+    private Client client;
 
     public void start(){
         if(stared.compareAndSet(false,true)){
@@ -99,14 +97,14 @@ public class RpcClientConnector {
     }
 
     public void connect(){
-        logger.debug("ready connect to server.");
+        logger.debug("ready connect to server {}:{}.",serverIp,serverPort);
             ChannelFuture future = bootstrap.connect();
             future.addListener((f) -> {
                 if (future.isSuccess()) {
                     //连接成功后 在断开连接之后绑定重新连接的逻辑
                     Channel channel = future.channel();
                     activeChannel = channel;
-                    rpcClientHolder.setChannel(channel.remoteAddress().toString(),channel);
+                    client.setChannel(channel.remoteAddress().toString(),channel);
                     channel.attr(AttributeKey.valueOf("rpcClient")).set(this);
                     //查询服务端接口列表
                     channel.writeAndFlush(GetRegisterServiceRequest.INSTANCE);
@@ -133,7 +131,7 @@ public class RpcClientConnector {
 
     public void setRegisterServices(Set<String> services){
         this.getServices.set(true);
-        rpcClientHolder.setServices(activeChannel.remoteAddress().toString(),services);
+        client.setServices(activeChannel.remoteAddress().toString(),services);
     }
 
     public AtomicBoolean getGetServices() {
@@ -144,10 +142,6 @@ public class RpcClientConnector {
         this.getServices = getServices;
     }
 
-    public RpcClientHolder getRpcClientHolder() {
-        return rpcClientHolder;
-    }
-
     public Channel getActiveChannel() {
         return activeChannel;
     }
@@ -156,8 +150,12 @@ public class RpcClientConnector {
         this.activeChannel = activeChannel;
     }
 
-    public void setRpcClientHolder(RpcClientHolder rpcClientHolder) {
-        this.rpcClientHolder = rpcClientHolder;
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public void resetWorkGroup(){

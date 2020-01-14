@@ -1,7 +1,7 @@
 package com.zhanghe.test.testClient;
 
-import com.zhanghe.rpc.RpcClient;
-import com.zhanghe.rpc.RpcServer;
+import com.zhanghe.rpc.core.client.AbstractRpcClient;
+import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,17 +9,17 @@ import org.junit.Test;
 
 public class ClientTest {
 
-  private RpcServer rpcServer;
+  private AbstractRpcServer rpcServer;
 
-  private RpcClient rpcClient;
+  private AbstractRpcClient rpcClient;
 
   private DemoService demoService;
 
   @Before
   public void init() {
-    rpcServer = new RpcServer(7777);
+    rpcServer = new AbstractRpcServer(7777);
     rpcServer.bind(new DemoServiceImpl());
-    rpcServer.start();
+    rpcServer.init();
   }
 
   @After
@@ -34,7 +34,7 @@ public class ClientTest {
   }
 
   public void connect() throws ClassNotFoundException,InterruptedException{
-    rpcClient = new RpcClient("127.0.0.1",7777);
+    rpcClient = new AbstractRpcClient("127.0.0.1",7777);
     rpcClient.init();
     demoService = (DemoService) rpcClient.proxy(DemoService.class.getName());
     Assert.assertNotNull(demoService);

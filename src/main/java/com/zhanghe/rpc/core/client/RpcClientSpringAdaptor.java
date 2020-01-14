@@ -1,4 +1,4 @@
-package com.zhanghe.rpc;
+package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.config.RpcConfig;
 import io.netty.channel.Channel;
@@ -7,7 +7,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RpcClient implements RpcClientHolder{
+public class RpcClientSpringAdaptor implements Client{
 
   private static Logger logger = LoggerFactory.getLogger(RpcClientSpringAdaptor.class);
 
@@ -21,13 +21,11 @@ public class RpcClient implements RpcClientHolder{
 
   private RpcRequestProxy proxy;
 
-
-  public RpcClient(String ip, int port) {
-    this.ip = ip;
-    this.port = port;
+  public RpcClientSpringAdaptor() {
     this.proxy = new RpcRequestProxy<>();
   }
 
+  @Override
   public void init(){
     logger.info("Rpc client ready to init");
     if(rpcServerInfo == null){
@@ -36,28 +34,30 @@ public class RpcClient implements RpcClientHolder{
       rpcServerInfo.setPort(port);
     }
     rpcClientConnector = new RpcClientConnector(ip,port);
-    rpcClientConnector.setRpcClientHolder(this);
+    rpcClientConnector.setClient(this);
     rpcClientConnector.start();
     logger.info("Rpc client init finish");
   }
 
+  @Override
   public void destroy(){
     logger.info("Rpc client ready to destroy");
     rpcClientConnector.stop();
     logger.info("Rpc client destroy finish");
   }
 
+  @Override
   public Object proxy(String service) throws ClassNotFoundException{
-      rpcServerInfo.waitServerUseful();
-      if (!rpcServerInfo.getServices().contains(service)) {
-        throw new RuntimeException("服务端未提供此service");
-      }
-      Class<?> clazz = Class.forName(service);
-      return Proxy.newProxyInstance(
-          clazz.getClassLoader(),
-          new Class<?>[]{clazz},
-          proxy
-      );
+    rpcServerInfo.waitServerUseful();
+    if (!rpcServerInfo.getServices().contains(service)) {
+      throw new RuntimeException("服务端未提供此service");
+    }
+    Class<?> clazz = Class.forName(service);
+    return Proxy.newProxyInstance(
+        clazz.getClassLoader(),
+        new Class<?>[]{clazz},
+        proxy
+    );
   }
 
   @Override
@@ -87,4 +87,27 @@ public class RpcClient implements RpcClientHolder{
     this.port = port;
   }
 
+  public RpcServerInfo getRpcServerInfo() {
+    return rpcServerInfo;
+  }
+
+  public void setRpcServerInfo(RpcServerInfo rpcServerInfo) {
+    this.rpcServerInfo = rpcServerInfo;
+  }
+
+  public RpcClientConnector getRpcClientConnector() {
+    return rpcClientConnector;
+  }
+
+  public void setRpcClientConnector(RpcClientConnector rpcClientConnector) {
+    this.rpcClientConnector = rpcClientConnector;
+  }
+
+  public RpcRequestProxy getProxy() {
+    return proxy;
+  }
+
+  public void setProxy(RpcRequestProxy proxy) {
+    this.proxy = proxy;
+  }
 }

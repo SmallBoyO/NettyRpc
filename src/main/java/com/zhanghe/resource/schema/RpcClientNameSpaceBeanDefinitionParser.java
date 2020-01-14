@@ -1,15 +1,10 @@
 package com.zhanghe.resource.schema;
 
-import com.zhanghe.rpc.RpcClientSpringAdaptor;
-import com.zhanghe.rpc.RpcServerSpringAdaptor;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
+import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class RpcClientNameSpaceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 

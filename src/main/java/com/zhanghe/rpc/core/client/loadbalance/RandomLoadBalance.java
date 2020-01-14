@@ -1,4 +1,4 @@
-package com.zhanghe.rpc.loadbalance;
+package com.zhanghe.rpc.core.client.loadbalance;
 
 import java.util.ArrayList;
 import java.util.List;

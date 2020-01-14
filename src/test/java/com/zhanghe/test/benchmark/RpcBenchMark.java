@@ -1,8 +1,7 @@
 package com.zhanghe.test.benchmark;
 
-import com.zhanghe.rpc.RpcClient;
-import com.zhanghe.rpc.RpcClientConnector;
-import com.zhanghe.rpc.RpcServer;
+import com.zhanghe.rpc.core.client.AbstractRpcClient;
+import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
@@ -29,10 +28,10 @@ public class RpcBenchMark {
 
   @Setup
   public void init() throws ClassNotFoundException{
-    RpcServer rpcServer = new RpcServer(7777);
+    AbstractRpcServer rpcServer = new AbstractRpcServer(7777);
     rpcServer.bind(new BenchMarkServiceImpl());
-    rpcServer.start();
-    RpcClient rpcClient = new RpcClient("127.0.0.1",7777);
+    rpcServer.init();
+    AbstractRpcClient rpcClient = new AbstractRpcClient("127.0.0.1",7777);
     rpcClient.init();
     service = (BenchMarkService) rpcClient.proxy(BenchMarkService.class.getName());
     localService = new BenchMarkServiceImpl();

@@ -1,8 +1,8 @@
 package com.zhanghe.test.testClient.loadbalance;
 
-import com.zhanghe.rpc.RpcLoadBalanceAdaptor;
-import com.zhanghe.rpc.RpcServer;
-import com.zhanghe.rpc.RpcServerInfo;
+import com.zhanghe.rpc.core.client.RpcLoadBalanceAdaptor;
+import com.zhanghe.rpc.core.client.RpcServerInfo;
+import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import com.zhanghe.test.testClient.DemoService;
 import com.zhanghe.test.testClient.DemoServiceLoadBalanceImpl;
 import java.util.ArrayList;
@@ -14,9 +14,9 @@ import org.junit.Test;
 
 public class RandomLoadBalanceClientTest {
 
-  private RpcServer server1;
+  private AbstractRpcServer server1;
 
-  private RpcServer server2;
+  private AbstractRpcServer server2;
 
   private RpcLoadBalanceAdaptor rpcClient;
 
@@ -28,14 +28,14 @@ public class RandomLoadBalanceClientTest {
 
   @Before
   public void init() {
-    server1 = new RpcServer(7777);
+    server1 = new AbstractRpcServer(7777);
     demoService1 = new DemoServiceLoadBalanceImpl("server1");
     server1.bind(demoService1);
-    server1.start();
-    server2 = new RpcServer(7778);
+    server1.init();
+    server2 = new AbstractRpcServer(7778);
     demoService2 = new DemoServiceLoadBalanceImpl("server2");
     server2.bind(demoService2);
-    server2.start();
+    server2.init();
   }
   @After
   public void destroy(){
@@ -45,7 +45,7 @@ public class RandomLoadBalanceClientTest {
   }
 
   @Test
-  public void testLoadBalance(){
+  public void testLoadBalance() throws ClassNotFoundException{
     connect();
     call();
   }
@@ -67,7 +67,7 @@ public class RandomLoadBalanceClientTest {
     Assert.assertTrue(Math.abs(server1Num-server2Num)< (total/10));
   }
 
-  public void connect(){
+  public void connect() throws ClassNotFoundException{
     RpcServerInfo rpcServerInfo1 = new RpcServerInfo();
     rpcServerInfo1.setIp("127.0.0.1");
     rpcServerInfo1.setWeight(10);
