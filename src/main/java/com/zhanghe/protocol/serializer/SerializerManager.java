@@ -1,7 +1,7 @@
 package com.zhanghe.protocol.serializer;
 
 import com.zhanghe.protocol.serializer.impl.JsonSerializer;
-import com.zhanghe.protocol.serializer.impl.KyroSerializer;
+import com.zhanghe.protocol.serializer.impl.KryoSerializer;
 import com.zhanghe.protocol.serializer.impl.ProtostuffSerializer;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +17,7 @@ public class SerializerManager {
 
     static{
         serializers.put(SerializerAlgorithm.JSON,JsonSerializer.INSTANCE);
-        serializers.put(SerializerAlgorithm.KYRO,KyroSerializer.INSTANCE);
+        serializers.put(SerializerAlgorithm.KYRO,KryoSerializer.INSTANCE);
         serializers.put(SerializerAlgorithm.PROTOSTUFF,ProtostuffSerializer.INSTANCE);
     }
 
