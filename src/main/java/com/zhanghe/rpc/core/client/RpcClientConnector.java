@@ -1,6 +1,7 @@
 package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.channel.ClientChannelInitializer;
+import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
@@ -46,6 +47,8 @@ public class RpcClientConnector {
 
     private Client client;
 
+    private Serializer serializer;
+
     public void start(){
         if(stared.compareAndSet(false,true)){
             logger.info("Ready start RpcClientConnector,connect address {}:{}.",serverIp,serverPort);
@@ -65,11 +68,14 @@ public class RpcClientConnector {
 
     public void init() {
         resetWorkGroup();
-        SerializerManager.setDefault(SerializerAlgorithm.KYRO);
         bootstrap = new Bootstrap();
+        if( serializer == null ){
+            bootstrap.handler(new ClientChannelInitializer());
+        }else{
+            bootstrap.handler(new ClientChannelInitializer(serializer));
+        }
         bootstrap.group(WORKER_GROUP)
                 .channel(NioSocketChannel.class)
-                .handler(new ClientChannelInitializer())
                 .remoteAddress(new InetSocketAddress(serverIp, serverPort));
     }
 
@@ -156,6 +162,14 @@ public class RpcClientConnector {
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    public Serializer getSerializer() {
+        return serializer;
+    }
+
+    public void setSerializer(Serializer serializer) {
+        this.serializer = serializer;
     }
 
     public void resetWorkGroup(){

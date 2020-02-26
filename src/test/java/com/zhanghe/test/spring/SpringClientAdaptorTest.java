@@ -16,8 +16,8 @@ public class SpringClientAdaptorTest {
   @Before
   public void initRpcServer(){
     rpcServer = new AbstractRpcServer("0.0.0.0",7777);
-    rpcServer.bind(new DemoServiceImpl());
     rpcServer.init();
+    rpcServer.bind(new DemoServiceImpl());
   }
 
   @Test

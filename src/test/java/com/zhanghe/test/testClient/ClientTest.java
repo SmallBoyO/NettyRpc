@@ -18,8 +18,8 @@ public class ClientTest {
   @Before
   public void init() {
     rpcServer = new AbstractRpcServer(7777);
-    rpcServer.bind(new DemoServiceImpl());
     rpcServer.init();
+    rpcServer.bind(new DemoServiceImpl());
   }
 
   @After

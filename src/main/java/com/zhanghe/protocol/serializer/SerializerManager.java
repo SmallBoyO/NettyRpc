@@ -19,6 +19,7 @@ public class SerializerManager {
         serializers.put(SerializerAlgorithm.JSON,JsonSerializer.INSTANCE);
         serializers.put(SerializerAlgorithm.KYRO,KryoSerializer.INSTANCE);
         serializers.put(SerializerAlgorithm.PROTOSTUFF,ProtostuffSerializer.INSTANCE);
+        setDefault(SerializerAlgorithm.KYRO);
     }
 
     private static Serializer defaultSerializer;

@@ -61,10 +61,10 @@ public class AbstractRpcServer implements Server {
   private void doInit(){
     rpcServerConnector.setIp(ip);
     rpcServerConnector.setPort(port);
+    rpcServerConnector.init();
     if(services != null){
       bind(services);
     }
-    rpcServerConnector.init();
   }
 
   public boolean doStart() throws InterruptedException{
