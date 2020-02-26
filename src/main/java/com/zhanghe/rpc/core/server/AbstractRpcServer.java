@@ -1,19 +1,6 @@
 package com.zhanghe.rpc.core.server;
 
-import com.zhanghe.channel.ServerChannelInitializer;
 import com.zhanghe.config.RpcConfig;
-import com.zhanghe.protocol.serializer.SerializerAlgorithm;
-import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.threadpool.RpcThreadPoolFactory;
-import com.zhanghe.util.NettyEventLoopGroupUtil;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -29,30 +16,24 @@ public class AbstractRpcServer implements Server {
 
   private int port;
 
-  private EventLoopGroup BOSS_GROUP;
+  private RpcServerConnector rpcServerConnector;
 
-  private EventLoopGroup WORKER_GROUP;
-
-  private ServerBootstrap bootstrap;
-
-  private ServerChannelInitializer serverChannelInitializer;
-
-  private ChannelFuture future ;
+  List<Object> services;
 
   public AbstractRpcServer() {
-    this.serverChannelInitializer = new ServerChannelInitializer();
+    this.rpcServerConnector = new RpcServerConnector();
   }
 
   public AbstractRpcServer(int port) {
+    this.rpcServerConnector = new RpcServerConnector();
     this.ip = RpcConfig.DEFAULT_IP;
     this.port = port;
-    this.serverChannelInitializer = new ServerChannelInitializer();
   }
 
   public AbstractRpcServer(String ip, int port) {
+    this.rpcServerConnector = new RpcServerConnector();
     this.ip = ip;
     this.port = port;
-    this.serverChannelInitializer = new ServerChannelInitializer();
   }
 
   @Override
@@ -78,19 +59,16 @@ public class AbstractRpcServer implements Server {
   }
 
   private void doInit(){
-    resetWorkGroup();
-    SerializerManager.setDefault(SerializerAlgorithm.KYRO);
-    this.bootstrap = new ServerBootstrap();
-    this.bootstrap.group(BOSS_GROUP, WORKER_GROUP)
-        .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
-        .childHandler(serverChannelInitializer);
-    this.bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-        .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+    rpcServerConnector.setIp(ip);
+    rpcServerConnector.setPort(port);
+    if(services != null){
+      bind(services);
+    }
+    rpcServerConnector.init();
   }
 
   public boolean doStart() throws InterruptedException{
-    this.future = this.bootstrap.bind(new InetSocketAddress(ip,port)).sync();
-    return this.future.isSuccess();
+    return rpcServerConnector.start();
   }
 
   @Override
@@ -101,8 +79,7 @@ public class AbstractRpcServer implements Server {
   }
 
   public void doStop() throws InterruptedException{
-    BOSS_GROUP.shutdownGracefully().sync();
-    WORKER_GROUP.shutdownGracefully().sync();
+    rpcServerConnector.stop();
   }
 
   public void stop(){
@@ -124,25 +101,19 @@ public class AbstractRpcServer implements Server {
   @Override
   public void bind(Object service){
     logger.info("bind service:"+service.getClass().getName());
-    serverChannelInitializer.getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+    rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
   }
 
   @Override
   public void bind(List<Object> services){
     services.forEach(service -> {
       logger.info("bind service:" + service.getClass().getInterfaces()[0].getName());
-      serverChannelInitializer.getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+      rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
     });
   }
 
   public void resetWorkGroup(){
-    BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
-    WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
-    if (WORKER_GROUP instanceof NioEventLoopGroup) {
-      ((NioEventLoopGroup) WORKER_GROUP).setIoRatio(50);
-    } else if (WORKER_GROUP instanceof EpollEventLoopGroup) {
-      ((EpollEventLoopGroup) WORKER_GROUP).setIoRatio(50);
-    }
+
   }
 
   public String getIp() {
@@ -162,10 +133,10 @@ public class AbstractRpcServer implements Server {
   }
 
   public List<Object> getServices() {
-    return null;
+    return services;
   }
 
   public void setServices(List<Object> services) {
-    bind(services);
+    this.services = services;
   }
 }

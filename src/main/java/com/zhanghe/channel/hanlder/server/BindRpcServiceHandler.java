@@ -2,11 +2,12 @@ package com.zhanghe.channel.hanlder.server;
 
 import com.zhanghe.attribute.Attributes;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.concurrent.ConcurrentHashMap;
-
+@Sharable
 public class BindRpcServiceHandler extends ChannelInboundHandlerAdapter {
 
     private ConcurrentHashMap<String,Object> serviceMap = new ConcurrentHashMap<>();

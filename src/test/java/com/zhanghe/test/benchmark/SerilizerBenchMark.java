@@ -1,6 +1,6 @@
 package com.zhanghe.test.benchmark;
 
-import com.zhanghe.protocol.serializer.impl.KyroSerializer;
+import com.zhanghe.protocol.serializer.impl.KryoSerializer;
 import com.zhanghe.protocol.serializer.impl.ProtostuffSerializer;
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import java.io.ByteArrayInputStream;
@@ -41,8 +41,8 @@ public class SerilizerBenchMark {
 
   @Benchmark
   public void kryoSerializerBenchMark(Blackhole bh){
-    byte[] bytes = KyroSerializer.INSTANCE.serialize(rpcRequest);
-    bh.consume(KyroSerializer.INSTANCE.deserialize(RpcRequest.class,bytes));
+    byte[] bytes = KryoSerializer.INSTANCE.serialize(rpcRequest);
+    bh.consume(KryoSerializer.INSTANCE.deserialize(RpcRequest.class,bytes));
   }
   @Benchmark
   public void protostuffSerializerBenchMark(Blackhole bh){
