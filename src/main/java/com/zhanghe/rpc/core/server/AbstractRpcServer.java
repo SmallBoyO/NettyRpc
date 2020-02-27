@@ -2,6 +2,8 @@ package com.zhanghe.rpc.core.server;
 
 import com.zhanghe.config.RpcConfig;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,8 @@ public class AbstractRpcServer implements Server {
   private RpcServerConnector rpcServerConnector;
 
   List<Object> services;
+
+  ConcurrentHashMap<String,Object> servicesMap;
 
   public AbstractRpcServer() {
     this.rpcServerConnector = new RpcServerConnector();
@@ -62,6 +66,8 @@ public class AbstractRpcServer implements Server {
     rpcServerConnector.setIp(ip);
     rpcServerConnector.setPort(port);
     rpcServerConnector.init();
+    servicesMap = new ConcurrentHashMap<>();
+    rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().setServiceMap(servicesMap);
     if(services != null){
       bind(services);
     }
@@ -101,14 +107,14 @@ public class AbstractRpcServer implements Server {
   @Override
   public void bind(Object service){
     logger.info("bind service:"+service.getClass().getName());
-    rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+    this.servicesMap.put(service.getClass().getInterfaces()[0].getName(), service);
   }
 
   @Override
   public void bind(List<Object> services){
     services.forEach(service -> {
       logger.info("bind service:" + service.getClass().getInterfaces()[0].getName());
-      rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+        this.servicesMap.put(service.getClass().getInterfaces()[0].getName(), service);
     });
   }
 
