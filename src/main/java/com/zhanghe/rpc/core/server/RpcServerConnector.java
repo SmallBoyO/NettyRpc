@@ -1,8 +1,8 @@
 package com.zhanghe.rpc.core.server;
 
+import com.zhanghe.channel.ClientChannelInitializer;
 import com.zhanghe.channel.ServerChannelInitializer;
-import com.zhanghe.protocol.serializer.SerializerAlgorithm;
-import com.zhanghe.protocol.serializer.SerializerManager;
+import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.threadpool.RpcThreadPoolFactory;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -34,19 +34,23 @@ public class RpcServerConnector {
 
   private ChannelFuture future ;
 
+  private Serializer serializer;
+
   public RpcServerConnector() {
-    this.serverChannelInitializer = new ServerChannelInitializer();
   }
 
   public RpcServerConnector(String ip, int port) {
     this.ip = ip;
     this.port = port;
-    this.serverChannelInitializer = new ServerChannelInitializer();
   }
 
   public void init(){
+    if( serializer == null ) {
+      this.serverChannelInitializer = new ServerChannelInitializer();
+    }else {
+      this.serverChannelInitializer = new ServerChannelInitializer(serializer);
+    }
     resetWorkGroup();
-    SerializerManager.setDefault(SerializerAlgorithm.KYRO);
     this.bootstrap = new ServerBootstrap();
     this.bootstrap.group(BOSS_GROUP, WORKER_GROUP)
         .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
@@ -93,5 +97,13 @@ public class RpcServerConnector {
 
   public void setPort(int port) {
     this.port = port;
+  }
+
+  public Serializer getSerializer() {
+    return serializer;
+  }
+
+  public void setSerializer(Serializer serializer) {
+    this.serializer = serializer;
   }
 }

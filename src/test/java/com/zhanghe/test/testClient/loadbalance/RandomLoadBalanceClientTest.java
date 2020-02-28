@@ -30,12 +30,12 @@ public class RandomLoadBalanceClientTest {
   public void init() {
     server1 = new AbstractRpcServer(7777);
     demoService1 = new DemoServiceLoadBalanceImpl("server1");
-    server1.bind(demoService1);
     server1.init();
+    server1.bind(demoService1);
     server2 = new AbstractRpcServer(7778);
     demoService2 = new DemoServiceLoadBalanceImpl("server2");
-    server2.bind(demoService2);
     server2.init();
+    server2.bind(demoService2);
   }
   @After
   public void destroy(){

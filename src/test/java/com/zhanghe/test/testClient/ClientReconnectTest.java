@@ -18,8 +18,8 @@ public class ClientReconnectTest {
   @Before
   public void init() {
     rpcServer = new AbstractRpcServer(7777);
-    rpcServer.bind(new DemoServiceImpl());
     rpcServer.init();
+    rpcServer.bind(new DemoServiceImpl());
   }
 
   @After
@@ -71,8 +71,8 @@ public class ClientReconnectTest {
   public void startServer(){
     try {
       rpcServer = new AbstractRpcServer(7777);
-      rpcServer.bind(new DemoServiceImpl());
       rpcServer.init();
+      rpcServer.bind(new DemoServiceImpl());
     }catch (Exception e){
       Assert.fail("Should not reach here");
     }

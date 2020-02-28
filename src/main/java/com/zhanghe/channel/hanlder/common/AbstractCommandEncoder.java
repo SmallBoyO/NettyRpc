@@ -1,5 +1,6 @@
 package com.zhanghe.channel.hanlder.common;
 
+import com.zhanghe.attribute.Attributes;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.v1.BasePacket;
@@ -31,7 +32,10 @@ public class AbstractCommandEncoder extends MessageToByteEncoder<BasePacket> {
         byteBuf.writeByte(packet.getVersion());
         //填写发送的命令
         byteBuf.writeByte(packet.getCommand());
-        Serializer serializer = SerializerManager.getDefault();
+        Serializer serializer = channelHandlerContext.channel().attr(Attributes.SERIALIZER_ATTRIBUTE_KEY).get();
+        if( serializer == null ){
+            serializer = SerializerManager.getDefault();
+        }
         //填写使用哪个序列化器
         byteBuf.writeByte(serializer.getSerializerAlgorithm());
         //如果需要序列化 则将对象序列化发送过去

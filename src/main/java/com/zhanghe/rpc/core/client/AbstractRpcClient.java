@@ -1,6 +1,7 @@
 package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.config.RpcConfig;
+import com.zhanghe.protocol.serializer.Serializer;
 import io.netty.channel.Channel;
 import java.lang.reflect.Proxy;
 import java.util.Set;
@@ -21,6 +22,8 @@ public class AbstractRpcClient implements Client {
 
   private RpcRequestProxy proxy;
 
+  private Serializer serializer;
+
   public AbstractRpcClient() {
     this.proxy = new RpcRequestProxy<>();
   }
@@ -40,6 +43,7 @@ public class AbstractRpcClient implements Client {
       rpcServerInfo.setPort(port);
     }
     rpcClientConnector = new RpcClientConnector(ip,port);
+    rpcClientConnector.setSerializer(serializer);
     rpcClientConnector.setClient(this);
     rpcClientConnector.start();
     logger.info("client init success");
@@ -75,5 +79,9 @@ public class AbstractRpcClient implements Client {
         new Class<?>[]{clazz},
         proxy
     );
+  }
+  @Override
+  public void setSerializer(Serializer serializer) {
+
   }
 }

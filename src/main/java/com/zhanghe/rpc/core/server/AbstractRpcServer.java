@@ -1,7 +1,9 @@
 package com.zhanghe.rpc.core.server;
 
 import com.zhanghe.config.RpcConfig;
+import com.zhanghe.protocol.serializer.Serializer;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +22,24 @@ public class AbstractRpcServer implements Server {
 
   List<Object> services;
 
+  ConcurrentHashMap<String,Object> servicesMap;
+
+  private Serializer serializer;
+
   public AbstractRpcServer() {
     this.rpcServerConnector = new RpcServerConnector();
   }
 
   public AbstractRpcServer(int port) {
     this.rpcServerConnector = new RpcServerConnector();
+    this.servicesMap = new ConcurrentHashMap<>();
     this.ip = RpcConfig.DEFAULT_IP;
     this.port = port;
   }
 
   public AbstractRpcServer(String ip, int port) {
     this.rpcServerConnector = new RpcServerConnector();
+    this.servicesMap = new ConcurrentHashMap<>();
     this.ip = ip;
     this.port = port;
   }
@@ -61,10 +69,12 @@ public class AbstractRpcServer implements Server {
   private void doInit(){
     rpcServerConnector.setIp(ip);
     rpcServerConnector.setPort(port);
+    rpcServerConnector.setSerializer(this.serializer);
+    rpcServerConnector.init();
+    rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().setServiceMap(servicesMap);
     if(services != null){
       bind(services);
     }
-    rpcServerConnector.init();
   }
 
   public boolean doStart() throws InterruptedException{
@@ -101,19 +111,24 @@ public class AbstractRpcServer implements Server {
   @Override
   public void bind(Object service){
     logger.info("bind service:"+service.getClass().getName());
-    rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+    this.servicesMap.put(service.getClass().getInterfaces()[0].getName(), service);
   }
 
   @Override
   public void bind(List<Object> services){
     services.forEach(service -> {
       logger.info("bind service:" + service.getClass().getInterfaces()[0].getName());
-      rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().getServiceMap().put(service.getClass().getInterfaces()[0].getName(), service);
+        this.servicesMap.put(service.getClass().getInterfaces()[0].getName(), service);
     });
   }
 
-  public void resetWorkGroup(){
+  public Serializer getSerializer() {
+    return serializer;
+  }
 
+  @Override
+  public void setSerializer(Serializer serializer) {
+    this.serializer = serializer;
   }
 
   public String getIp() {
