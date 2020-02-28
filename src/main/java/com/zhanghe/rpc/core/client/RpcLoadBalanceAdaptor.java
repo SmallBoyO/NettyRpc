@@ -1,5 +1,6 @@
 package com.zhanghe.rpc.core.client;
 
+import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.protocol.v1.response.RpcResponse;
 import com.zhanghe.rpc.core.client.loadbalance.LoadBalance;
@@ -39,6 +40,8 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   private String loadBalance = "";
 
+  private Serializer serializer;
+
   public RpcLoadBalanceAdaptor() {
     serversMap = new HashMap<>();
     this.loadBalanceProxy = new LoadBalanceProxy();
@@ -53,6 +56,7 @@ public class RpcLoadBalanceAdaptor implements Client{
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
         RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
+        rpcClientConnector.setSerializer(serializer);
         rpcServerInfo.setRpcClientConnector(rpcClientConnector);
         serversMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(), rpcClientConnector);
         serversInfoMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo);
@@ -163,6 +167,11 @@ public class RpcLoadBalanceAdaptor implements Client{
       }
     }
 
+  }
+
+  @Override
+  public void setSerializer(Serializer serializer) {
+    this.serializer = serializer;
   }
 
   public String getLoadBalance() {

@@ -1,6 +1,7 @@
 package com.zhanghe.rpc.core.server;
 
 import com.zhanghe.config.RpcConfig;
+import com.zhanghe.protocol.serializer.Serializer;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,6 +23,8 @@ public class AbstractRpcServer implements Server {
   List<Object> services;
 
   ConcurrentHashMap<String,Object> servicesMap;
+
+  private Serializer serializer;
 
   public AbstractRpcServer() {
     this.rpcServerConnector = new RpcServerConnector();
@@ -66,6 +69,7 @@ public class AbstractRpcServer implements Server {
   private void doInit(){
     rpcServerConnector.setIp(ip);
     rpcServerConnector.setPort(port);
+    rpcServerConnector.setSerializer(this.serializer);
     rpcServerConnector.init();
     rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().setServiceMap(servicesMap);
     if(services != null){
@@ -118,8 +122,13 @@ public class AbstractRpcServer implements Server {
     });
   }
 
-  public void resetWorkGroup(){
+  public Serializer getSerializer() {
+    return serializer;
+  }
 
+  @Override
+  public void setSerializer(Serializer serializer) {
+    this.serializer = serializer;
   }
 
   public String getIp() {
