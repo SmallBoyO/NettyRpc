@@ -2,7 +2,6 @@ package com.zhanghe.rpc.core.server;
 
 import com.zhanghe.config.RpcConfig;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -30,12 +29,14 @@ public class AbstractRpcServer implements Server {
 
   public AbstractRpcServer(int port) {
     this.rpcServerConnector = new RpcServerConnector();
+    this.servicesMap = new ConcurrentHashMap<>();
     this.ip = RpcConfig.DEFAULT_IP;
     this.port = port;
   }
 
   public AbstractRpcServer(String ip, int port) {
     this.rpcServerConnector = new RpcServerConnector();
+    this.servicesMap = new ConcurrentHashMap<>();
     this.ip = ip;
     this.port = port;
   }
@@ -66,7 +67,6 @@ public class AbstractRpcServer implements Server {
     rpcServerConnector.setIp(ip);
     rpcServerConnector.setPort(port);
     rpcServerConnector.init();
-    servicesMap = new ConcurrentHashMap<>();
     rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().setServiceMap(servicesMap);
     if(services != null){
       bind(services);
