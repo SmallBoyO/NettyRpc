@@ -27,6 +27,11 @@
         <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
+    <xsd:attribute name="serializer" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
   </xsd:complexType>
 
   <xsd:complexType name="serverType">

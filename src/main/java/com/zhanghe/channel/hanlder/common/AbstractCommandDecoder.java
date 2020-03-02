@@ -1,5 +1,6 @@
 package com.zhanghe.channel.hanlder.common;
 
+import com.zhanghe.attribute.Attributes;
 import com.zhanghe.protocol.v1.CommandType;
 import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
 import com.zhanghe.protocol.v1.request.HeartBeatRequest;
@@ -32,12 +33,13 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
         Byte serializerAlgorithm = byteBuf.readByte();
         int length = byteBuf.readInt();
         if(length>0){
-            Serializer serializer = SerializerManager.getSerializer(serializerAlgorithm);
-
-            if(serializer==null){
-                logger.error("Serializer {} does not registered!",serializerAlgorithm);
+            Serializer serializer = channelHandlerContext.channel().attr(Attributes.SERIALIZER_ATTRIBUTE_KEY).get();
+            if( serializer == null ){
+                serializer = SerializerManager.getDefault();
+            }
+            if(  !serializerAlgorithm.equals(serializer.getSerializerAlgorithm()) ){
+                logger.error("serializerAlgorithm:[{}] not support!",serializerAlgorithm);
                 channelHandlerContext.channel().close();
-                return;
             }
             byte[] bytes = new byte[length-8];
             byteBuf.readBytes(bytes);

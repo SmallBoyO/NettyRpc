@@ -28,6 +28,7 @@ public class AbstractRpcServer implements Server {
 
   public AbstractRpcServer() {
     this.rpcServerConnector = new RpcServerConnector();
+    this.servicesMap = new ConcurrentHashMap<>();
   }
 
   public AbstractRpcServer(int port) {

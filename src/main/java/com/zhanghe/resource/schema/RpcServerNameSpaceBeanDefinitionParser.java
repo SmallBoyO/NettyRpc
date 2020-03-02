@@ -1,11 +1,14 @@
 package com.zhanghe.resource.schema;
 
+import com.zhanghe.protocol.serializer.SerializerAlgorithm;
+import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -27,8 +30,27 @@ public class RpcServerNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
       BeanDefinitionBuilder builder) {
     String ip = element.getAttribute("ip");
     int port=Integer.valueOf(element.getAttribute("port"));
+    String serializer = element.getAttribute("serializer");
     builder.addPropertyValue("ip",ip);
     builder.addPropertyValue("port",port);
+
+    if(!StringUtils.isEmpty(serializer)){
+      switch ( serializer ){
+        case "KRYO":
+          builder.addPropertyValue("serializer",SerializerManager.getSerializer(SerializerAlgorithm.KYRO));
+          break;
+        case "JSON":
+          builder.addPropertyValue("serializer",SerializerManager.getSerializer(SerializerAlgorithm.JSON));
+          break;
+        case "PROTOSTUFF":
+          builder.addPropertyValue("serializer",SerializerManager.getSerializer(SerializerAlgorithm.PROTOSTUFF));
+          break;
+        default:
+          builder.addPropertyValue("serializer",new RuntimeBeanReference(serializer));
+          break;
+      }
+    }
+
     builder.setInitMethodName("init");
     builder.setDestroyMethodName("destroy");
     ManagedList lists = new ManagedList();

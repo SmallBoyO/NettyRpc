@@ -82,6 +82,6 @@ public class AbstractRpcClient implements Client {
   }
   @Override
   public void setSerializer(Serializer serializer) {
-
+    this.serializer = serializer;
   }
 }
