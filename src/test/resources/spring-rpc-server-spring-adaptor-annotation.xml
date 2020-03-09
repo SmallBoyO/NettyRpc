@@ -10,7 +10,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 
   <context:component-scan base-package="com.zhanghe.test"></context:component-scan>
 
-  <rpc:server  id="adaptor" port="6666" ip="127.0.0.1">
+  <rpc:server  id="adaptor" port="6666" ip="127.0.0.1" scanPackage="com.zhanghe.test">
   </rpc:server>
 
 </beans>

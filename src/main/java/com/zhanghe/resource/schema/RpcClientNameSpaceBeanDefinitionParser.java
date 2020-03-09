@@ -7,6 +7,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 public class RpcClientNameSpaceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
@@ -26,18 +27,21 @@ public class RpcClientNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
       BeanDefinitionBuilder builder) {
     String ip = element.getAttribute("ip");
     int port=Integer.valueOf(element.getAttribute("port"));
+    String scanPackage = element.getAttribute("scanPackage");
     builder.addPropertyValue("ip",ip);
     builder.addPropertyValue("port",port);
     builder.setInitMethodName("init");
     builder.setDestroyMethodName("destroy");
 
-    //注册RpcServiceBeanProcessor用于扫描RpcService注解
-    RootBeanDefinition beanDefinition = new RootBeanDefinition();
-    beanDefinition.setBeanClass(RpcClientBeanProcessor.class);
-    beanDefinition.setLazyInit(false);
-
-    String id = RpcClientBeanProcessor.class.getName();
-    parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
+    if(!StringUtils.isEmpty(scanPackage)){
+      //注册RpcServiceBeanProcessor用于扫描RpcClient注解
+      RootBeanDefinition beanDefinition = new RootBeanDefinition();
+      beanDefinition.setBeanClass(RpcClientBeanProcessor.class);
+      beanDefinition.setLazyInit(false);
+      beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0,scanPackage);
+      String id = RpcClientBeanProcessor.class.getName();
+      parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
+    }
   }
 
 }

@@ -30,6 +30,6 @@ public class SpringClientAnnotationTest {
     String str = "Random str:"+Math.random();
     String rpcRes = demoService.call(str);
     Assert.assertEquals("requestParam:" + str,rpcRes);
-
+    ((ClassPathXmlApplicationContext) contextClient).close();
   }
 }

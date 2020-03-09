@@ -19,6 +19,12 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPostProcessor,ApplicationContextAware{
 
+  private String scanPackage;
+
+  public RpcServiceBeanProcessor(String scanPackage) {
+    this.scanPackage = scanPackage;
+  }
+
   private ApplicationContext applicationContext;
 
   private BeanDefinitionRegistry beanRegistry;
@@ -34,29 +40,19 @@ public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPos
    * @throws BeansException
    */
   @Override
-  public void postProcessBeanFactory(
-      ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-    System.out.println("调用了自定义的BeanFactoryPostProcessor " + configurableListableBeanFactory);
-      if (configurableListableBeanFactory instanceof BeanDefinitionRegistry) {
+  public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
+    if (configurableListableBeanFactory instanceof BeanDefinitionRegistry) {
+      BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) configurableListableBeanFactory;
 
-        BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) configurableListableBeanFactory;
+      ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanDefinitionRegistry, true);
+      AnnotationTypeFilter filter = new AnnotationTypeFilter(RpcService.class);
+      scanner.addIncludeFilter(filter);
 
-        ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanDefinitionRegistry, true);
-        AnnotationTypeFilter filter = new AnnotationTypeFilter(RpcService.class);
-        scanner.addIncludeFilter(filter);
-
-        scanner.scan("com.zhanghe.test");
+      if(scanPackage.contains(",")){
+        scanner.scan(scanPackage.split(","));
+      }else{
+        scanner.scan(scanPackage);
       }
-    Iterator it = configurableListableBeanFactory.getBeanNamesIterator();
-
-    String[] names = configurableListableBeanFactory.getBeanDefinitionNames();
-    // 获取了所有的bean名称列表
-    for(int i=0; i<names.length; i++){
-      String name = names[i];
-
-      BeanDefinition bd = configurableListableBeanFactory.getBeanDefinition(name);
-      System.out.println(name + " bean properties: " + bd.getPropertyValues().toString());
-      // 本内容只是个demo，打印持有的bean的属性情况
     }
   }
 
@@ -89,4 +85,5 @@ public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPos
     }
     return false;
   }
+
 }
