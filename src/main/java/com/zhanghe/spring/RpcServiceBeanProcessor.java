@@ -3,6 +3,8 @@ package com.zhanghe.spring;
 import com.zhanghe.resource.annotation.RpcService;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -18,6 +20,8 @@ import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPostProcessor,ApplicationContextAware{
+
+  private static final Logger logger = LoggerFactory.getLogger(RpcServiceBeanProcessor.class);
 
   private String scanPackage;
 
@@ -48,6 +52,7 @@ public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPos
       AnnotationTypeFilter filter = new AnnotationTypeFilter(RpcService.class);
       scanner.addIncludeFilter(filter);
 
+      logger.info("scan package:[{}]",scanPackage);
       if(scanPackage.contains(",")){
         scanner.scan(scanPackage.split(","));
       }else{
@@ -73,7 +78,12 @@ public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPos
   }
 
   private boolean isMatchPackage(Object bean) {
-    String[] annotationPackages = new String[]{"com.zhanghe.test"};
+    String[] annotationPackages;
+    if(scanPackage.contains(",")){
+      annotationPackages = scanPackage.split(",");
+    }else{
+      annotationPackages = new String[]{scanPackage};
+    }
     if (annotationPackages == null || annotationPackages.length == 0) {
       return true;
     }

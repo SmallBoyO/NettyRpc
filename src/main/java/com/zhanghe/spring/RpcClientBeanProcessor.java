@@ -3,6 +3,8 @@ package com.zhanghe.spring;
 import com.zhanghe.resource.annotation.RpcClient;
 import com.zhanghe.resource.annotation.RpcService;
 import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -14,6 +16,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 public class RpcClientBeanProcessor implements BeanFactoryPostProcessor,BeanPostProcessor,ApplicationContextAware {
+
+  private static final Logger logger = LoggerFactory.getLogger(RpcClientBeanProcessor.class);
 
   private String scanPackage;
 
@@ -37,6 +41,7 @@ public class RpcClientBeanProcessor implements BeanFactoryPostProcessor,BeanPost
       ClientScanner scanner = new ClientScanner(beanDefinitionRegistry);
       AnnotationTypeFilter filter = new AnnotationTypeFilter(RpcClient.class,false,true);
       scanner.addIncludeFilter(filter);
+      logger.info("scan package:[{}]",scanPackage);
       if(scanPackage.contains(",")){
         scanner.scan(scanPackage.split(","));
       }else{
