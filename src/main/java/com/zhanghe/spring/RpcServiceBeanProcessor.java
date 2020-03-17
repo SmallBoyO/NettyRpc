@@ -17,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPostProcessor,ApplicationContextAware{
@@ -72,8 +73,11 @@ public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPos
     if (!this.isMatchPackage(bean)){
       return bean;
     }
-    AbstractRpcServer abstractRpcServer = applicationContext.getBean(AbstractRpcServer.class);
-    abstractRpcServer.bind(bean);
+    RpcService rpcService = AnnotationUtils.findAnnotation(bean.getClass(),RpcService.class);
+    if(rpcService != null){
+      AbstractRpcServer abstractRpcServer = applicationContext.getBean(AbstractRpcServer.class);
+      abstractRpcServer.bind(bean);
+    }
     return bean;
   }
 
