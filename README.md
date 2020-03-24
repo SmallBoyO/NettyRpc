@@ -9,7 +9,7 @@
 
 #### 使用说明
 
-1. spring xml配置
+##### spring xml配置
 
 1.1 客户端配置
 ```
@@ -43,7 +43,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 
 </beans>
 ```
-2. spring扫描注解
+##### spring扫描注解
 
 2.1 客户端配置
 ```
@@ -83,7 +83,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 
 </beans>
 ```
-3. spring注解配置
+##### spring注解配置
 
 3.1 客户端配置
 ```
