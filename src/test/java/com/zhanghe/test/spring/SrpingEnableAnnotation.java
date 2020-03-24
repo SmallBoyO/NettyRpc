@@ -4,6 +4,8 @@ import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import com.zhanghe.test.spring.configuration.EnableRpcClientConfiguration;
 import com.zhanghe.test.spring.configuration.EnableRpcServerConfiguration;
+import com.zhanghe.test.spring.service.DemoService;
+import com.zhanghe.test.spring.service.DemoServiceImpl;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -23,14 +25,19 @@ public class SrpingEnableAnnotation {
     rpcServer.init();
     AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(EnableRpcClientConfiguration.class);
     AbstractRpcClient rpcClient = (AbstractRpcClient)annotationConfigApplicationContext.getBean("client");
+    DemoService demoService = (DemoService)annotationConfigApplicationContext.getBean("demoService");
+    demoService.call("call");
     annotationConfigApplicationContext.close();
     rpcServer.destroy();
   }
 
   @Test
   public void clientTest2(){
-    AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(EnableRpcClientConfiguration.class,EnableRpcServerConfiguration.class);
+    AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(EnableRpcServerConfiguration.class,EnableRpcClientConfiguration.class);
     AbstractRpcClient rpcClient = (AbstractRpcClient)annotationConfigApplicationContext.getBean("client");
+    DemoService demoService = (DemoService)annotationConfigApplicationContext.getBean("demoService");
+    demoService.call("call");
+    rpcClient.destroy();
     annotationConfigApplicationContext.close();
   }
 }

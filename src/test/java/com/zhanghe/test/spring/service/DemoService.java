@@ -1,6 +1,6 @@
-package com.zhanghe.test.spring;
+package com.zhanghe.test.spring.service;
 
-import com.zhanghe.resource.annotation.RpcClient;
+import com.zhanghe.spring.annotation.RpcClient;
 
 @RpcClient(value = "rpcclient")
 public interface DemoService{

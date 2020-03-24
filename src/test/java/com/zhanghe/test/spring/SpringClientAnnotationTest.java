@@ -1,8 +1,10 @@
 package com.zhanghe.test.spring;
 
-import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.test.spring.service.DemoService;
+import com.zhanghe.test.spring.service.DemoServiceImpl;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,5 +33,10 @@ public class SpringClientAnnotationTest {
     String rpcRes = demoService.call(str);
     Assert.assertEquals("requestParam:" + str,rpcRes);
     ((ClassPathXmlApplicationContext) contextClient).close();
+  }
+
+  @After
+  public void destroyRpcServer(){
+    rpcServer.destroy();
   }
 }

@@ -5,7 +5,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
   http://www.zhanghe.com/schema/rpc
   http://www.zhanghe.com/schema/rpc.xsd">
 
-  <bean name="demoService" class="com.zhanghe.test.spring.DemoServiceImpl"></bean>
+  <bean name="demoService" class="com.zhanghe.test.spring.service.DemoServiceImpl"></bean>
 
   <bean name="testSerializer" class="com.zhanghe.test.spring.serializer.TestSerializer"></bean>
 

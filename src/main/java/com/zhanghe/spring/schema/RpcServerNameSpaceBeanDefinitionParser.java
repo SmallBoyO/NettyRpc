@@ -1,9 +1,8 @@
-package com.zhanghe.resource.schema;
+package com.zhanghe.spring.schema;
 
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
-import com.zhanghe.spring.RpcClientBeanProcessor;
 import com.zhanghe.spring.RpcServiceBeanProcessor;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;

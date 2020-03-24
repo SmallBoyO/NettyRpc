@@ -1,12 +1,9 @@
 package com.zhanghe.spring;
 
-import com.zhanghe.resource.annotation.RpcClient;
-import com.zhanghe.resource.annotation.RpcService;
-import java.util.Iterator;
+import com.zhanghe.spring.annotation.RpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;

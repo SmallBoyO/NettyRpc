@@ -2,6 +2,8 @@ package com.zhanghe.test.spring;
 
 import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.test.spring.service.DemoService;
+import com.zhanghe.test.spring.service.DemoServiceImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,6 +38,6 @@ public class SpringClientAdaptorTest {
 
   @After
   public void destroyRpcServer(){
-    rpcServer.stop();
+    rpcServer.destroy();
   }
 }

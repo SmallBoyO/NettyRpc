@@ -1,4 +1,4 @@
-package com.zhanghe.resource.schema;
+package com.zhanghe.spring.schema;
 
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 

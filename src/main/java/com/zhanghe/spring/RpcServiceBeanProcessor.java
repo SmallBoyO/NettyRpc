@@ -1,22 +1,17 @@
 package com.zhanghe.spring;
 
-import com.zhanghe.resource.annotation.RpcService;
+import com.zhanghe.spring.annotation.RpcService;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
-import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
-import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
@@ -65,11 +60,6 @@ public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPos
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName)
       throws BeansException {
-    return bean;
-  }
-
-  @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     if (!this.isMatchPackage(bean)){
       return bean;
     }
@@ -78,6 +68,11 @@ public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPos
       AbstractRpcServer abstractRpcServer = applicationContext.getBean(AbstractRpcServer.class);
       abstractRpcServer.bind(bean);
     }
+    return bean;
+  }
+
+  @Override
+  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     return bean;
   }
 

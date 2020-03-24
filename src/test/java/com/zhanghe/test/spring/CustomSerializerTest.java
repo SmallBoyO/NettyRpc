@@ -3,6 +3,7 @@ package com.zhanghe.test.spring;
 import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import com.zhanghe.test.spring.serializer.TestSerializer;
+import com.zhanghe.test.spring.service.DemoService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;

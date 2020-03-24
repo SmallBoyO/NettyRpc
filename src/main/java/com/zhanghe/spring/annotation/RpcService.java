@@ -1,4 +1,4 @@
-package com.zhanghe.resource.annotation;
+package com.zhanghe.spring.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -15,9 +15,7 @@ import org.springframework.stereotype.Component;
 @Documented
 //@Component
 public @interface RpcService {
-
-  String name();
-
+  
   String value();
 
 }
