@@ -8,4 +8,5 @@
   <rpc:client id="client" port="7777" ip="127.0.0.1"></rpc:client>
 
   <rpc:clientService id="demoService" class="com.zhanghe.test.spring.service.DemoService"></rpc:clientService>
+
 </beans>

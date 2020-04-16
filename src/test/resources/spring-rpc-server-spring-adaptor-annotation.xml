@@ -8,7 +8,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
   http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <context:component-scan base-package="com.zhanghe.test.spring.service"></context:component-scan>
+  <context:annotation-config></context:annotation-config>
 
   <rpc:server  id="adaptor" port="6668" ip="127.0.0.1" scanPackage="com.zhanghe.test.spring.service">
   </rpc:server>
