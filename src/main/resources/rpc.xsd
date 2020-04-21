@@ -120,4 +120,54 @@
     </xsd:attribute>
   </xsd:complexType>
 
+
+  <xsd:element name="loadBalanceClient" type="loadBalanceClientType">
+    <xsd:annotation>
+      <xsd:documentation><![CDATA[ The mybean config ]]></xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:complexType name="loadBalanceClientType">
+    <xsd:complexContent>
+      <xsd:extension base="loadBalanceClientNormalType">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+          <xsd:element ref="loadBalanceServer" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+
+  <xsd:complexType name="loadBalanceClientNormalType">
+    <xsd:attribute name="id" type="xsd:ID">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="scanPackage" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="loadBalanceServerType">
+    <xsd:attribute name="ip" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="port" type="xsd:int" use="required">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+
+  <xsd:element name="loadBalanceServer" type="loadBalanceServerType">
+    <xsd:annotation>
+      <xsd:documentation><![CDATA[ this is desc ]]></xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
 </xsd:schema>
