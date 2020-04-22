@@ -10,8 +10,9 @@
 
   <context:annotation-config></context:annotation-config>
 
-  <rpc:loadBalanceClient id="client" scanPackage="com.zhanghe.test.spring.service">
-    <rpc:loadBalanceServer port="66" ip="127.0.0.1"></rpc:loadBalanceServer>
+  <rpc:loadBalanceClient id="client" scanPackage="com.zhanghe.test.spring.service" loadBalance="weight_random">
+    <rpc:loadBalanceServer port="7777" ip="127.0.0.1" weight="1"></rpc:loadBalanceServer>
+    <rpc:loadBalanceServer port="7778" ip="127.0.0.1" weight="1"></rpc:loadBalanceServer>
   </rpc:loadBalanceClient>
 
 </beans>

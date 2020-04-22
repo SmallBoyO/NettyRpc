@@ -34,7 +34,11 @@ public class SpringLoadBalanceClientAdaptorTest {
         "spring-rpc-loadbalance-client-spring-adaptor.xml");
     RpcLoadBalanceAdaptor adaptor = (RpcLoadBalanceAdaptor)context.getBean("client");
     Assert.assertNotNull(adaptor);
-
+    DemoService demoService = (com.zhanghe.test.spring.service.DemoService) context.getBean("demoService");
+    for(int i = 0;i<1000;i++){
+      String result = demoService.call("demo");
+    }
+    ((ClassPathXmlApplicationContext) context).close();
   }
 
   @After

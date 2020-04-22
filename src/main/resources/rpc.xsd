@@ -144,6 +144,11 @@
         <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
+    <xsd:attribute name="loadBalance" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
     <xsd:attribute name="scanPackage" type="xsd:string">
       <xsd:annotation>
         <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
@@ -158,6 +163,11 @@
       </xsd:annotation>
     </xsd:attribute>
     <xsd:attribute name="port" type="xsd:int" use="required">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="weight" type="xsd:int">
       <xsd:annotation>
         <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
       </xsd:annotation>
