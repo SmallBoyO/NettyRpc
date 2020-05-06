@@ -1,11 +1,13 @@
-package com.zhanghe.resource.schema;
+package com.zhanghe.spring.schema;
 
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.spring.RpcServiceBeanProcessor;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
@@ -31,6 +33,7 @@ public class RpcServerNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
     String ip = element.getAttribute("ip");
     int port=Integer.valueOf(element.getAttribute("port"));
     String serializer = element.getAttribute("serializer");
+    String scanPackage = element.getAttribute("scanPackage");
     builder.addPropertyValue("ip",ip);
     builder.addPropertyValue("port",port);
 
@@ -67,6 +70,16 @@ public class RpcServerNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
       }
     }
     builder.addPropertyValue("services",lists);
+
+    if(!StringUtils.isEmpty(scanPackage)){
+      //注册RpcServiceBeanProcessor用于扫描RpcService注解
+      RootBeanDefinition beanDefinition = new RootBeanDefinition();
+      beanDefinition.setBeanClass(RpcServiceBeanProcessor.class);
+      beanDefinition.setLazyInit(false);
+      beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0,scanPackage);
+      String id = RpcServiceBeanProcessor.class.getName();
+      parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
+    }
   }
 
 }

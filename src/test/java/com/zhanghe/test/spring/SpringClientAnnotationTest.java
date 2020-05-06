@@ -11,29 +11,28 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class SpringClientAdaptorTest {
+public class SpringClientAnnotationTest {
 
   private AbstractRpcServer rpcServer;
 
   @Before
   public void initRpcServer(){
-    rpcServer = new AbstractRpcServer("0.0.0.0",7777);
+    rpcServer = new AbstractRpcServer("0.0.0.0",6666);
     rpcServer.init();
     rpcServer.bind(new DemoServiceImpl());
   }
-
   @Test
-  public void testSpringClientAdaptor(){
-    ApplicationContext context = new ClassPathXmlApplicationContext(
-        "spring-rpc-client-spring-adaptor.xml");
-    RpcClientSpringAdaptor adaptor = (RpcClientSpringAdaptor)context.getBean("client");
-    Assert.assertNotNull(adaptor);
-    DemoService demoService = (DemoService)context.getBean("demoService");
+  public void testSpringServerAdaptor() throws Exception{
+    ApplicationContext contextClient = new ClassPathXmlApplicationContext(
+        "spring-rpc-client-spring-adaptor-annotation.xml");
+    RpcClientSpringAdaptor client = (RpcClientSpringAdaptor)contextClient.getBean("client");
+    Assert.assertNotNull(client);
+    DemoService demoService = (DemoService)contextClient.getBean("demoService");
     Assert.assertNotNull(demoService);
     String str = "Random str:"+Math.random();
     String rpcRes = demoService.call(str);
     Assert.assertEquals("requestParam:" + str,rpcRes);
-    ((ClassPathXmlApplicationContext) context).close();
+    ((ClassPathXmlApplicationContext) contextClient).close();
   }
 
   @After

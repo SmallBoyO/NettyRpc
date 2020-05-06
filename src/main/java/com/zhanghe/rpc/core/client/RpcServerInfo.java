@@ -31,6 +31,14 @@ public class RpcServerInfo {
     statusCondition = statusLock.newCondition();
   }
 
+  public RpcServerInfo(String ip, int port) {
+    this.ip = ip;
+    this.port = port;
+    useful = new AtomicBoolean(false);
+    statusLock = new ReentrantLock();
+    statusCondition = statusLock.newCondition();
+  }
+
   public void waitServerUseful(){
     statusLock.lock();
     try {

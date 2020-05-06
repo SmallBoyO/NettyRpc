@@ -9,25 +9,83 @@
 
 #### 使用说明
 
-1. spring xml配置
+##### spring xml配置
 
 1.1 客户端配置
 ```
-<rpc:client id="client" port="7777" ip="127.0.0.1"></rpc:client>
-  
-<rpc:clientService id="demoService" class="com.zhanghe.test.spring.DemoService"></rpc:clientService>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.zhanghe.com/schema/rpc
+  http://www.zhanghe.com/schema/rpc.xsd">
+
+  <rpc:client id="client" port="6667" ip="127.0.0.1"></rpc:client>
+
+  <rpc:clientService id="demoService" class="com.zhanghe.rpc.demo.service.DemoService"></rpc:clientService>
+
+</beans>rpc:clientService>
 ```
 1.2 服务端配置
 ```
-<bean name="demoService" class="com.zhanghe.test.spring.DemoServiceImpl"></bean>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.zhanghe.com/schema/rpc
+  http://www.zhanghe.com/schema/rpc.xsd">
 
-<rpc:server  id="adaptor" port="6666" ip="127.0.0.1">
+<bean name="demoService" class="com.zhanghe.rpc.demo.service.impl.DemoServiceImpl"></bean>
+
+<rpc:server  id="adaptor" port="6667" ip="127.0.0.1">
   <rpc:service value="demoService"></rpc:service>
 </rpc:server>
+
+</beans>
 ```
-2. spring注解配置
+##### spring扫描注解
 
 2.1 客户端配置
+```
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.zhanghe.com/schema/rpc
+  http://www.zhanghe.com/schema/rpc.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <context:component-scan base-package="com.zhanghe.rpc.demo" ></context:component-scan>
+
+  <rpc:client id="client" port="6667" ip="127.0.0.1" scanPackage="com.zhanghe.rpc.demo.service"></rpc:client>
+
+</beans>
+```
+2.2 服务端配置
+```
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.zhanghe.com/schema/rpc
+  http://www.zhanghe.com/schema/rpc.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+  <context:component-scan base-package="com.zhanghe.rpc.demo"></context:component-scan>
+
+  <rpc:server  id="adaptor" port="6667" ip="127.0.0.1" scanPackage="com.zhanghe.rpc.demo.service.impl">
+  </rpc:server>
+
+</beans>
+```
+##### spring注解配置
+
+3.1 客户端配置
 ```
   @Bean
   public AbstractRpcClient getAbstractRpcClient(){
@@ -41,7 +99,7 @@
     return (DemoService)getAbstractRpcClient().proxy(DemoService.class.getName());
   }
 ```
-2.2 服务端配置
+3.2 服务端配置
 ```
  @Bean
   public AbstractRpcServer getAbstractRpcServer(){

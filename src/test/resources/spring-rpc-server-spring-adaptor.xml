@@ -5,9 +5,9 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
   http://www.zhanghe.com/schema/rpc
   http://www.zhanghe.com/schema/rpc.xsd">
 
-<bean name="demoService" class="com.zhanghe.test.spring.DemoServiceImpl"></bean>
+<bean name="demoService" class="com.zhanghe.test.spring.service.DemoServiceImpl"></bean>
 
-<rpc:server  id="adaptor" port="6666" ip="127.0.0.1">
+<rpc:server  id="adaptor" port="6667" ip="127.0.0.1">
   <rpc:service value="demoService"></rpc:service>
 </rpc:server>
 

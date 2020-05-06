@@ -1,1 +1,1 @@
-http\://www.zhanghe.com/schema/rpc=com.zhanghe.resource.schema.RpcNameSpaceHandler
+http\://www.zhanghe.com/schema/rpc=com.zhanghe.spring.schema.RpcNameSpaceHandler
