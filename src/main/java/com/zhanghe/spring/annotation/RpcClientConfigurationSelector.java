@@ -59,7 +59,7 @@ public class RpcClientConfigurationSelector implements ImportBeanDefinitionRegis
       beanDefinition.setBeanClass(RpcClientBeanProcessor.class);
       beanDefinition.setLazyInit(false);
       beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0,scanPacakges);
-      String id = RpcServiceBeanProcessor.class.getName();
+      String id = RpcClientBeanProcessor.class.getName();
       registry.registerBeanDefinition(id, beanDefinition);
     }
   }

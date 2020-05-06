@@ -1,6 +1,5 @@
 package com.zhanghe.test.spring;
 
-import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
 import com.zhanghe.rpc.core.client.RpcLoadBalanceAdaptor;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import com.zhanghe.test.spring.service.DemoService;
