@@ -18,6 +18,8 @@ public @interface EnableLoadBalanceRpcClient {
 
   RpcServerInfo[] rpcServers();
 
+  String loadBalance();
+
   String scanPacakges();
 
 }

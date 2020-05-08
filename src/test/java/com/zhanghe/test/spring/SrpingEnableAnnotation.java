@@ -37,7 +37,6 @@ public class SrpingEnableAnnotation {
     AbstractRpcClient rpcClient = (AbstractRpcClient)annotationConfigApplicationContext.getBean("client");
     DemoService demoService = (DemoService)annotationConfigApplicationContext.getBean("demoService");
     demoService.call("call");
-    rpcClient.destroy();
     annotationConfigApplicationContext.close();
   }
 }

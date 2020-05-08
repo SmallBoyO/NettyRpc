@@ -19,6 +19,6 @@ public @interface RpcServerInfo {
 
   int port();
 
-  int weight();
+  int weight() default 1;
 
 }

@@ -22,8 +22,9 @@ public class RpcLoadBalanceClientConfigurationSelector implements ImportBeanDefi
         AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableLoadBalanceRpcClient.class.getName(), false));
     AnnotationAttributes[] attributesAnnotationArray = attributes.getAnnotationArray("rpcServers");
     String scanPacakges = attributes.getString("scanPacakges");
+    String loadBalance = attributes.getString("loadBalance");
 
-    BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RpcLoadBalanceAdaptor.class);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RpcLoadBalanceAdaptor.class);
     List<RpcServerInfo> servers = new ArrayList<>();
     for(AnnotationAttributes annotationAttributes:attributesAnnotationArray){
       RpcServerInfo rpcServerInfo = new RpcServerInfo();
@@ -33,6 +34,7 @@ public class RpcLoadBalanceClientConfigurationSelector implements ImportBeanDefi
       servers.add(rpcServerInfo);
     }
     builder.addPropertyValue("servers",servers);
+    builder.addPropertyValue("loadBalance",loadBalance);
     builder.setInitMethodName("init");
     builder.setDestroyMethodName("destroy");
 
