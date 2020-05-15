@@ -64,6 +64,8 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
                 case 5:
                     list.add(GetRegisterServiceRequest.INSTANCE);
                     break;
+                default:
+                    break;
             }
         }
     }

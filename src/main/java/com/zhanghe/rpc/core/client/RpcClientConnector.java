@@ -2,8 +2,6 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.channel.ClientChannelInitializer;
 import com.zhanghe.protocol.serializer.Serializer;
-import com.zhanghe.protocol.serializer.SerializerAlgorithm;
-import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.v1.request.GetRegisterServiceRequest;
 import com.zhanghe.threadpool.RpcThreadPoolFactory;
 import com.zhanghe.util.NettyEventLoopGroupUtil;
@@ -43,7 +41,7 @@ public class RpcClientConnector {
 
     private Channel activeChannel;
 
-    private EventLoopGroup WORKER_GROUP;
+    private EventLoopGroup workerGroup;
 
     private Client client;
 
@@ -74,7 +72,7 @@ public class RpcClientConnector {
         }else{
             bootstrap.handler(new ClientChannelInitializer(serializer));
         }
-        bootstrap.group(WORKER_GROUP)
+        bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
                 .remoteAddress(new InetSocketAddress(serverIp, serverPort));
     }
@@ -99,7 +97,7 @@ public class RpcClientConnector {
     }
 
     public void doStop() throws InterruptedException{
-        WORKER_GROUP.shutdownGracefully().sync();
+        workerGroup.shutdownGracefully().sync();
     }
 
     public void connect(){
@@ -173,7 +171,7 @@ public class RpcClientConnector {
     }
 
     public void resetWorkGroup(){
-        WORKER_GROUP =  NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
+        workerGroup =  NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-client-boss"));;
     }
 
     private void sleepSomeTime(long times){

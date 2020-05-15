@@ -1,6 +1,5 @@
 package com.zhanghe.rpc.core.server;
 
-import com.zhanghe.channel.ClientChannelInitializer;
 import com.zhanghe.channel.ServerChannelInitializer;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.threadpool.RpcThreadPoolFactory;
@@ -24,9 +23,9 @@ public class RpcServerConnector {
 
   private int port;
 
-  private EventLoopGroup BOSS_GROUP;
+  private EventLoopGroup bossGroup;
 
-  private EventLoopGroup WORKER_GROUP;
+  private EventLoopGroup workerGroup;
 
   private ServerBootstrap bootstrap;
 
@@ -52,7 +51,7 @@ public class RpcServerConnector {
     }
     resetWorkGroup();
     this.bootstrap = new ServerBootstrap();
-    this.bootstrap.group(BOSS_GROUP, WORKER_GROUP)
+    this.bootstrap.group(bossGroup, workerGroup)
         .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
         .childHandler(serverChannelInitializer);
     this.bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
@@ -65,17 +64,15 @@ public class RpcServerConnector {
   }
 
   public void stop() throws InterruptedException{
-    BOSS_GROUP.shutdownGracefully().sync();
-    WORKER_GROUP.shutdownGracefully().sync();
+    bossGroup.shutdownGracefully().sync();
+    workerGroup.shutdownGracefully().sync();
   }
 
   public void resetWorkGroup(){
-    BOSS_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
-    WORKER_GROUP = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
-    if (WORKER_GROUP instanceof NioEventLoopGroup) {
-      ((NioEventLoopGroup) WORKER_GROUP).setIoRatio(50);
-    } else if (WORKER_GROUP instanceof EpollEventLoopGroup) {
-      ((EpollEventLoopGroup) WORKER_GROUP).setIoRatio(50);
+    bossGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+    workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
+    if (workerGroup instanceof NioEventLoopGroup) {
+      ((NioEventLoopGroup) workerGroup).setIoRatio(50);
     }
   }
 
