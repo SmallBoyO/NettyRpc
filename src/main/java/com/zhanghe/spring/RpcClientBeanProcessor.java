@@ -16,6 +16,8 @@ public class RpcClientBeanProcessor implements BeanFactoryPostProcessor,BeanPost
 
   private static final Logger logger = LoggerFactory.getLogger(RpcClientBeanProcessor.class);
 
+  private static String SCANPACKAGE_SPLITER = ",";
+
   private String scanPackage;
 
   private ApplicationContext applicationContext;
@@ -39,8 +41,8 @@ public class RpcClientBeanProcessor implements BeanFactoryPostProcessor,BeanPost
       AnnotationTypeFilter filter = new AnnotationTypeFilter(RpcClient.class,false,true);
       scanner.addIncludeFilter(filter);
       logger.info("scan package:[{}]",scanPackage);
-      if(scanPackage.contains(",")){
-        scanner.scan(scanPackage.split(","));
+      if(scanPackage.contains(SCANPACKAGE_SPLITER)){
+        scanner.scan(scanPackage.split(SCANPACKAGE_SPLITER));
       }else{
         scanner.scan(scanPackage);
       }

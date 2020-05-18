@@ -18,8 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ProtostuffSerializer implements Serializer {
 
-    private static ThreadLocal<LinkedBuffer> buffers = new ThreadLocal();
-
     public static final ProtostuffSerializer INSTANCE = new ProtostuffSerializer();
 
     private static Map<Class<?>, Schema<?>> cachedSchema = new ConcurrentHashMap<>();
@@ -46,13 +44,7 @@ public class ProtostuffSerializer implements Serializer {
         Class clazz =  object.getClass();
         Schema schema = getSchema(clazz);
         byte[] data;
-        LinkedBuffer buffer;
-        if(buffers.get()==null){
-            buffer =  LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
-            buffers.set(buffer);
-        }else{
-            buffer = buffers.get();
-        }
+        LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
             data = ProtostuffIOUtil.toByteArray(object, schema, buffer);
         } finally {

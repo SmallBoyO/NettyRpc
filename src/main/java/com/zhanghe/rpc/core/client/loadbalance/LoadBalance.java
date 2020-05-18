@@ -9,4 +9,5 @@ public interface LoadBalance<T> {
   T next();
 
   void addService(LoadBalanceService loadBalanceService);
+
 }

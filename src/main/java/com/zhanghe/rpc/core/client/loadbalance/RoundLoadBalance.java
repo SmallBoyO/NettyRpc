@@ -13,12 +13,9 @@ public class RoundLoadBalance<T> implements LoadBalance {
 
   private ReentrantReadWriteLock lock;
 
-  private Integer size;
-
   public RoundLoadBalance() {
     this.services = new ArrayList<>();
     this.position = new AtomicInteger(0);
-    this.size = 0;
     this.lock = new ReentrantReadWriteLock();
   }
 
@@ -39,7 +36,7 @@ public class RoundLoadBalance<T> implements LoadBalance {
   Integer[] getPosition(){
     Integer nowPosition = position.get();
     Integer readPosition = nowPosition;
-    if( readPosition >= size ){
+    if( readPosition >= services.size() ){
       readPosition = 0;
     }
     return new Integer[]{nowPosition,readPosition};
@@ -50,7 +47,6 @@ public class RoundLoadBalance<T> implements LoadBalance {
     lock.writeLock().lock();
     try {
       services.add((T) loadBalanceService.getService());
-      size = services.size();
     }finally {
       lock.writeLock().unlock();
     }

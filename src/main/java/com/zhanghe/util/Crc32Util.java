@@ -2,7 +2,7 @@ package com.zhanghe.util;
 
 import java.util.zip.CRC32;
 
-public class CRC32Util {
+public class Crc32Util {
 
   public static long getCrcValue(byte[] bytes){
     CRC32 crc32 = new CRC32();

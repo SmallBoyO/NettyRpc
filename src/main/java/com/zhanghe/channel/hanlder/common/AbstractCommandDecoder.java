@@ -8,7 +8,7 @@ import com.zhanghe.protocol.v1.response.HeartBeatResponse;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.protocol.v1.Command;
-import com.zhanghe.util.CRC32Util;
+import com.zhanghe.util.Crc32Util;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -43,7 +43,7 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
             }
             byte[] bytes = new byte[length-8];
             byteBuf.readBytes(bytes);
-            long crcValue = CRC32Util.getCrcValue(bytes);
+            long crcValue = Crc32Util.getCrcValue(bytes);
             long clientCrcValue = byteBuf.readLong();
             if(crcValue!=clientCrcValue){
                 logger.error("CRC check failed!");
