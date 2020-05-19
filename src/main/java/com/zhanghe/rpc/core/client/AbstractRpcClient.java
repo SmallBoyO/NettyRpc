@@ -42,9 +42,11 @@ public class AbstractRpcClient implements Client {
       rpcServerInfo.setIp(ip);
       rpcServerInfo.setPort(port);
     }
+    proxy.setClient(this);
     rpcClientConnector = new RpcClientConnector(ip,port);
     rpcClientConnector.setSerializer(serializer);
     rpcClientConnector.setClient(this);
+    rpcServerInfo.setRpcClientConnector(rpcClientConnector);
     rpcClientConnector.start();
     logger.info("client init success");
   }
@@ -64,7 +66,7 @@ public class AbstractRpcClient implements Client {
 
   @Override
   public void setChannel(String address, Channel channel) {
-    proxy.setChannel(channel);
+//    proxy.setChannel(channel);
   }
 
   @Override
@@ -83,6 +85,11 @@ public class AbstractRpcClient implements Client {
   @Override
   public void setSerializer(Serializer serializer) {
     this.serializer = serializer;
+  }
+
+  @Override
+  public RpcServerInfo currentServer() {
+    return this.rpcServerInfo;
   }
 
   public String getIp() {
@@ -104,4 +111,5 @@ public class AbstractRpcClient implements Client {
   public Serializer getSerializer() {
     return serializer;
   }
+
 }

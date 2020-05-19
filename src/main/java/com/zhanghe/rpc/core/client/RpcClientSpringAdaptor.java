@@ -36,9 +36,11 @@ public class RpcClientSpringAdaptor implements Client{
       rpcServerInfo.setIp(ip);
       rpcServerInfo.setPort(port);
     }
+    proxy.setClient(this);
     rpcClientConnector = new RpcClientConnector(ip,port);
     rpcClientConnector.setSerializer(serializer);
     rpcClientConnector.setClient(this);
+    rpcServerInfo.setRpcClientConnector(rpcClientConnector);
     rpcClientConnector.start();
     logger.info("Rpc client init finish");
   }
@@ -72,12 +74,17 @@ public class RpcClientSpringAdaptor implements Client{
 
   @Override
   public void setChannel(String address, Channel channel) {
-    proxy.setChannel(channel);
+//    proxy.setChannel(channel);
   }
 
   @Override
   public void setSerializer(Serializer serializer) {
     this.serializer = serializer;
+  }
+
+  @Override
+  public RpcServerInfo currentServer() {
+    return this.rpcServerInfo;
   }
 
   public String getIp() {

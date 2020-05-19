@@ -34,7 +34,7 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   List<RpcClientConnector> activeServer;
 
-  private LoadBalanceProxy loadBalanceProxy;
+  private RpcRequestProxy proxy;
 
   private LoadBalance<RpcServerInfo> loadBalancer;
 
@@ -43,8 +43,8 @@ public class RpcLoadBalanceAdaptor implements Client{
   private Serializer serializer;
 
   public RpcLoadBalanceAdaptor() {
+    this.proxy = new RpcRequestProxy<>();
     serversMap = new HashMap<>();
-    this.loadBalanceProxy = new LoadBalanceProxy();
     serversInfoMap = new HashMap<>();
     activeServer = new ArrayList<>();
   }
@@ -53,6 +53,7 @@ public class RpcLoadBalanceAdaptor implements Client{
   public void init(){
     logger.info("Rpc load balance client ready to init");
     initLoadBalancer();
+    proxy.setClient(this);
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
         RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
@@ -121,7 +122,7 @@ public class RpcLoadBalanceAdaptor implements Client{
     return Proxy.newProxyInstance(
         clazz.getClassLoader(),
         new Class<?>[]{ clazz },
-        loadBalanceProxy
+        proxy
     );
   }
 
@@ -133,45 +134,14 @@ public class RpcLoadBalanceAdaptor implements Client{
     this.servers = servers;
   }
 
-  class LoadBalanceProxy <T> implements InvocationHandler {
-
-    ThreadLocalRandom random = ThreadLocalRandom.current();
-
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      RpcServerInfo server = loadBalancer.next();
-      logger.debug("choose server:[{}:{}]",server.getIp(),server.getPort());
-      if(!server.getUseful().get()){
-        throw new IllegalStateException("server ["+server.getIp()+":"+server.getPort()+"] disconnected!");
-      }
-      Channel channel = server.getRpcClientConnector().getActiveChannel();
-      RpcRequest rpcRequest = new RpcRequest();
-      String requestId = UUID.randomUUID().toString();
-      rpcRequest.setRequestId(requestId);
-      rpcRequest.setClassName(proxy.getClass().getInterfaces()[0].getName());
-      rpcRequest.setMethodName(method.getName());
-      rpcRequest.setTypeParameters(method.getParameterTypes());
-      rpcRequest.setParametersVal(args);
-      RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
-
-      RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
-      channel.writeAndFlush(rpcRequest);
-      RpcResponse result = callBack.start();
-      if(result == null && !channel.isActive()){
-        throw new IllegalStateException("rpc server disconnected!");
-      }
-      if (result.isSuccess()) {
-        return result.getResult();
-      } else {
-        throw result.getException();
-      }
-    }
-
-  }
-
   @Override
   public void setSerializer(Serializer serializer) {
     this.serializer = serializer;
+  }
+
+  @Override
+  public RpcServerInfo currentServer() {
+    return this.loadBalancer.next();
   }
 
   public String getLoadBalance() {

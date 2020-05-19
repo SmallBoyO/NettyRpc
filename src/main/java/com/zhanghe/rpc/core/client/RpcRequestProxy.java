@@ -15,19 +15,17 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
     private static Logger logger = LoggerFactory.getLogger(RpcRequestProxy.class);
 
-    private Channel channel;
 
     private Lock channelLock = new ReentrantLock();
+
+    private Client client;
 
     public RpcRequestProxy() {
     }
 
-    public RpcRequestProxy(Channel channel) {
-        this.channel = channel;
-    }
-
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        Channel channel = client.currentServer().getRpcClientConnector().getActiveChannel();
         if (!channel.isActive()) {
             throw new IllegalStateException("rpc server disconnected!");
         }
@@ -53,12 +51,11 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         }
     }
 
-    public Channel getChannel() {
-        return channel;
+    public Client getClient() {
+        return client;
     }
 
-    public void setChannel(Channel channel) {
-        this.channel = channel;
+    public void setClient(Client client) {
+        this.client = client;
     }
-
 }

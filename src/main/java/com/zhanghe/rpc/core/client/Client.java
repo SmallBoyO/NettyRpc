@@ -18,4 +18,5 @@ public interface Client {
 
   Object proxy(String service) throws ClassNotFoundException;
 
+  RpcServerInfo currentServer();
 }
