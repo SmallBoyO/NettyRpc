@@ -1,4 +1,6 @@
-package com.zhanghe.test.testClient;
+package com.zhanghe.test.testClient.service;
+
+import com.zhanghe.test.testClient.service.DemoService;
 
 public class DemoServiceLoadBalanceImpl implements DemoService {
 

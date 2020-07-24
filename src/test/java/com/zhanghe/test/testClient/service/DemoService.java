@@ -1,4 +1,4 @@
-package com.zhanghe.test.testClient;
+package com.zhanghe.test.testClient.service;
 
 //@RpcClient(value = "rpcclient")
 public interface DemoService{

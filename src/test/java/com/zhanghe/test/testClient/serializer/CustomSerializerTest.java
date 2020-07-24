@@ -3,8 +3,8 @@ package com.zhanghe.test.testClient.serializer;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
-import com.zhanghe.test.testClient.DemoService;
-import com.zhanghe.test.testClient.DemoServiceImpl;
+import com.zhanghe.test.testClient.service.DemoService;
+import com.zhanghe.test.testClient.service.DemoServiceImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,8 +44,8 @@ public class CustomSerializerTest {
     rpcClient = new AbstractRpcClient("127.0.0.1",7777);
     rpcClient.setSerializer(serializer);
     rpcClient.init();
-    demoService = (com.zhanghe.test.testClient.DemoService) rpcClient.proxy(
-        com.zhanghe.test.testClient.DemoService.class.getName());
+    demoService = (DemoService) rpcClient.proxy(
+        DemoService.class.getName());
     Assert.assertNotNull(demoService);
   }
 

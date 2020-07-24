@@ -2,6 +2,8 @@ package com.zhanghe.test.testClient;
 
 import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.test.testClient.service.DemoService;
+import com.zhanghe.test.testClient.service.DemoServiceImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,6 +29,7 @@ public class ClientTest {
     rpcServer.stop();
     rpcClient.destroy();
   }
+
   @Test
   public void testConnectAndCall() throws ClassNotFoundException,InterruptedException{
     connect();

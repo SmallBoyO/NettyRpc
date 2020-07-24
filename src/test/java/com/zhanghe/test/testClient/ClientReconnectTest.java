@@ -2,6 +2,8 @@ package com.zhanghe.test.testClient;
 
 import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.test.testClient.service.DemoService;
+import com.zhanghe.test.testClient.service.DemoServiceImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,6 +29,7 @@ public class ClientReconnectTest {
     rpcServer.stop();
     rpcClient.destroy();
   }
+
   @Test
   public void testConnectAndCall() throws ClassNotFoundException,InterruptedException{
     connect();
@@ -61,7 +64,7 @@ public class ClientReconnectTest {
   public void callDisconnect(){
     try {
       String str = "Random str:"+Math.random();
-      String rpcRes = demoService.call(str);
+      demoService.call(str);
       Assert.fail("Should not reach here");
     }catch (Exception e){
 
