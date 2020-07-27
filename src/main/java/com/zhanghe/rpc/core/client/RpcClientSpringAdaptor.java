@@ -2,6 +2,7 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.config.RpcConfig;
 import com.zhanghe.protocol.serializer.Serializer;
+import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import io.netty.channel.Channel;
 import java.lang.reflect.Proxy;
 import java.util.Set;
@@ -87,6 +88,11 @@ public class RpcClientSpringAdaptor implements Client{
     return this.rpcServerInfo;
   }
 
+  @Override
+  public void addFilter(RpcClientFilter rpcClientFilter) {
+
+  }
+
   public String getIp() {
     return ip;
   }
@@ -126,6 +132,5 @@ public class RpcClientSpringAdaptor implements Client{
   public void setProxy(RpcRequestProxy proxy) {
     this.proxy = proxy;
   }
-
 
 }
