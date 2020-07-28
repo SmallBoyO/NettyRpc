@@ -4,13 +4,13 @@ import com.zhanghe.protocol.v1.response.RpcResponse;
 import com.zhanghe.rpc.core.client.RpcRequestProxy;
 import java.lang.reflect.Method;
 
-public class AbstarctInvoker implements Invoker {
+public class AbstractInvoker implements Invoker {
 
   private RpcRequestProxy rpcRequestProxy;
 
   private RpcResponse rpcResponse;
 
-  public AbstarctInvoker(RpcRequestProxy rpcRequestProxy) {
+  public AbstractInvoker(RpcRequestProxy rpcRequestProxy) {
     this.rpcRequestProxy = rpcRequestProxy;
   }
 

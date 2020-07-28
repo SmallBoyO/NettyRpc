@@ -27,15 +27,4 @@ public class RpcClientFilterChain {
     }
   }
 
-  public static void main(String[] args) throws Throwable{
-    Integer res = null;
-//    RpcClientFilterChain clientFilterChain = new RpcClientFilterChain((proxy, method, args1) -> {
-//      res = 2;
-//      return null;
-//    });
-//    clientFilterChain.addFilter(new AbstractRpcClientFilter("first"));
-//    clientFilterChain.addFilter(new AbstractRpcClientFilter("second"));
-//    clientFilterChain.doFilter(null,null,null);
-  }
-
 }

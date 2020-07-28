@@ -5,6 +5,8 @@ import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import io.netty.channel.Channel;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +27,12 @@ public class RpcClientSpringAdaptor implements Client{
 
   private Serializer serializer;
 
+  private List<RpcClientFilter> filters;
+
   public RpcClientSpringAdaptor() {
     this.proxy = new RpcRequestProxy<>();
+    this.filters = new ArrayList<>();
+    proxy.setFilters(this.filters);
   }
 
   @Override
@@ -90,7 +96,7 @@ public class RpcClientSpringAdaptor implements Client{
 
   @Override
   public void addFilter(RpcClientFilter rpcClientFilter) {
-
+    filters.add(rpcClientFilter);
   }
 
   public String getIp() {

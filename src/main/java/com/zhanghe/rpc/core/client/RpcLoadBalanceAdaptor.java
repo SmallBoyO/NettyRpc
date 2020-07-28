@@ -43,11 +43,15 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   private Serializer serializer;
 
+  private List<RpcClientFilter> filters;
+
   public RpcLoadBalanceAdaptor() {
     this.proxy = new RpcRequestProxy<>();
     serversMap = new HashMap<>();
     serversInfoMap = new HashMap<>();
     activeServer = new ArrayList<>();
+    this.filters = new ArrayList<>();
+    proxy.setFilters(this.filters);
   }
 
   @Override
@@ -147,7 +151,7 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   @Override
   public void addFilter(RpcClientFilter rpcClientFilter) {
-
+    filters.add(rpcClientFilter);
   }
 
   public String getLoadBalance() {
