@@ -1,6 +1,6 @@
 package com.zhanghe.spring.schema;
 
-import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
+import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.spring.RpcClientBeanProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -13,7 +13,7 @@ public class RpcClientNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
 
   @Override
   protected Class getBeanClass(Element ele){
-    return RpcClientSpringAdaptor.class;
+    return AbstractRpcClient.class;
   }
 
   @Override

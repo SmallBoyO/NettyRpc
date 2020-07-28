@@ -1,6 +1,6 @@
 package com.zhanghe.test.spring;
 
-import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
+import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import com.zhanghe.test.spring.service.DemoService;
 import com.zhanghe.test.spring.service.DemoServiceImpl;
@@ -26,8 +26,8 @@ public class SpringClientAdaptorTest {
   public void testSpringClientAdaptor(){
     ApplicationContext context = new ClassPathXmlApplicationContext(
         "spring-rpc-client-spring-adaptor.xml");
-    RpcClientSpringAdaptor adaptor = (RpcClientSpringAdaptor)context.getBean("client");
-    Assert.assertNotNull(adaptor);
+    AbstractRpcClient client = (AbstractRpcClient)context.getBean("client");
+    Assert.assertNotNull(client);
     DemoService demoService = (DemoService)context.getBean("demoService");
     Assert.assertNotNull(demoService);
     String str = "Random str:"+Math.random();

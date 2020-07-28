@@ -1,6 +1,6 @@
 package com.zhanghe.test.spring;
 
-import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
+import com.zhanghe.rpc.core.client.AbstractRpcClient;
 import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import com.zhanghe.test.spring.service.DemoService;
 import com.zhanghe.test.spring.service.DemoServiceImpl;
@@ -25,7 +25,7 @@ public class SpringClientAnnotationTest {
   public void testSpringServerAdaptor() throws Exception{
     ApplicationContext contextClient = new ClassPathXmlApplicationContext(
         "spring-rpc-client-spring-adaptor-annotation.xml");
-    RpcClientSpringAdaptor client = (RpcClientSpringAdaptor)contextClient.getBean("client");
+    AbstractRpcClient client = (AbstractRpcClient)contextClient.getBean("client");
     Assert.assertNotNull(client);
     DemoService demoService = (DemoService)contextClient.getBean("demoService");
     Assert.assertNotNull(demoService);
