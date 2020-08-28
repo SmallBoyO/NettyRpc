@@ -1,5 +1,7 @@
 # netty-rpc
 
+![](https://www.travis-ci.org/SmallBoyO/NettyRpc.svg?branch=master)
+
 #### 项目介绍
 基于netty实现的rpc服务
 
