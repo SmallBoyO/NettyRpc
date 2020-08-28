@@ -1,6 +1,5 @@
 package com.zhanghe.spring.schema;
 
-import com.zhanghe.rpc.core.client.RpcClientSpringAdaptor;
 import com.zhanghe.rpc.core.client.RpcLoadBalanceAdaptor;
 import com.zhanghe.rpc.core.client.RpcServerInfo;
 import com.zhanghe.spring.RpcClientBeanProcessor;

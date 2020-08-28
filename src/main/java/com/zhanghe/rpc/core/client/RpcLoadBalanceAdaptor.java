@@ -8,6 +8,7 @@ import com.zhanghe.rpc.core.client.loadbalance.LoadBalanceService;
 import com.zhanghe.rpc.core.client.loadbalance.RandomLoadBalance;
 import com.zhanghe.rpc.core.client.loadbalance.RoundLoadBalance;
 import com.zhanghe.rpc.core.client.loadbalance.WeightRandomLoadBalance;
+import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -42,11 +43,15 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   private Serializer serializer;
 
+  private List<RpcClientFilter> filters;
+
   public RpcLoadBalanceAdaptor() {
     this.proxy = new RpcRequestProxy<>();
     serversMap = new HashMap<>();
     serversInfoMap = new HashMap<>();
     activeServer = new ArrayList<>();
+    this.filters = new ArrayList<>();
+    proxy.setFilters(this.filters);
   }
 
   @Override
@@ -142,6 +147,11 @@ public class RpcLoadBalanceAdaptor implements Client{
   @Override
   public RpcServerInfo currentServer() {
     return this.loadBalancer.next();
+  }
+
+  @Override
+  public void addFilter(RpcClientFilter rpcClientFilter) {
+    filters.add(rpcClientFilter);
   }
 
   public String getLoadBalance() {
