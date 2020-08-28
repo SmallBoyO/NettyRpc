@@ -9,7 +9,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 
   <bean name="testSerializer" class="com.zhanghe.test.spring.serializer.TestSerializer"></bean>
 
-  <rpc:server  id="adaptor" port="6666" ip="127.0.0.1" serializer="testSerializer">
+  <rpc:server  id="adaptor" port="6666" ip="localhost" serializer="testSerializer">
     <rpc:service value="demoService"></rpc:service>
   </rpc:server>
 

@@ -17,7 +17,7 @@ public class CustomSerializerTest {
         "spring-rpc-server-serializer-spring-adaptor.xml");
     AbstractRpcServer adaptor = (AbstractRpcServer)context.getBean("adaptor");
     Assert.assertNotNull(adaptor);
-    AbstractRpcClient abstractRpcClient = new AbstractRpcClient("127.0.0.1",6666);
+    AbstractRpcClient abstractRpcClient = new AbstractRpcClient("localhost",6666);
     abstractRpcClient.setSerializer(new TestSerializer());
     abstractRpcClient.init();
     DemoService demoService = (DemoService)abstractRpcClient.proxy(DemoService.class.getName());
