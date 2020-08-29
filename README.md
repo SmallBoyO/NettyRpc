@@ -1,6 +1,7 @@
 # netty-rpc
 
 ![](https://www.travis-ci.org/SmallBoyO/NettyRpc.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/SmallBoyO/NettyRpc/badge.svg?branch=master)](https://coveralls.io/github/SmallBoyO/NettyRpc?branch=master)
 
 #### 项目介绍
 基于netty实现的rpc服务
