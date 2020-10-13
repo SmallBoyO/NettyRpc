@@ -92,7 +92,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 ```
   @Bean
   public AbstractRpcClient getAbstractRpcClient(){
-    AbstractRpcClient rpcClient = new AbstractRpcClient("127.0.0.1",666600);
+    AbstractRpcClient rpcClient = new AbstractRpcClient("127.0.0.1",6666);
     rpcClient.init();
     return rpcClient;
   }
