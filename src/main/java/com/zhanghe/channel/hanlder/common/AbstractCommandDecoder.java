@@ -58,10 +58,10 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
                 case CommandType.HEART_BEAT_REQUEST:
                     list.add(HeartBeatRequest.INSTANCE);
                     break;
-                case 2:
+                case CommandType.HEART_BEAT_RESPONSE:
                     list.add(HeartBeatResponse.INSTANCE);
                     break;
-                case 5:
+                case CommandType.GET_REGISTER_SERVICE_REQUEST:
                     list.add(GetRegisterServiceRequest.INSTANCE);
                     break;
                 default:
