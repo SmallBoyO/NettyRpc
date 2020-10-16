@@ -33,7 +33,7 @@ public class ServerChannelInitializer extends ChannelInitializer {
     private BindRpcServiceHandler bindRpcServiceHandler = new BindRpcServiceHandler();
 
     @Override
-    protected void initChannel(Channel channel) throws Exception {
+    protected void initChannel(Channel channel) {
         if(serializer != null){
             channel.attr(Attributes.SERIALIZER_ATTRIBUTE_KEY).set(serializer);
             logger.info("use serializer:[{}].",serializer);

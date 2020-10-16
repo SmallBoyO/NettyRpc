@@ -27,7 +27,7 @@ public class ClientChannelInitializer  extends ChannelInitializer {
     }
 
     @Override
-    protected void initChannel(Channel channel) throws Exception {
+    protected void initChannel(Channel channel) {
         if(serializer != null){
             channel.attr(Attributes.SERIALIZER_ATTRIBUTE_KEY).set(serializer);
             logger.info("use serializer:[{}].",serializer);
