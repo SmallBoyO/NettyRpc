@@ -2,7 +2,7 @@ package com.zhanghe.spring.schema;
 
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.spring.RpcServiceBeanProcessor;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -19,7 +19,7 @@ public class RpcServerNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
 
   @Override
   protected Class getBeanClass(Element ele){
-    return AbstractRpcServer.class;
+    return BaseRpcServer.class;
   }
 
   @Override

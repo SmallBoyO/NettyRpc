@@ -21,9 +21,9 @@ import java.util.List;
  * 默认解码器
  * @author zhanghe
  */
-public class AbstractCommandDecoder extends ByteToMessageDecoder {
+public class BaseCommandDecoder extends ByteToMessageDecoder {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractCommandDecoder.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseCommandDecoder.class);
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
@@ -58,10 +58,10 @@ public class AbstractCommandDecoder extends ByteToMessageDecoder {
                 case CommandType.HEART_BEAT_REQUEST:
                     list.add(HeartBeatRequest.INSTANCE);
                     break;
-                case 2:
+                case CommandType.HEART_BEAT_RESPONSE:
                     list.add(HeartBeatResponse.INSTANCE);
                     break;
-                case 5:
+                case CommandType.GET_REGISTER_SERVICE_REQUEST:
                     list.add(GetRegisterServiceRequest.INSTANCE);
                     break;
                 default:

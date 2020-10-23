@@ -1,7 +1,7 @@
 package com.zhanghe.spring;
 
+import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.spring.annotation.RpcService;
-import com.zhanghe.rpc.core.server.AbstractRpcServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -67,8 +67,8 @@ public class RpcServiceBeanProcessor implements BeanFactoryPostProcessor,BeanPos
     }
     RpcService rpcService = AnnotationUtils.findAnnotation(bean.getClass(),RpcService.class);
     if(rpcService != null){
-      AbstractRpcServer abstractRpcServer = applicationContext.getBean(AbstractRpcServer.class);
-      abstractRpcServer.bind(bean);
+      BaseRpcServer baseRpcServer = applicationContext.getBean(BaseRpcServer.class);
+      baseRpcServer.bind(bean);
     }
     return bean;
   }

@@ -8,9 +8,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractRpcServer implements Server {
+public class BaseRpcServer implements Server {
 
-  private static final Logger logger = LoggerFactory.getLogger(AbstractRpcServer.class);
+  private static final Logger logger = LoggerFactory.getLogger(BaseRpcServer.class);
 
   private AtomicBoolean started = new AtomicBoolean(false);
 
@@ -26,19 +26,19 @@ public class AbstractRpcServer implements Server {
 
   private Serializer serializer;
 
-  public AbstractRpcServer() {
+  public BaseRpcServer() {
     this.rpcServerConnector = new RpcServerConnector();
     this.servicesMap = new ConcurrentHashMap<>();
   }
 
-  public AbstractRpcServer(int port) {
+  public BaseRpcServer(int port) {
     this.rpcServerConnector = new RpcServerConnector();
     this.servicesMap = new ConcurrentHashMap<>();
     this.ip = RpcConfig.DEFAULT_IP;
     this.port = port;
   }
 
-  public AbstractRpcServer(String ip, int port) {
+  public BaseRpcServer(String ip, int port) {
     this.rpcServerConnector = new RpcServerConnector();
     this.servicesMap = new ConcurrentHashMap<>();
     this.ip = ip;
