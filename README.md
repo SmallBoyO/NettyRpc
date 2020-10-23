@@ -1,6 +1,7 @@
 # netty-rpc
 
 ![](https://www.travis-ci.org/SmallBoyO/NettyRpc.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/SmallBoyO/NettyRpc/badge.svg?branch=master)](https://coveralls.io/github/SmallBoyO/NettyRpc?branch=master)
 
 #### 项目介绍
 基于netty实现的rpc服务
@@ -91,7 +92,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 ```
   @Bean
   public BaseRpcClient getBaseRpcClient(){
-    BaseRpcClient rpcClient = new BaseRpcClient("127.0.0.1",666600);
+    BaseRpcClient rpcClient = new BaseRpcClient("127.0.0.1",6666);
     rpcClient.init();
     return rpcClient;
   }
