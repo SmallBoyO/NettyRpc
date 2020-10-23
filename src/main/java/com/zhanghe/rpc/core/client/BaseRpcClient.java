@@ -11,9 +11,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractRpcClient implements Client {
+public class BaseRpcClient implements Client {
 
-  private static Logger logger = LoggerFactory.getLogger(AbstractRpcClient.class);
+  private static Logger logger = LoggerFactory.getLogger(BaseRpcClient.class);
 
   private RpcClientConnector rpcClientConnector;
 
@@ -29,13 +29,13 @@ public class AbstractRpcClient implements Client {
 
   private List<RpcClientFilter> filters;
 
-  public AbstractRpcClient() {
+  public BaseRpcClient() {
     this.filters = new ArrayList<>();
     this.proxy = new RpcRequestProxy<>();
     proxy.setFilters(this.filters);
   }
 
-  public AbstractRpcClient(String ip, int port) {
+  public BaseRpcClient(String ip, int port) {
     this.filters = new ArrayList<>();
     this.ip = ip;
     this.port = port;

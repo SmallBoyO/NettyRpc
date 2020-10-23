@@ -2,8 +2,8 @@ package com.zhanghe.channel;
 
 import com.zhanghe.attribute.Attributes;
 import com.zhanghe.channel.hanlder.client.*;
-import com.zhanghe.channel.hanlder.common.AbstractCommandDecoder;
-import com.zhanghe.channel.hanlder.common.AbstractCommandEncoder;
+import com.zhanghe.channel.hanlder.common.BaseCommandDecoder;
+import com.zhanghe.channel.hanlder.common.BaseCommandEncoder;
 import com.zhanghe.channel.hanlder.common.Spliter;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerManager;
@@ -37,8 +37,8 @@ public class ClientChannelInitializer  extends ChannelInitializer {
         }
         channel.pipeline().addLast(new Spliter(Integer.MAX_VALUE,7,4));
         channel.pipeline().addLast(new RpcIdleStateHandler());
-        channel.pipeline().addLast(AbstractCommandEncoder.INSTANCE);
-        channel.pipeline().addLast(new AbstractCommandDecoder());
+        channel.pipeline().addLast(BaseCommandEncoder.INSTANCE);
+        channel.pipeline().addLast(new BaseCommandDecoder());
         channel.pipeline().addLast(HeartBeatTimerHanlder.INSTANCE);
         channel.pipeline().addLast(new GetRegisterServiceResponseHandler());
         channel.pipeline().addLast(RpcResponseHandler.INSTANCE);

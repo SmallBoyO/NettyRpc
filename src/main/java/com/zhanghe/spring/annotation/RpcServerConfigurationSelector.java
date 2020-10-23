@@ -2,14 +2,13 @@ package com.zhanghe.spring.annotation;
 
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.spring.RpcServiceBeanProcessor;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
@@ -27,7 +26,7 @@ public class RpcServerConfigurationSelector implements ImportBeanDefinitionRegis
     String scanPacakges = attributes.getString("scanPacakges");
     String serializer = "";
 
-    BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(AbstractRpcServer.class);
+    BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(BaseRpcServer.class);
     builder.addPropertyValue("ip",ip);
     builder.addPropertyValue("port",port);
     if(!StringUtils.isEmpty(serializer)){

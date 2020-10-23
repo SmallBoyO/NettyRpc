@@ -1,7 +1,7 @@
 package com.zhanghe.test.spring;
 
-import com.zhanghe.rpc.core.client.AbstractRpcClient;
-import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.rpc.core.client.BaseRpcClient;
+import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.test.spring.configuration.EnableRpcClientConfiguration;
 import com.zhanghe.test.spring.configuration.EnableRpcServerConfiguration;
 import com.zhanghe.test.spring.service.DemoService;
@@ -14,17 +14,17 @@ public class SrpingEnableAnnotation {
   @Test
   public void serverTest(){
     AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(EnableRpcServerConfiguration.class);
-    AbstractRpcServer abstractRpcServer = (AbstractRpcServer)annotationConfigApplicationContext.getBean("server");
+    BaseRpcServer baseRpcServer = (BaseRpcServer)annotationConfigApplicationContext.getBean("server");
     annotationConfigApplicationContext.close();
   }
 
   @Test
   public void clientTest(){
-    AbstractRpcServer rpcServer = new AbstractRpcServer(6666);
+    BaseRpcServer rpcServer = new BaseRpcServer(6666);
     rpcServer.bind(new DemoServiceImpl());
     rpcServer.init();
     AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(EnableRpcClientConfiguration.class);
-    AbstractRpcClient rpcClient = (AbstractRpcClient)annotationConfigApplicationContext.getBean("client");
+    BaseRpcClient rpcClient = (BaseRpcClient)annotationConfigApplicationContext.getBean("client");
     DemoService demoService = (DemoService)annotationConfigApplicationContext.getBean("demoService");
     demoService.call("call");
     annotationConfigApplicationContext.close();
@@ -34,7 +34,7 @@ public class SrpingEnableAnnotation {
   @Test
   public void clientTest2(){
     AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(EnableRpcServerConfiguration.class,EnableRpcClientConfiguration.class);
-    AbstractRpcClient rpcClient = (AbstractRpcClient)annotationConfigApplicationContext.getBean("client");
+    BaseRpcClient rpcClient = (BaseRpcClient)annotationConfigApplicationContext.getBean("client");
     DemoService demoService = (DemoService)annotationConfigApplicationContext.getBean("demoService");
     demoService.call("call");
     annotationConfigApplicationContext.close();

@@ -2,7 +2,7 @@ package com.zhanghe.test.testClient.loadbalance;
 
 import com.zhanghe.rpc.core.client.RpcLoadBalanceAdaptor;
 import com.zhanghe.rpc.core.client.RpcServerInfo;
-import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.test.testClient.service.DemoService;
 import com.zhanghe.test.testClient.service.DemoServiceLoadBalanceImpl;
 import java.util.ArrayList;
@@ -14,9 +14,9 @@ import org.junit.Test;
 
 public class RandomLoadBalanceClientTest {
 
-  private AbstractRpcServer server1;
+  private BaseRpcServer server1;
 
-  private AbstractRpcServer server2;
+  private BaseRpcServer server2;
 
   private RpcLoadBalanceAdaptor rpcClient;
 
@@ -28,11 +28,11 @@ public class RandomLoadBalanceClientTest {
 
   @Before
   public void init() {
-    server1 = new AbstractRpcServer(7777);
+    server1 = new BaseRpcServer(7777);
     demoService1 = new DemoServiceLoadBalanceImpl("server1");
     server1.init();
     server1.bind(demoService1);
-    server2 = new AbstractRpcServer(7778);
+    server2 = new BaseRpcServer(7778);
     demoService2 = new DemoServiceLoadBalanceImpl("server2");
     server2.init();
     server2.bind(demoService2);

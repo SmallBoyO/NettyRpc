@@ -1,8 +1,8 @@
 package com.zhanghe.test.testClient.serializer;
 
 import com.zhanghe.protocol.serializer.Serializer;
-import com.zhanghe.rpc.core.client.AbstractRpcClient;
-import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.rpc.core.client.BaseRpcClient;
+import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.test.testClient.service.DemoService;
 import com.zhanghe.test.testClient.service.DemoServiceImpl;
 import org.junit.After;
@@ -12,9 +12,9 @@ import org.junit.Test;
 
 public class CustomSerializerTest {
 
-  private AbstractRpcServer rpcServer;
+  private BaseRpcServer rpcServer;
 
-  private AbstractRpcClient rpcClient;
+  private BaseRpcClient rpcClient;
 
   private DemoService demoService;
 
@@ -23,7 +23,7 @@ public class CustomSerializerTest {
   @Before
   public void init() {
     serializer = new TestSerializer();
-    rpcServer = new AbstractRpcServer(7777);
+    rpcServer = new BaseRpcServer(7777);
     rpcServer.setSerializer(serializer);
     rpcServer.init();
     rpcServer.bind(new DemoServiceImpl());
@@ -41,7 +41,7 @@ public class CustomSerializerTest {
   }
 
   public void connect() throws ClassNotFoundException,InterruptedException{
-    rpcClient = new AbstractRpcClient("127.0.0.1",7777);
+    rpcClient = new BaseRpcClient("127.0.0.1",7777);
     rpcClient.setSerializer(serializer);
     rpcClient.init();
     demoService = (DemoService) rpcClient.proxy(

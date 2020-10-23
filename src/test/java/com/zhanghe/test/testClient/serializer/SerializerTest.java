@@ -2,8 +2,8 @@ package com.zhanghe.test.testClient.serializer;
 
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
-import com.zhanghe.rpc.core.client.AbstractRpcClient;
-import com.zhanghe.rpc.core.server.AbstractRpcServer;
+import com.zhanghe.rpc.core.client.BaseRpcClient;
+import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.test.testClient.service.DemoServiceImpl;
 import com.zhanghe.test.testClient.service.DemoService;
 import org.junit.After;
@@ -16,17 +16,17 @@ import org.junit.Test;
  */
 public class SerializerTest {
 
-  private AbstractRpcServer kryoServer;
+  private BaseRpcServer kryoServer;
 
-  private AbstractRpcServer jsonServer;
+  private BaseRpcServer jsonServer;
 
-  private AbstractRpcServer protostuffServer;
+  private BaseRpcServer protostuffServer;
 
-  private AbstractRpcClient kryoClient;
+  private BaseRpcClient kryoClient;
 
-  private AbstractRpcClient jsonClient;
+  private BaseRpcClient jsonClient;
 
-  private AbstractRpcClient protostuffClient;
+  private BaseRpcClient protostuffClient;
 
   private DemoService kryoDemoService;
 
@@ -64,11 +64,11 @@ public class SerializerTest {
   }
 
   private void initKryoServerAndClient() throws ClassNotFoundException{
-    kryoServer = new AbstractRpcServer("127.0.0.1",3659);
+    kryoServer = new BaseRpcServer("127.0.0.1",3659);
     kryoServer.setSerializer(SerializerManager.getSerializer(SerializerAlgorithm.KYRO));
     kryoServer.bind(new DemoServiceImpl());
     kryoServer.init();
-    kryoClient = new AbstractRpcClient("127.0.0.1",3659);
+    kryoClient = new BaseRpcClient("127.0.0.1",3659);
     kryoClient.init();
     kryoDemoService = (DemoService)kryoClient.proxy(DemoService.class.getName());
   }
@@ -79,11 +79,11 @@ public class SerializerTest {
   }
 
   private void initJsonServerAndClient() throws ClassNotFoundException{
-    jsonServer = new AbstractRpcServer("127.0.0.1",3660);
+    jsonServer = new BaseRpcServer("127.0.0.1",3660);
     jsonServer.setSerializer(SerializerManager.getSerializer(SerializerAlgorithm.KYRO));
     jsonServer.bind(new DemoServiceImpl());
     jsonServer.init();
-    jsonClient = new AbstractRpcClient("127.0.0.1",3660);
+    jsonClient = new BaseRpcClient("127.0.0.1",3660);
     jsonClient.init();
     jsonDemoService = (DemoService)jsonClient.proxy(DemoService.class.getName());
   }
@@ -94,11 +94,11 @@ public class SerializerTest {
   }
 
   private void initProtostuffServerAndClient() throws ClassNotFoundException{
-    protostuffServer = new AbstractRpcServer("127.0.0.1",3661);
+    protostuffServer = new BaseRpcServer("127.0.0.1",3661);
     protostuffServer.setSerializer(SerializerManager.getSerializer(SerializerAlgorithm.KYRO));
     protostuffServer.bind(new DemoServiceImpl());
     protostuffServer.init();
-    protostuffClient = new AbstractRpcClient("127.0.0.1",3661);
+    protostuffClient = new BaseRpcClient("127.0.0.1",3661);
     protostuffClient.init();
     protostuffDemoService = (DemoService)protostuffClient.proxy(DemoService.class.getName());
   }

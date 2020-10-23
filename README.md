@@ -90,24 +90,24 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 3.1 客户端配置
 ```
   @Bean
-  public AbstractRpcClient getAbstractRpcClient(){
-    AbstractRpcClient rpcClient = new AbstractRpcClient("127.0.0.1",666600);
+  public BaseRpcClient getBaseRpcClient(){
+    BaseRpcClient rpcClient = new BaseRpcClient("127.0.0.1",666600);
     rpcClient.init();
     return rpcClient;
   }
 
   @Bean
   public DemoService getDemoService() throws ClassNotFoundException{
-    return (DemoService)getAbstractRpcClient().proxy(DemoService.class.getName());
+    return (DemoService)getBaseRpcClient().proxy(DemoService.class.getName());
   }
 ```
 3.2 服务端配置
 ```
  @Bean
-  public AbstractRpcServer getAbstractRpcServer(){
-    AbstractRpcServer abstractRpcServer = new AbstractRpcServer();
-    abstractRpcServer.init();
-    abstractRpcServer.setServices(Arrays.asList(new DemoServiceImpl()));
-    return abstractRpcServer;
+  public BaseRpcServer getBaseRpcServer(){
+    BaseRpcServer baseRpcServer = new BaseRpcServer();
+    baseRpcServer.init();
+    baseRpcServer.setServices(Arrays.asList(new DemoServiceImpl()));
+    return baseRpcServer;
   }
 ```

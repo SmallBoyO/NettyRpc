@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
  * @author zhanghe
  */
 @ChannelHandler.Sharable
-public class AbstractCommandEncoder extends MessageToByteEncoder<BasePacket> {
+public class BaseCommandEncoder extends MessageToByteEncoder<BasePacket> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractCommandEncoder.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseCommandEncoder.class);
 
-    public static final AbstractCommandEncoder INSTANCE = new AbstractCommandEncoder();
+    public static final BaseCommandEncoder INSTANCE = new BaseCommandEncoder();
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, BasePacket packet, ByteBuf byteBuf) throws Exception {

@@ -21,9 +21,9 @@ import java.util.List;
  * 默认解码器
  * @author zhanghe
  */
-public class AbstractCommandDecoder extends ByteToMessageDecoder {
+public class BaseCommandDecoder extends ByteToMessageDecoder {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractCommandDecoder.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseCommandDecoder.class);
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
