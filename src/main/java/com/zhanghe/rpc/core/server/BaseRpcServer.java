@@ -1,7 +1,10 @@
 package com.zhanghe.rpc.core.server;
 
+import com.zhanghe.channel.hanlder.server.BindRpcFilterHandler;
 import com.zhanghe.config.RpcConfig;
 import com.zhanghe.protocol.serializer.Serializer;
+import com.zhanghe.rpc.core.plugin.server.RpcServerFilter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,9 +29,12 @@ public class BaseRpcServer implements Server {
 
   private Serializer serializer;
 
+  private List<RpcServerFilter> filters;
+
   public BaseRpcServer() {
     this.rpcServerConnector = new RpcServerConnector();
     this.servicesMap = new ConcurrentHashMap<>();
+    this.filters = new ArrayList<>();
   }
 
   public BaseRpcServer(int port) {
@@ -36,6 +42,7 @@ public class BaseRpcServer implements Server {
     this.servicesMap = new ConcurrentHashMap<>();
     this.ip = RpcConfig.DEFAULT_IP;
     this.port = port;
+    this.filters = new ArrayList<>();
   }
 
   public BaseRpcServer(String ip, int port) {
@@ -43,6 +50,7 @@ public class BaseRpcServer implements Server {
     this.servicesMap = new ConcurrentHashMap<>();
     this.ip = ip;
     this.port = port;
+    this.filters = new ArrayList<>();
   }
 
   @Override
@@ -73,6 +81,7 @@ public class BaseRpcServer implements Server {
     rpcServerConnector.setSerializer(this.serializer);
     rpcServerConnector.init();
     rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().setServiceMap(servicesMap);
+    rpcServerConnector.getServerChannelInitializer().setBindRpcFilterHandler(new BindRpcFilterHandler(this.filters));
     if(services != null){
       bind(services);
     }
@@ -154,5 +163,10 @@ public class BaseRpcServer implements Server {
 
   public void setServices(List<Object> services) {
     this.services = services;
+  }
+
+  @Override
+  public void addFilter(RpcServerFilter filter) {
+    this.filters.add(filter);
   }
 }

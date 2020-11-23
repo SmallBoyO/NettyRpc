@@ -39,9 +39,9 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         this.filters.forEach(rpcClientFilter -> {
             rpcClientFilterChain.addFilter(rpcClientFilter);
         });
-        AbstractInvoker abstarctInvoker = new AbstractInvoker(this);
-        rpcClientFilterChain.doFilter(proxy,method,args,abstarctInvoker);
-        RpcResponse result = abstarctInvoker.getRpcResponse();
+        AbstractInvoker abstractInvoker = new AbstractInvoker(this);
+        rpcClientFilterChain.doFilter(proxy,method,args,abstractInvoker);
+        RpcResponse result = abstractInvoker.getRpcResponse();
         if (result.isSuccess()) {
                 return result.getResult();
         } else {
