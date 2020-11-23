@@ -2,6 +2,7 @@ package com.zhanghe.channel;
 
 import com.zhanghe.attribute.Attributes;
 import com.zhanghe.channel.hanlder.common.Spliter;
+import com.zhanghe.channel.hanlder.server.BindRpcFilterHandler;
 import com.zhanghe.channel.hanlder.server.BindRpcServiceHandler;
 import com.zhanghe.channel.hanlder.server.GetRegisterServiceRequestHandler;
 import com.zhanghe.channel.hanlder.server.HeartBeatRequestHanlder;
@@ -32,6 +33,8 @@ public class ServerChannelInitializer extends ChannelInitializer {
 
     private BindRpcServiceHandler bindRpcServiceHandler = new BindRpcServiceHandler();
 
+    private BindRpcFilterHandler bindRpcFilterHandler;
+
     @Override
     protected void initChannel(Channel channel) {
         if(serializer != null){
@@ -44,6 +47,9 @@ public class ServerChannelInitializer extends ChannelInitializer {
         channel.pipeline().addLast(new Spliter(Integer.MAX_VALUE,7,4));
         channel.pipeline().addLast(new RpcIdleStateHandler());
         channel.pipeline().addLast(bindRpcServiceHandler);
+        if(bindRpcFilterHandler!=null){
+            channel.pipeline().addLast(bindRpcFilterHandler);
+        }
         channel.pipeline().addLast(BaseCommandEncoder.INSTANCE);
         channel.pipeline().addLast(new BaseCommandDecoder());
         channel.pipeline().addLast(HeartBeatRequestHanlder.INSTANCE);
@@ -58,5 +64,10 @@ public class ServerChannelInitializer extends ChannelInitializer {
     public void setBindRpcServiceHandler(
         BindRpcServiceHandler bindRpcServiceHandler) {
         this.bindRpcServiceHandler = bindRpcServiceHandler;
+    }
+
+    public void setBindRpcFilterHandler(
+        BindRpcFilterHandler bindRpcFilterHandler) {
+        this.bindRpcFilterHandler = bindRpcFilterHandler;
     }
 }

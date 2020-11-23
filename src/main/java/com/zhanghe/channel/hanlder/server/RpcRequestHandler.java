@@ -3,6 +3,8 @@ package com.zhanghe.channel.hanlder.server;
 import com.zhanghe.attribute.Attributes;
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.protocol.v1.response.RpcResponse;
+import com.zhanghe.rpc.core.plugin.server.BaseInvoker;
+import com.zhanghe.rpc.core.plugin.server.RpcServerFilterChain;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -27,18 +29,14 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcRequest rpcRequest) throws Exception {
         logger.debug("recive rpcRequest:{}",rpcRequest);
         Future<RpcResponse> f = channelHandlerContext.executor().submit(()->{
-            RpcResponse rpcResponse = new RpcResponse();
+            RpcServerFilterChain rpcServerFilterChain = new RpcServerFilterChain(channelHandlerContext.channel().attr(Attributes.SERVER_FILTER_LIST).get());
             try {
-                rpcResponse.setRequestId(rpcRequest.getRequestId());
-                String className = rpcRequest.getClassName();
-                Map mserverMap = channelHandlerContext.channel().attr(Attributes.SERVERS).get();
-                Object serviceBean = mserverMap.get(className);
-                Object result = serviceBean.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getTypeParameters()).invoke(serviceBean,rpcRequest.getParametersVal());
-                rpcResponse.setResult(result);
-                rpcResponse.setSuccess(true);
-                return rpcResponse;
+                BaseInvoker baseInvoker = new BaseInvoker();
+                rpcServerFilterChain.doFilter(channelHandlerContext,rpcRequest,baseInvoker);
+                return baseInvoker.getRpcResponse();
             }catch (Exception e){
                 e.printStackTrace();
+                RpcResponse rpcResponse = new RpcResponse();
                 rpcResponse.setException(e);
                 rpcResponse.setSuccess(false);
                 return rpcResponse;
