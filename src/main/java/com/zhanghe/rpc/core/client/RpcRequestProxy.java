@@ -2,7 +2,7 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.protocol.v1.response.RpcResponse;
-import com.zhanghe.rpc.core.plugin.client.AbstractInvoker;
+import com.zhanghe.rpc.core.plugin.client.BaseInvoker;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilterChain;
 import io.netty.channel.Channel;
@@ -39,9 +39,9 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         this.filters.forEach(rpcClientFilter -> {
             rpcClientFilterChain.addFilter(rpcClientFilter);
         });
-        AbstractInvoker abstractInvoker = new AbstractInvoker(this);
-        rpcClientFilterChain.doFilter(proxy,method,args,abstractInvoker);
-        RpcResponse result = abstractInvoker.getRpcResponse();
+        BaseInvoker baseInvoker = new BaseInvoker(this);
+        rpcClientFilterChain.doFilter(proxy,method,args, baseInvoker);
+        RpcResponse result = baseInvoker.getRpcResponse();
         if (result.isSuccess()) {
                 return result.getResult();
         } else {
