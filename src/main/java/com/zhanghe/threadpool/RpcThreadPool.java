@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RpcThreadPool {
 	
-	public static Executor getExecutor(int threads, int queues) {
+	public static ThreadPoolExecutor getExecutor(int threads, int queues) {
         return new ThreadPoolExecutor(threads, threads, 0, TimeUnit.MILLISECONDS,
                 queues == 0 ? new SynchronousQueue<Runnable>()
                         : (queues < 0 ? new LinkedBlockingQueue<Runnable>()

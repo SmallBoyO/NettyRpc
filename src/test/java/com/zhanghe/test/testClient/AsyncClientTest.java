@@ -1,0 +1,108 @@
+package com.zhanghe.test.testClient;
+
+import com.zhanghe.rpc.core.client.BaseRpcClient;
+import com.zhanghe.rpc.core.client.RpcContext;
+import com.zhanghe.rpc.core.server.BaseRpcServer;
+import com.zhanghe.test.testClient.service.AsyncService;
+import com.zhanghe.test.testClient.service.AsyncServiceImpl;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+public class AsyncClientTest {
+
+  private BaseRpcServer rpcServer;
+
+  private BaseRpcClient rpcClient;
+
+  private AsyncService asyncService;
+
+  @Before
+  public void init() {
+//    rpcServer = new BaseRpcServer(7777);
+//    rpcServer.init();
+//    rpcServer.bind(new AsyncServiceImpl());
+  }
+
+  @After
+  public void destroy(){
+//    rpcServer.stop();
+    rpcClient.destroy();
+  }
+
+  @Test
+  public void testConnectAndCall() throws ClassNotFoundException,InterruptedException,ExecutionException,TimeoutException{
+    connect();
+//    call();
+    concurrentCall();
+  }
+
+  public void connect() throws ClassNotFoundException{
+    rpcClient = new BaseRpcClient("127.0.0.1",7777);
+    rpcClient.init();
+    asyncService = (AsyncService) rpcClient.proxy(AsyncService.class.getName());
+    Assert.assertNotNull(asyncService);
+  }
+
+  public void call() throws InterruptedException,ExecutionException,TimeoutException {
+    String str = "Random str:"+Math.random();
+    asyncService.waitFiveSeconds(str);
+    Future future = RpcContext.getInstance().getFuture();
+    while (!future.isDone()){
+      System.out.println("not done");
+      Thread.sleep(1000L);
+    }
+    String result = (String)future.get(10,TimeUnit.SECONDS);
+    Assert.assertEquals(str,result);
+  }
+
+  public void concurrentCall(){
+    CountDownLatch countDownLatch = new CountDownLatch(2);
+    for(int i = 0;i<2;i++){
+      System.out.println("启动线程" +i);
+      new Thread(new ConcurrentThread(asyncService,countDownLatch)).start();
+    }
+    try {
+      countDownLatch.await();
+    }catch (Exception e){
+
+    }
+  }
+
+  class ConcurrentThread implements Runnable{
+
+    AsyncService asyncService;
+
+    CountDownLatch countDownLatch;
+
+    public ConcurrentThread(AsyncService asyncService,
+        CountDownLatch countDownLatch) {
+      this.asyncService = asyncService;
+      this.countDownLatch = countDownLatch;
+    }
+
+    @Override
+    public void run() {
+      String str = "Random str:"+Math.random();
+      asyncService.waitFiveSeconds(str);
+      Future future = RpcContext.getInstance().getFuture();
+      try {
+        String result = (String) future.get(10, TimeUnit.SECONDS);
+        Assert.assertEquals(str, result);
+        countDownLatch.countDown();
+      }catch (ExecutionException e){
+
+      }catch (TimeoutException e){
+
+      }catch (InterruptedException e){
+
+      }
+    }
+  }
+}
