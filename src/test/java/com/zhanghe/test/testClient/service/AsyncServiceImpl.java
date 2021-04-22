@@ -1,15 +1,16 @@
 package com.zhanghe.test.testClient.service;
 
-import java.util.concurrent.Future;
+
+import java.util.Random;
 
 public class AsyncServiceImpl implements AsyncService {
+
+  private static Random random = new Random();
 
   @Override
   public String waitFiveSeconds(String str) {
     try {
-      System.out.println("str:"+str);
-      System.out.println("thread:" + Thread.currentThread().getName());
-      Thread.sleep(10 * 1000L);
+      Thread.sleep(2 * 1000L + random.nextInt(2000));
     }catch (InterruptedException e){
 
     }

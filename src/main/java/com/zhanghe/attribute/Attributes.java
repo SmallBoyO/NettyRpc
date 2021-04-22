@@ -17,6 +17,6 @@ public interface Attributes {
 
     AttributeKey<List<RpcServerFilter>> SERVER_FILTER_LIST = AttributeKey.newInstance("SERVER_FILTER_LIST");
 
-    AttributeKey<ThreadPoolExecutor> SERVER_BUSINESS_EXCUTOR = AttributeKey.newInstance("SERVER_BUSINESS_EXCUTOR");
+    AttributeKey<ThreadPoolExecutor> SERVER_BUSINESS_EXECUTOR = AttributeKey.newInstance("SERVER_BUSINESS_EXECUTOR");
 
 }

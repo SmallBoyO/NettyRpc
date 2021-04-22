@@ -48,12 +48,10 @@ public class RpcRequestCallBack {
                 if(result!=null){
                     //删除此次rpc调用的request
                     RpcRequestCallBackholder.callBackMap.remove(requestId);
-                    System.out.println("接收到");
                     return result;
                 }else{
                     //删除此次rpc调用的request
                     RpcRequestCallBackholder.callBackMap.remove(requestId);
-                    System.out.println("接收到空");
                     return null;
                 }
             }

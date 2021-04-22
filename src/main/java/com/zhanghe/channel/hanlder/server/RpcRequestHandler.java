@@ -29,44 +29,21 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcRequest rpcRequest) throws Exception {
         logger.debug("recive rpcRequest:{}",rpcRequest);
-            System.out.println("-----------");
-        ThreadPoolExecutor businessExcutor =  channelHandlerContext.channel().attr(Attributes.SERVER_BUSINESS_EXCUTOR).get();
-        System.out.println(businessExcutor);
-            Future<RpcResponse> f = channelHandlerContext.executor().submit(()->{
-                RpcServerFilterChain rpcServerFilterChain = new RpcServerFilterChain(channelHandlerContext.channel().attr(Attributes.SERVER_FILTER_LIST).get());
-                try {
-                    logger.debug("开始执行任务:{}",rpcRequest);
-                    BaseInvoker baseInvoker = new BaseInvoker();
-                    rpcServerFilterChain.doFilter(channelHandlerContext,rpcRequest,baseInvoker);
-                    return baseInvoker.getRpcResponse();
-                }catch (Exception e){
-                    e.printStackTrace();
-                    RpcResponse rpcResponse = new RpcResponse();
-                    rpcResponse.setException(e);
-                    rpcResponse.setSuccess(false);
-                    return rpcResponse;
-                }
-            });
-            System.out.println("-----------");
-            f.addListener((future)->{
-                RpcResponse rpcResponse = (RpcResponse)future.get();
-                channelHandlerContext.channel().writeAndFlush(rpcResponse);
-            });
-//        new Thread(() -> {
-//            RpcServerFilterChain rpcServerFilterChain = new RpcServerFilterChain(channelHandlerContext.channel().attr(Attributes.SERVER_FILTER_LIST).get());
-//            try {
-//                logger.debug("开始执行任务:{}",rpcRequest);
-//                BaseInvoker baseInvoker = new BaseInvoker();
-//                rpcServerFilterChain.doFilter(channelHandlerContext,rpcRequest,baseInvoker);
-//                RpcResponse rpcResponse =baseInvoker.getRpcResponse();
-//                channelHandlerContext.channel().writeAndFlush(rpcResponse);
-//            }catch (Exception e){
-//                e.printStackTrace();
-//                RpcResponse rpcResponse = new RpcResponse();
-//                rpcResponse.setException(e);
-//                rpcResponse.setSuccess(false);
-//                channelHandlerContext.channel().writeAndFlush(rpcResponse);
-//            }
-//        }).start();
+        ThreadPoolExecutor businessExecutor =  channelHandlerContext.channel().attr(Attributes.SERVER_BUSINESS_EXECUTOR).get();
+        businessExecutor.submit(() -> {
+          RpcServerFilterChain rpcServerFilterChain = new RpcServerFilterChain(channelHandlerContext.channel().attr(Attributes.SERVER_FILTER_LIST).get());
+            try {
+              logger.debug("开始执行任务:{}",rpcRequest);
+              BaseInvoker baseInvoker = new BaseInvoker();
+              rpcServerFilterChain.doFilter(channelHandlerContext,rpcRequest,baseInvoker);
+              channelHandlerContext.channel().writeAndFlush(baseInvoker.getRpcResponse());
+              }catch (Exception e){
+              e.printStackTrace();
+              RpcResponse rpcResponse = new RpcResponse();
+              rpcResponse.setException(e);
+              rpcResponse.setSuccess(false);
+              channelHandlerContext.channel().writeAndFlush(rpcResponse);
+            }
+      });
     }
 }

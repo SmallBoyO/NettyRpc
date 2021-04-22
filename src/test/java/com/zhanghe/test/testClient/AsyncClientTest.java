@@ -25,21 +25,20 @@ public class AsyncClientTest {
 
   @Before
   public void init() {
-//    rpcServer = new BaseRpcServer(7777);
-//    rpcServer.init();
-//    rpcServer.bind(new AsyncServiceImpl());
+    rpcServer = new BaseRpcServer(7777);
+    rpcServer.init();
+    rpcServer.bind(new AsyncServiceImpl());
   }
 
   @After
   public void destroy(){
-//    rpcServer.stop();
+    rpcServer.stop();
     rpcClient.destroy();
   }
 
   @Test
   public void testConnectAndCall() throws ClassNotFoundException,InterruptedException,ExecutionException,TimeoutException{
     connect();
-//    call();
     concurrentCall();
   }
 
@@ -50,22 +49,9 @@ public class AsyncClientTest {
     Assert.assertNotNull(asyncService);
   }
 
-  public void call() throws InterruptedException,ExecutionException,TimeoutException {
-    String str = "Random str:"+Math.random();
-    asyncService.waitFiveSeconds(str);
-    Future future = RpcContext.getInstance().getFuture();
-    while (!future.isDone()){
-      System.out.println("not done");
-      Thread.sleep(1000L);
-    }
-    String result = (String)future.get(10,TimeUnit.SECONDS);
-    Assert.assertEquals(str,result);
-  }
-
   public void concurrentCall(){
-    CountDownLatch countDownLatch = new CountDownLatch(2);
-    for(int i = 0;i<2;i++){
-      System.out.println("启动线程" +i);
+    CountDownLatch countDownLatch = new CountDownLatch(6);
+    for(int i = 0;i<6;i++){
       new Thread(new ConcurrentThread(asyncService,countDownLatch)).start();
     }
     try {
@@ -97,11 +83,12 @@ public class AsyncClientTest {
         Assert.assertEquals(str, result);
         countDownLatch.countDown();
       }catch (ExecutionException e){
-
+        countDownLatch.countDown();
       }catch (TimeoutException e){
+        countDownLatch.countDown();
 
       }catch (InterruptedException e){
-
+        countDownLatch.countDown();
       }
     }
   }

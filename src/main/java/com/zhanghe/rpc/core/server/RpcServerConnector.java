@@ -18,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class RpcServerConnector {
 
   private EventLoopGroup workerGroup;
 
-  private ThreadPoolExecutor businessLogicExcutoer;
+  private ThreadPoolExecutor businessLogicExcutor;
 
   private ServerBootstrap bootstrap;
 
@@ -58,6 +59,7 @@ public class RpcServerConnector {
       this.serverChannelInitializer = new ServerChannelInitializer(serializer);
     }
     resetWorkGroup();
+    serverChannelInitializer.setBusinessLogicExcutor(businessLogicExcutor);
     this.bootstrap = new ServerBootstrap();
     this.bootstrap.group(bossGroup, workerGroup)
         .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
@@ -71,25 +73,26 @@ public class RpcServerConnector {
     future.addListener((f) -> {
       if (future.isSuccess()) {
         Channel channel = future.channel();
-        channel.attr(Attributes.SERVER_BUSINESS_EXCUTOR).set(businessLogicExcutoer);
+        System.out.println(channel.eventLoop());
       }
     });
     return this.future.isSuccess();
   }
 
   public void stop() throws InterruptedException{
-    businessLogicExcutoer.shutdown();
+    businessLogicExcutor.shutdown();
+    businessLogicExcutor.awaitTermination(100,TimeUnit.SECONDS);
     bossGroup.shutdownGracefully().sync();
     workerGroup.shutdownGracefully().sync();
   }
 
   public void resetWorkGroup(){
-    businessLogicExcutoer = RpcThreadPool.getExecutor(4, 1000);
-    bossGroup = NettyEventLoopGroupUtil.newEventLoopGroup(4, new RpcThreadPoolFactory("Rpc-server-boss")) ;
-    workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(4, new RpcThreadPoolFactory("Rpc-server-worker")) ;
-//    if (workerGroup instanceof NioEventLoopGroup) {
-//      ((NioEventLoopGroup) workerGroup).setIoRatio(50);
-//    }
+    businessLogicExcutor = RpcThreadPool.getExecutor(4, 1000);
+    bossGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
+    workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
+    if (workerGroup instanceof NioEventLoopGroup) {
+      ((NioEventLoopGroup) workerGroup).setIoRatio(50);
+    }
   }
 
   public ServerChannelInitializer getServerChannelInitializer() {

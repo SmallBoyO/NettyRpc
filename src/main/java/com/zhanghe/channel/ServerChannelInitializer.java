@@ -14,6 +14,7 @@ import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import java.util.concurrent.ThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,8 @@ public class ServerChannelInitializer extends ChannelInitializer {
 
     private BindRpcFilterHandler bindRpcFilterHandler;
 
+    private ThreadPoolExecutor businessLogicExcutor;
+
     @Override
     protected void initChannel(Channel channel) {
         if(serializer != null){
@@ -44,6 +47,7 @@ public class ServerChannelInitializer extends ChannelInitializer {
             channel.attr(Attributes.SERIALIZER_ATTRIBUTE_KEY).set(SerializerManager.getDefault());
             logger.info("use serializer:[{}].",SerializerManager.getDefault());
         }
+        channel.attr(Attributes.SERVER_BUSINESS_EXECUTOR).set(businessLogicExcutor);
         channel.pipeline().addLast(new Spliter(Integer.MAX_VALUE,7,4));
         channel.pipeline().addLast(new RpcIdleStateHandler());
         channel.pipeline().addLast(bindRpcServiceHandler);
@@ -69,5 +73,9 @@ public class ServerChannelInitializer extends ChannelInitializer {
     public void setBindRpcFilterHandler(
         BindRpcFilterHandler bindRpcFilterHandler) {
         this.bindRpcFilterHandler = bindRpcFilterHandler;
+    }
+
+    public void setBusinessLogicExcutor(ThreadPoolExecutor businessLogicExcutor) {
+        this.businessLogicExcutor = businessLogicExcutor;
     }
 }
