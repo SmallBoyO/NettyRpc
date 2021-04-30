@@ -36,7 +36,7 @@ public class ServerChannelInitializer extends ChannelInitializer {
 
     private BindRpcFilterHandler bindRpcFilterHandler;
 
-    private ThreadPoolExecutor businessLogicExcutor;
+    private ThreadPoolExecutor businessLogicExecutor;
 
     @Override
     protected void initChannel(Channel channel) {
@@ -47,7 +47,7 @@ public class ServerChannelInitializer extends ChannelInitializer {
             channel.attr(Attributes.SERIALIZER_ATTRIBUTE_KEY).set(SerializerManager.getDefault());
             logger.info("use serializer:[{}].",SerializerManager.getDefault());
         }
-        channel.attr(Attributes.SERVER_BUSINESS_EXECUTOR).set(businessLogicExcutor);
+        channel.attr(Attributes.SERVER_BUSINESS_EXECUTOR).set(businessLogicExecutor);
         channel.pipeline().addLast(new Spliter(Integer.MAX_VALUE,7,4));
         channel.pipeline().addLast(new RpcIdleStateHandler());
         channel.pipeline().addLast(bindRpcServiceHandler);
@@ -75,7 +75,7 @@ public class ServerChannelInitializer extends ChannelInitializer {
         this.bindRpcFilterHandler = bindRpcFilterHandler;
     }
 
-    public void setBusinessLogicExcutor(ThreadPoolExecutor businessLogicExcutor) {
-        this.businessLogicExcutor = businessLogicExcutor;
+    public void setBusinessLogicExecutor(ThreadPoolExecutor businessLogicExecutor) {
+        this.businessLogicExecutor = businessLogicExecutor;
     }
 }

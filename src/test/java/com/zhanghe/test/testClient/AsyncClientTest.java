@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,14 +52,16 @@ public class AsyncClientTest {
 
   public void concurrentCall(){
     CountDownLatch countDownLatch = new CountDownLatch(6);
+    AtomicInteger atomicInteger = new AtomicInteger(0);
     for(int i = 0;i<6;i++){
-      new Thread(new ConcurrentThread(asyncService,countDownLatch)).start();
+      new Thread(new ConcurrentThread(asyncService,countDownLatch,atomicInteger)).start();
     }
     try {
       countDownLatch.await();
     }catch (Exception e){
 
     }
+    Assert.assertEquals(atomicInteger.get(),6);
   }
 
   class ConcurrentThread implements Runnable{
@@ -67,20 +70,23 @@ public class AsyncClientTest {
 
     CountDownLatch countDownLatch;
 
-    public ConcurrentThread(AsyncService asyncService,
-        CountDownLatch countDownLatch) {
+    AtomicInteger atomicInteger;
+
+    public ConcurrentThread(AsyncService asyncService,CountDownLatch countDownLatch,AtomicInteger atomicInteger ) {
       this.asyncService = asyncService;
       this.countDownLatch = countDownLatch;
+      this.atomicInteger = atomicInteger;
     }
 
     @Override
     public void run() {
       String str = "Random str:"+Math.random();
-      asyncService.waitFiveSeconds(str);
+      asyncService.waitTwoSeconds(str);
       Future future = RpcContext.getInstance().getFuture();
       try {
         String result = (String) future.get(10, TimeUnit.SECONDS);
         Assert.assertEquals(str, result);
+        atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }catch (ExecutionException e){
         countDownLatch.countDown();

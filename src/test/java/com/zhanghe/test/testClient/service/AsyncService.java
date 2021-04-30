@@ -6,6 +6,6 @@ import java.util.concurrent.Future;
 public interface AsyncService {
 
   @AsyncMethod
-  String waitFiveSeconds(String str);
+  String waitTwoSeconds(String str);
 
 }

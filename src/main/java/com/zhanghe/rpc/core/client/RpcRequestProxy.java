@@ -102,7 +102,6 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
 
         RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
-        System.out.println("发送rpc请求");
         channel.write(rpcRequest);
         if(!channel.isActive()){
             throw new IllegalStateException("rpc server disconnected!");

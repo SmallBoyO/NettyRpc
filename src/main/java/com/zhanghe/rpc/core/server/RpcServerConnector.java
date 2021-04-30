@@ -59,7 +59,7 @@ public class RpcServerConnector {
       this.serverChannelInitializer = new ServerChannelInitializer(serializer);
     }
     resetWorkGroup();
-    serverChannelInitializer.setBusinessLogicExcutor(businessLogicExcutor);
+    serverChannelInitializer.setBusinessLogicExecutor(businessLogicExcutor);
     this.bootstrap = new ServerBootstrap();
     this.bootstrap.group(bossGroup, workerGroup)
         .channel(NettyEventLoopGroupUtil.getServerSocketChannelClass())
