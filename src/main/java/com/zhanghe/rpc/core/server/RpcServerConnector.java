@@ -80,6 +80,7 @@ public class RpcServerConnector {
   }
 
   public void stop() throws InterruptedException{
+    //todo 停止接收新的任务,等待现有任务完成
     businessLogicExcutor.shutdown();
     businessLogicExcutor.awaitTermination(100,TimeUnit.SECONDS);
     bossGroup.shutdownGracefully().sync();

@@ -37,7 +37,7 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
               BaseInvoker baseInvoker = new BaseInvoker();
               rpcServerFilterChain.doFilter(channelHandlerContext,rpcRequest,baseInvoker);
               channelHandlerContext.channel().writeAndFlush(baseInvoker.getRpcResponse());
-              }catch (Exception e){
+            }catch (Exception e){
               e.printStackTrace();
               RpcResponse rpcResponse = new RpcResponse();
               rpcResponse.setException(e);
