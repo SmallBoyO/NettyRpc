@@ -80,7 +80,7 @@ public class RpcServerConnector {
   }
 
   public void stop() throws InterruptedException{
-    //todo 停止接收新的任务,等待现有任务完成
+    gracefulShutdown();
     businessLogicExcutor.shutdown();
     businessLogicExcutor.awaitTermination(100,TimeUnit.SECONDS);
     bossGroup.shutdownGracefully().sync();
@@ -94,6 +94,11 @@ public class RpcServerConnector {
     if (workerGroup instanceof NioEventLoopGroup) {
       ((NioEventLoopGroup) workerGroup).setIoRatio(50);
     }
+  }
+
+  public void gracefulShutdown(){
+    serverChannelInitializer.stopRecieveRpcCommand();
+    serverChannelInitializer.waitRunningCommand();
   }
 
   public ServerChannelInitializer getServerChannelInitializer() {
