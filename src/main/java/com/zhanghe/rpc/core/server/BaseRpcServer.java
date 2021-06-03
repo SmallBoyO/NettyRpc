@@ -88,6 +88,15 @@ public class BaseRpcServer implements Server {
   }
 
   public boolean doStart() throws InterruptedException{
+    //注册关闭钩子
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+          try {
+           doStop();
+          }catch (Exception e){
+            e.printStackTrace();
+          }
+        })
+    );
     return rpcServerConnector.start();
   }
 

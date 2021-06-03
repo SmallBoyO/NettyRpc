@@ -22,18 +22,29 @@ public class RpcRequestCallBack {
 
     private RpcResponse result;
 
+    private Boolean done;
+
+    private Boolean cancel;
+
     public RpcRequestCallBack(String requestId) {
         this.requestId = requestId;
+        done = false;
+        cancel = false;
     }
 
-    public RpcResponse start(){
+    public RpcResponse get(Long timeOut,TimeUnit timeUnit){
         try{
             lock.lock();
             if(result != null){
+                RpcRequestCallBackholder.callBackMap.remove(requestId);
                 return  result;
             }else{
                 //阻塞住 直到收到服务端rpc请求
-                condition.await(10*1000,TimeUnit.MILLISECONDS);
+                if(timeOut!=null && timeUnit!=null) {
+                    condition.await(timeOut, timeUnit);
+                }else{
+                    condition.await();
+                }
                 if(result!=null){
                     //删除此次rpc调用的request
                     RpcRequestCallBackholder.callBackMap.remove(requestId);
@@ -54,14 +65,43 @@ public class RpcRequestCallBack {
         }
     }
 
+    public RpcResponse start(){
+        return get(10 * 1000L,TimeUnit.SECONDS);
+    }
+
     public void callBack(RpcResponse rpcResponse){
         try{
             lock.lock();
             result = rpcResponse;
+            done = true;
             condition.signalAll();
         }finally {
             lock.unlock();
         }
     }
 
+    public Boolean isCancel() {
+        return cancel;
+    }
+
+    public Boolean cancel() {
+        try{
+            lock.lock();
+            if(!done){
+                this.cancel = true;
+                result = new RpcResponse();
+                result.setException(new Exception("Rpc request has been canceled!"));
+                condition.signalAll();
+                return true;
+            }else{
+                return false;
+            }
+        }finally {
+            lock.unlock();
+        }
+    }
+
+    public Boolean isDone() {
+        return done;
+    }
 }
