@@ -55,10 +55,10 @@ public class GracefulShutdownServerTest {
 
   public void concurrentCall(){
     gracefulShutdownService.initMethod();
-    CountDownLatch countDownLatch = new CountDownLatch(6);
+    CountDownLatch countDownLatch = new CountDownLatch(3);
     CountDownLatch threadStartCountDown = new CountDownLatch(1);
     AtomicInteger atomicInteger = new AtomicInteger(0);
-    for(int i = 0;i<6;i++){
+    for(int i = 0;i<3;i++){
       new Thread(new GracefulShutdownServerTest.ConcurrentThread(gracefulShutdownService,countDownLatch,threadStartCountDown,atomicInteger)).start();
     }
     try {
@@ -80,7 +80,7 @@ public class GracefulShutdownServerTest {
     }catch (Exception e){
 
     }
-    Assert.assertEquals(atomicInteger.get(),6);
+    Assert.assertEquals(atomicInteger.get(),3);
   }
 
   class ConcurrentThread implements Runnable{
@@ -118,6 +118,7 @@ public class GracefulShutdownServerTest {
       }catch (ExecutionException e){
         countDownLatch.countDown();
       }catch (TimeoutException e){
+        e.printStackTrace();
         countDownLatch.countDown();
       }catch (InterruptedException e){
         countDownLatch.countDown();
