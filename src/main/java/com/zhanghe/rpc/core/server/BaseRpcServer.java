@@ -1,7 +1,7 @@
 package com.zhanghe.rpc.core.server;
 
 import com.zhanghe.channel.hanlder.server.BindRpcFilterHandler;
-import com.zhanghe.config.RpcConfig;
+import com.zhanghe.config.RpcServerConfig;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.rpc.core.plugin.server.RpcServerFilter;
 import java.util.ArrayList;
@@ -17,11 +17,9 @@ public class BaseRpcServer implements Server {
 
   private AtomicBoolean started = new AtomicBoolean(false);
 
-  private String ip;
-
-  private int port;
-
   private RpcServerConnector rpcServerConnector;
+
+  private RpcServerConfig rpcServerConfig;
 
   List<Object> services;
 
@@ -35,21 +33,27 @@ public class BaseRpcServer implements Server {
     this.rpcServerConnector = new RpcServerConnector();
     this.servicesMap = new ConcurrentHashMap<>();
     this.filters = new ArrayList<>();
+    this.rpcServerConfig = new RpcServerConfig();
   }
 
   public BaseRpcServer(int port) {
     this.rpcServerConnector = new RpcServerConnector();
     this.servicesMap = new ConcurrentHashMap<>();
-    this.ip = RpcConfig.DEFAULT_IP;
-    this.port = port;
+    this.rpcServerConfig = new RpcServerConfig(port);
     this.filters = new ArrayList<>();
   }
 
   public BaseRpcServer(String ip, int port) {
+    this.rpcServerConfig = new RpcServerConfig(ip,port);
+    this.filters = new ArrayList<>();
     this.rpcServerConnector = new RpcServerConnector();
     this.servicesMap = new ConcurrentHashMap<>();
-    this.ip = ip;
-    this.port = port;
+  }
+
+  public BaseRpcServer(RpcServerConfig rpcServerConfig){
+    this.rpcServerConnector = new RpcServerConnector();
+    this.servicesMap = new ConcurrentHashMap<>();
+    this.rpcServerConfig = rpcServerConfig;
     this.filters = new ArrayList<>();
   }
 
@@ -57,7 +61,7 @@ public class BaseRpcServer implements Server {
   public void init() {
     logger.info("Server ready to init");
     if(started.compareAndSet(false,true)){
-      logger.info("Ready start Server on port {}.",port);
+      logger.info("Ready start Server on port {}.", rpcServerConfig.getPort());
       try{
         doInit();
         doStart();
@@ -66,7 +70,7 @@ public class BaseRpcServer implements Server {
         logger.error("ERROR:Server started failed.reason:{}",e.getMessage());
         throw new RuntimeException(e);
       }
-      logger.info("Server started on port {}.",port);
+      logger.info("Server started on port {}.", rpcServerConfig.getPort());
     }else{
       String error = "ERROR:Server already started!";
       logger.error(error);
@@ -76,8 +80,10 @@ public class BaseRpcServer implements Server {
   }
 
   private void doInit(){
-    rpcServerConnector.setIp(ip);
-    rpcServerConnector.setPort(port);
+    rpcServerConnector.setIp(rpcServerConfig.getIp());
+    rpcServerConnector.setPort(rpcServerConfig.getPort());
+    rpcServerConnector.setBusinessLogicCoreThreadNum(rpcServerConfig.getBusinessLogicCoreThreadNum());
+    rpcServerConnector.setBusinessLogicQueueLength(rpcServerConfig.getBusinessLogicQueueLength());
     rpcServerConnector.setSerializer(this.serializer);
     rpcServerConnector.init();
     rpcServerConnector.getServerChannelInitializer().getBindRpcServiceHandler().setServiceMap(servicesMap);
@@ -120,7 +126,7 @@ public class BaseRpcServer implements Server {
         logger.error(error);
         throw new IllegalStateException(error);
       }
-      logger.info("Server {}:{} stop success.",ip,port);
+      logger.info("Server {}:{} stop success.", rpcServerConfig.getIp(), rpcServerConfig.getPort());
     }catch (Exception e){
       logger.error("ERROR:Server stop failed.reason:{}",e.getMessage());
       throw new IllegalStateException(e);
@@ -148,22 +154,6 @@ public class BaseRpcServer implements Server {
   @Override
   public void setSerializer(Serializer serializer) {
     this.serializer = serializer;
-  }
-
-  public String getIp() {
-    return ip;
-  }
-
-  public void setIp(String ip) {
-    this.ip = ip;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
   }
 
   public List<Object> getServices() {

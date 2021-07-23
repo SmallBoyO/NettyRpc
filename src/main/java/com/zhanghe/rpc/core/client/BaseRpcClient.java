@@ -1,6 +1,7 @@
 package com.zhanghe.rpc.core.client;
 
-import com.zhanghe.config.RpcConfig;
+import com.zhanghe.config.RpcClientConfig;
+import com.zhanghe.config.RpcServerConfig;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import io.netty.channel.Channel;
@@ -17,9 +18,7 @@ public class BaseRpcClient implements Client {
 
   private RpcClientConnector rpcClientConnector;
 
-  private String ip;
-
-  private int port = RpcConfig.DEFAULT_PORT;
+  private RpcClientConfig rpcClientConfig;
 
   private RpcServerInfo rpcServerInfo;
 
@@ -33,12 +32,12 @@ public class BaseRpcClient implements Client {
     this.filters = new ArrayList<>();
     this.proxy = new RpcRequestProxy<>();
     proxy.setFilters(this.filters);
+    this.rpcClientConfig = new RpcClientConfig();
   }
 
   public BaseRpcClient(String ip, int port) {
     this.filters = new ArrayList<>();
-    this.ip = ip;
-    this.port = port;
+    this.rpcClientConfig = new RpcClientConfig(ip,port);
     this.proxy = new RpcRequestProxy<>();
     proxy.setFilters(this.filters);
   }
@@ -48,11 +47,11 @@ public class BaseRpcClient implements Client {
     logger.info("client ready to init");
     if(rpcServerInfo == null){
       rpcServerInfo = new RpcServerInfo();
-      rpcServerInfo.setIp(ip);
-      rpcServerInfo.setPort(port);
+      rpcServerInfo.setIp(rpcClientConfig.getIp());
+      rpcServerInfo.setPort(rpcClientConfig.getPort());
     }
     proxy.setClient(this);
-    rpcClientConnector = new RpcClientConnector(ip,port);
+    rpcClientConnector = new RpcClientConnector(rpcClientConfig.getIp(),rpcClientConfig.getPort());
     rpcClientConnector.setSerializer(serializer);
     rpcClientConnector.setClient(this);
     rpcServerInfo.setRpcClientConnector(rpcClientConnector);
@@ -104,22 +103,6 @@ public class BaseRpcClient implements Client {
   @Override
   public void addFilter(RpcClientFilter rpcClientFilter) {
     filters.add(rpcClientFilter);
-  }
-
-  public String getIp() {
-    return ip;
-  }
-
-  public void setIp(String ip) {
-    this.ip = ip;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
   }
 
   public Serializer getSerializer() {
