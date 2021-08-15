@@ -2,9 +2,6 @@ package com.zhanghe.rpc.core.client;
 
 
 import com.zhanghe.protocol.v1.response.RpcResponse;
-import org.omg.CORBA.TIMEOUT;
-
-import java.sql.Time;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
@@ -60,7 +57,7 @@ public class RpcRequestCallBack {
                 }else{
                     //删除此次rpc调用的request
                     RpcRequestCallBackholder.callBackMap.remove(requestId);
-                    return null;
+                    throw new TimeoutException("rpc request timeout!");
                 }
             }
         }catch (InterruptedException e){
