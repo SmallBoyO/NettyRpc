@@ -8,6 +8,8 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,8 @@ public class BaseRpcClient implements Client {
 
   private List<RpcClientFilter> filters;
 
+  private volatile AtomicBoolean started = new AtomicBoolean(false);
+
   public BaseRpcClient() {
     this.filters = new ArrayList<>();
     this.proxy = new RpcRequestProxy<>();
@@ -45,7 +49,26 @@ public class BaseRpcClient implements Client {
 
   @Override
   public void init() {
-    logger.info("client ready to init");
+    logger.info("Server ready to init");
+    if(started.compareAndSet(false,true)){
+      logger.info("Ready start Client,connect to server : [{}:{}]",ip,port);
+      try{
+        doInit();
+        doStart();
+      }catch (Exception e){
+        started.set(false);
+        logger.error("ERROR:Client started failed.reason:{}",e.getMessage());
+        throw new RuntimeException(e);
+      }
+      logger.info("Client started.");
+    }else{
+      String error = "ERROR:Client already started!";
+      logger.error(error);
+      throw new RuntimeException(error);
+    }
+  }
+
+  private void doInit(){
     if(rpcServerInfo == null){
       rpcServerInfo = new RpcServerInfo();
       rpcServerInfo.setIp(ip);
@@ -56,15 +79,47 @@ public class BaseRpcClient implements Client {
     rpcClientConnector.setSerializer(serializer);
     rpcClientConnector.setClient(this);
     rpcServerInfo.setRpcClientConnector(rpcClientConnector);
+  }
+
+  private void doStart(){
+    //注册关闭钩子
+//    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//              try {
+//                doStop();
+//              }catch (Exception e){
+//                e.printStackTrace();
+//              }
+//            })
+//    );
     rpcClientConnector.start();
-    logger.info("client init success");
   }
 
   @Override
   public void destroy() {
     logger.info("client ready to destroy");
-    rpcClientConnector.stop();
+    stop();
     logger.info("client destroy success");
+  }
+
+  public void stop(){
+    try{
+      if(started.getAndSet(false)) {
+        doStop();
+      }else{
+        String error = "ERROR:Client not started!";
+        logger.error(error);
+        throw new IllegalStateException(error);
+      }
+      logger.info("Client stop success.");
+    }catch (Exception e){
+      logger.error("ERROR:Client stop failed.reason:{}",e.getMessage());
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private void doStop(){
+    gracefulShutdown();
+    rpcClientConnector.stop();
   }
 
   @Override
@@ -104,6 +159,27 @@ public class BaseRpcClient implements Client {
   @Override
   public void addFilter(RpcClientFilter rpcClientFilter) {
     filters.add(rpcClientFilter);
+  }
+
+  public void gracefulShutdown(){
+    //todo 停止继续发送rpc请求
+    waitRunningRpcRequest();
+  }
+
+  /**
+   * 等待执行中的rpc任务全部完成
+   */
+  private void waitRunningRpcRequest(){
+    while(RpcRequestCallBackholder.callBackMap.size()>0){
+      try {
+        RpcRequestCallBackholder.callBackMap.keySet().forEach(rpcRequestUUID -> {
+          logger.debug("等待任务[{}]的返回结果",rpcRequestUUID);
+        });
+        Thread.sleep(1000);
+      }catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   public String getIp() {

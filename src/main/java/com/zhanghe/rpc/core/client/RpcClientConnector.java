@@ -78,6 +78,15 @@ public class RpcClientConnector {
     }
 
     public void doStart(){
+        //注册关闭钩子
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    try {
+                        doStop();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                })
+        );
        connect();
     }
 
