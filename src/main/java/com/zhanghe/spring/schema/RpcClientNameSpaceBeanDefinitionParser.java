@@ -1,5 +1,6 @@
 package com.zhanghe.spring.schema;
 
+import com.zhanghe.config.RpcClientConfig;
 import com.zhanghe.rpc.core.client.BaseRpcClient;
 import com.zhanghe.spring.RpcClientBeanProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -27,8 +28,8 @@ public class RpcClientNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
     String ip = element.getAttribute("ip");
     int port=Integer.valueOf(element.getAttribute("port"));
     String scanPackage = element.getAttribute("scanPackage");
-    builder.addPropertyValue("ip",ip);
-    builder.addPropertyValue("port",port);
+    RpcClientConfig rpcClientConfig = new RpcClientConfig(ip,port);
+    builder.addPropertyValue("rpcClientConfig",rpcClientConfig);
     builder.setInitMethodName("init");
     builder.setDestroyMethodName("destroy");
 

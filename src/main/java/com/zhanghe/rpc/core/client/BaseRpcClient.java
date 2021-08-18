@@ -185,4 +185,11 @@ public class BaseRpcClient implements Client {
     return serializer;
   }
 
+    public RpcClientConfig getRpcClientConfig() {
+        return rpcClientConfig;
+    }
+
+    public void setRpcClientConfig(RpcClientConfig rpcClientConfig) {
+        this.rpcClientConfig = rpcClientConfig;
+    }
 }

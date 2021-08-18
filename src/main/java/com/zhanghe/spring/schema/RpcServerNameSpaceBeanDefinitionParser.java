@@ -1,5 +1,6 @@
 package com.zhanghe.spring.schema;
 
+import com.zhanghe.config.RpcServerConfig;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.rpc.core.server.BaseRpcServer;
@@ -34,8 +35,8 @@ public class RpcServerNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
     int port=Integer.valueOf(element.getAttribute("port"));
     String serializer = element.getAttribute("serializer");
     String scanPackage = element.getAttribute("scanPackage");
-    builder.addPropertyValue("ip",ip);
-    builder.addPropertyValue("port",port);
+    RpcServerConfig rpcServerConfig = new RpcServerConfig(ip,port);
+    builder.addPropertyValue("rpcServerConfig",rpcServerConfig);
 
     if(!StringUtils.isEmpty(serializer)){
       switch ( serializer ){
