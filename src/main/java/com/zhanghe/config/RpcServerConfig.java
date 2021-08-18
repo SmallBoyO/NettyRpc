@@ -8,7 +8,7 @@ public class RpcServerConfig {
 
   public static final String DEFAULT_IP = "0.0.0.0";
 
-  public static final int DEFAULT_BUSINESS_CORE_THREAD_NUM= 4;
+  public static final int DEFAULT_BUSINESS_CORE_THREAD_NUM = 4;
 
   public static final int DEFAULT_BUSINESS_QUEUE_LENGTH = 1000;
 
