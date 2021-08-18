@@ -5,7 +5,7 @@ public class GracefulShutdownServiceImpl implements GracefulShutdownService {
   @Override
   public String costSomeTimes(String str) {
     try {
-      Thread.sleep(20 * 1000L);
+      Thread.sleep(5 * 1000L);
     }catch (InterruptedException e){
 
     }

@@ -64,7 +64,7 @@ public class RpcRequestProxy<T> implements InvocationHandler {
         }
     }
 
-    public RpcResponse call(Object proxy, Method method, Object[] args){
+    public RpcResponse call(Object proxy, Method method, Object[] args) throws TimeoutException{
         Channel channel = client.currentServer().getRpcClientConnector().getActiveChannel();
         if (!channel.isActive()) {
             throw new IllegalStateException("rpc server disconnected!");
@@ -124,8 +124,12 @@ public class RpcRequestProxy<T> implements InvocationHandler {
 
             @Override
             public Object get() throws InterruptedException, ExecutionException {
-                RpcResponse result = callBack.get(null,null);
-                return result.getResult();
+                try {
+                    RpcResponse result = callBack.get(null,null);
+                    return result.getResult();
+                }catch (Exception e){
+                    throw new ExecutionException(e);
+                }
             }
 
             @Override

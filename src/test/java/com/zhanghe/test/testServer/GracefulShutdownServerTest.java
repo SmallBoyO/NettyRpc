@@ -116,10 +116,13 @@ public class GracefulShutdownServerTest {
         atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }catch (ExecutionException e){
+        atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }catch (TimeoutException e){
+        atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }catch (InterruptedException e){
+        atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }
     }
