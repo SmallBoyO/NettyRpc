@@ -18,4 +18,6 @@ public @interface RpcClient {
 
   String value();
 
+  String remoteClassName() default "";
+
 }

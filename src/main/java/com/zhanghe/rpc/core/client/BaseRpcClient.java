@@ -1,11 +1,11 @@
 package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.config.RpcClientConfig;
-import com.zhanghe.config.RpcServerConfig;
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
+import com.zhanghe.spring.annotation.RpcClient;
 import io.netty.channel.Channel;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +13,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 
 public class BaseRpcClient implements Client {
 
@@ -135,15 +138,30 @@ public class BaseRpcClient implements Client {
   @Override
   public Object proxy(String service) throws ClassNotFoundException {
     rpcServerInfo.waitServerUseful();
-    if (!rpcServerInfo.getServices().contains(service)) {
-      throw new RuntimeException("服务端未提供此service");
+    //获取注解信息
+    Class serviceClass = Class.forName(service);
+    RpcClient rpcClientAnnotation = (RpcClient)serviceClass.getAnnotation(RpcClient.class);
+    if( rpcClientAnnotation == null || rpcClientAnnotation.remoteClassName() == null || "".equals(rpcClientAnnotation.remoteClassName())){
+      //使用默认的
+    }else{
+
     }
-    Class<?> clazz = Class.forName(service);
-    return Proxy.newProxyInstance(
-        clazz.getClassLoader(),
-        new Class<?>[]{clazz},
-        proxy
-    );
+    //todo 可以根据注解里面的remoteService 设置代理成不同的类
+    //使用 CGLIB
+    Enhancer enhancer = new Enhancer();
+    enhancer.setSuperclass(serviceClass);
+    enhancer.setCallback(new MethodInterceptor(){
+      @Override
+      public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy)
+          throws Throwable {
+        if(method.getDeclaringClass() != Object.class){
+          return proxy.invoke(o,method,objects);
+        }else{
+          return methodProxy.invokeSuper(0,objects);
+        }
+      }
+    });
+    return enhancer.create();
   }
   @Override
   public void setSerializer(Serializer serializer) {
