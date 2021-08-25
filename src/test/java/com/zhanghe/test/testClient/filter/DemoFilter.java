@@ -19,10 +19,10 @@ public class DemoFilter implements RpcClientFilter{
   private static Logger logger = LoggerFactory.getLogger(DemoFilter.class);
 
   @Override
-  public void doFilter(Object proxy, Method method, Object[] args, Invoker invoker,
+  public void doFilter( Method method, Object[] args, Invoker invoker,
       RpcClientFilterChain chain) throws Throwable {
     logger.info("before {}",filterName);
-    chain.doFilter(proxy,method,args,invoker);
+    chain.doFilter(method,args,invoker);
     logger.info("after {}",filterName);
   }
 }

@@ -27,8 +27,6 @@ public class BaseRpcClient implements Client {
 
   private RpcServerInfo rpcServerInfo;
 
-  private RpcRequestProxy proxy;
-
   private Serializer serializer;
 
   private List<RpcClientFilter> filters;
@@ -37,16 +35,12 @@ public class BaseRpcClient implements Client {
 
   public BaseRpcClient() {
     this.filters = new ArrayList<>();
-    this.proxy = new RpcRequestProxy<>();
-    proxy.setFilters(this.filters);
     this.rpcClientConfig = new RpcClientConfig();
   }
 
   public BaseRpcClient(String ip, int port) {
     this.filters = new ArrayList<>();
     this.rpcClientConfig = new RpcClientConfig(ip,port);
-    this.proxy = new RpcRequestProxy<>();
-    proxy.setFilters(this.filters);
   }
 
   @Override
@@ -76,7 +70,6 @@ public class BaseRpcClient implements Client {
       rpcServerInfo.setIp(rpcClientConfig.getIp());
       rpcServerInfo.setPort(rpcClientConfig.getPort());
     }
-    proxy.setClient(this);
     rpcClientConnector = new RpcClientConnector(rpcClientConfig.getIp(),rpcClientConfig.getPort());
     rpcClientConnector.setSerializer(serializer);
     rpcClientConnector.setClient(this);
@@ -141,7 +134,7 @@ public class BaseRpcClient implements Client {
     //获取注解信息
     Class serviceClass = Class.forName(service);
     RpcClient rpcClientAnnotation = (RpcClient)serviceClass.getAnnotation(RpcClient.class);
-    if( rpcClientAnnotation == null || rpcClientAnnotation.remoteClassName() == null || "".equals(rpcClientAnnotation.remoteClassName())){
+    if( rpcClientAnnotation == null || rpcClientAnnotation.remoteClassName() == null){
       //使用默认的
     }else{
 
@@ -150,17 +143,13 @@ public class BaseRpcClient implements Client {
     //使用 CGLIB
     Enhancer enhancer = new Enhancer();
     enhancer.setSuperclass(serviceClass);
-    enhancer.setCallback(new MethodInterceptor(){
-      @Override
-      public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy)
-          throws Throwable {
-        if(method.getDeclaringClass() != Object.class){
-          return proxy.invoke(o,method,objects);
-        }else{
-          return methodProxy.invokeSuper(0,objects);
-        }
-      }
-    });
+    String remoteServiceName = null;
+    if(rpcClientAnnotation!=null && !"".equals(rpcClientAnnotation.remoteClassName())){
+      remoteServiceName = rpcClientAnnotation.remoteClassName();
+    }else{
+      remoteServiceName = service;
+    }
+    enhancer.setCallback(new RpcClientMethodInterceptor(remoteServiceName,filters,this));
     return enhancer.create();
   }
   @Override

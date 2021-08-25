@@ -4,6 +4,6 @@ import java.lang.reflect.Method;
 
 public interface Invoker {
 
-  void invoke(Object proxy, Method method, Object[] args) throws Throwable;
+  void invoke(Method method, Object[] args) throws Throwable;
 
 }

@@ -9,6 +9,7 @@ import com.zhanghe.rpc.core.client.loadbalance.RandomLoadBalance;
 import com.zhanghe.rpc.core.client.loadbalance.RoundLoadBalance;
 import com.zhanghe.rpc.core.client.loadbalance.WeightRandomLoadBalance;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
+import com.zhanghe.spring.annotation.RpcClient;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.proxy.Enhancer;
 
 public class RpcLoadBalanceAdaptor implements Client{
 
@@ -35,8 +37,6 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   List<RpcClientConnector> activeServer;
 
-  private RpcRequestProxy proxy;
-
   private LoadBalance<RpcServerInfo> loadBalancer;
 
   private String loadBalance = "";
@@ -46,19 +46,16 @@ public class RpcLoadBalanceAdaptor implements Client{
   private List<RpcClientFilter> filters;
 
   public RpcLoadBalanceAdaptor() {
-    this.proxy = new RpcRequestProxy<>();
     serversMap = new HashMap<>();
     serversInfoMap = new HashMap<>();
     activeServer = new ArrayList<>();
     this.filters = new ArrayList<>();
-    proxy.setFilters(this.filters);
   }
 
   @Override
   public void init(){
     logger.info("Rpc load balance client ready to init");
     initLoadBalancer();
-    proxy.setClient(this);
     servers.forEach(rpcServerInfo -> {
       logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
         RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
@@ -123,12 +120,19 @@ public class RpcLoadBalanceAdaptor implements Client{
     serversInfoMap.forEach((s, rpcServerInfo) -> {
       rpcServerInfo.waitServerUseful();
     });
-    Class<?> clazz = Class.forName(service);
-    return Proxy.newProxyInstance(
-        clazz.getClassLoader(),
-        new Class<?>[]{ clazz },
-        proxy
-    );
+    Class<?> serviceClass = Class.forName(service);
+    RpcClient rpcClientAnnotation = (RpcClient)serviceClass.getAnnotation(RpcClient.class);
+    //使用 CGLIB
+    Enhancer enhancer = new Enhancer();
+    enhancer.setSuperclass(serviceClass);
+    String remoteServiceName = null;
+    if(rpcClientAnnotation!=null && !"".equals(rpcClientAnnotation.remoteClassName())){
+      remoteServiceName = rpcClientAnnotation.remoteClassName();
+    }else{
+      remoteServiceName = service;
+    }
+    enhancer.setCallback(new RpcClientMethodInterceptor(remoteServiceName,filters,this));
+    return enhancer.create();
   }
 
   public List<RpcServerInfo> getServers() {

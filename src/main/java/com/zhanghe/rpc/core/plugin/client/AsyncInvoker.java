@@ -1,6 +1,7 @@
 package com.zhanghe.rpc.core.plugin.client;
 
 import com.zhanghe.protocol.v1.response.RpcResponse;
+import com.zhanghe.rpc.core.client.RpcClientMethodInterceptor;
 import com.zhanghe.rpc.core.client.RpcContext;
 import com.zhanghe.rpc.core.client.RpcRequestProxy;
 import java.lang.reflect.Method;
@@ -8,17 +9,17 @@ import java.util.concurrent.Future;
 
 public class AsyncInvoker implements Invoker {
 
-  public AsyncInvoker(RpcRequestProxy rpcRequestProxy) {
-    this.rpcRequestProxy = rpcRequestProxy;
+  public AsyncInvoker(RpcClientMethodInterceptor rpcClientMethodInterceptor) {
+    this.rpcClientMethodInterceptor = rpcClientMethodInterceptor;
   }
 
-  private RpcRequestProxy rpcRequestProxy;
+  private RpcClientMethodInterceptor rpcClientMethodInterceptor;
 
   private Future future;
 
   @Override
-  public void invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    future = rpcRequestProxy.asyncCall(proxy,method,args);
+  public void invoke( Method method, Object[] args) throws Throwable {
+    future = rpcClientMethodInterceptor.asyncCall(method,args);
     RpcContext.getInstance().setFuture(future);
   }
 
