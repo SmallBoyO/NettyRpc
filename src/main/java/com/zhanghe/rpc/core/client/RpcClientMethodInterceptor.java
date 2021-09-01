@@ -6,6 +6,7 @@ import com.zhanghe.rpc.core.plugin.client.AsyncInvoker;
 import com.zhanghe.rpc.core.plugin.client.BaseInvoker;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilterChain;
+import com.zhanghe.spring.annotation.RpcMethod;
 import io.netty.channel.Channel;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -71,7 +72,7 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
     String requestId = UUID.randomUUID().toString();
     rpcRequest.setRequestId(requestId);
     rpcRequest.setClassName(remoteClassName);
-    rpcRequest.setMethodName(method.getName());
+    rpcRequest.setMethodName(getRemoteMethodName(method));
     rpcRequest.setTypeParameters(method.getParameterTypes());
     rpcRequest.setParametersVal(args);
     RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
@@ -94,7 +95,7 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
     String requestId = UUID.randomUUID().toString();
     rpcRequest.setRequestId(requestId);
     rpcRequest.setClassName(remoteClassName);
-    rpcRequest.setMethodName(method.getName());
+    rpcRequest.setMethodName(getRemoteMethodName(method));
     rpcRequest.setTypeParameters(method.getParameterTypes());
     rpcRequest.setParametersVal(args);
     RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
@@ -154,5 +155,18 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
 
   public void setFilters(List<RpcClientFilter> filters) {
     this.filters = filters;
+  }
+
+  /**
+   * 获取需要调用的服务端方法名
+   * @param method
+   * @return
+   */
+  private String getRemoteMethodName(Method method){
+    RpcMethod  rpcMethod = method.getAnnotation(RpcMethod.class);
+    if(rpcMethod != null && !"".equals(rpcMethod.value())){
+      return rpcMethod.value();
+    }
+    return method.getName();
   }
 }
