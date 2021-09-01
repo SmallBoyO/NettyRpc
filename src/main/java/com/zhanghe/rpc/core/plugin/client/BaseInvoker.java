@@ -2,7 +2,6 @@ package com.zhanghe.rpc.core.plugin.client;
 
 import com.zhanghe.protocol.v1.response.RpcResponse;
 import com.zhanghe.rpc.core.client.RpcClientMethodInterceptor;
-import com.zhanghe.rpc.core.client.RpcRequestProxy;
 import java.lang.reflect.Method;
 
 public class BaseInvoker implements Invoker {

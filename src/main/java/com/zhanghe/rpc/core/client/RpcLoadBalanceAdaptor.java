@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.Enhancer;
@@ -45,6 +46,8 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   private List<RpcClientFilter> filters;
 
+  private volatile AtomicBoolean started = new AtomicBoolean(false);
+
   public RpcLoadBalanceAdaptor() {
     serversMap = new HashMap<>();
     serversInfoMap = new HashMap<>();
@@ -55,20 +58,31 @@ public class RpcLoadBalanceAdaptor implements Client{
   @Override
   public void init(){
     logger.info("Rpc load balance client ready to init");
-    initLoadBalancer();
-    servers.forEach(rpcServerInfo -> {
-      logger.info("client {}:{} ready to init",rpcServerInfo.getIp(),rpcServerInfo.getPort());
-        RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),rpcServerInfo.getPort());
+    if(started.compareAndSet(false,true)) {
+      initLoadBalancer();
+      servers.forEach(rpcServerInfo -> {
+        logger.info("client {}:{} ready to init", rpcServerInfo.getIp(), rpcServerInfo.getPort());
+        RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),
+            rpcServerInfo.getPort());
         rpcClientConnector.setSerializer(serializer);
         rpcServerInfo.setRpcClientConnector(rpcClientConnector);
-        serversMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(), rpcClientConnector);
-        serversInfoMap.put("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo);
+        serversMap
+            .put("/" + rpcServerInfo.getIp() + ":" + rpcServerInfo.getPort(), rpcClientConnector);
+        serversInfoMap
+            .put("/" + rpcServerInfo.getIp() + ":" + rpcServerInfo.getPort(), rpcServerInfo);
         rpcClientConnector.setClient(this);
         rpcClientConnector.start();
-        loadBalancer.addService(LoadBalanceService.of("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort(),rpcServerInfo,rpcServerInfo.weight));
-      logger.info("client {}:{} init finish",rpcServerInfo.getIp(),rpcServerInfo.getPort());
-    });
-    logger.info("Rpc load balance client init finish");
+        loadBalancer.addService(LoadBalanceService
+            .of("/" + rpcServerInfo.getIp() + ":" + rpcServerInfo.getPort(), rpcServerInfo,
+                rpcServerInfo.weight));
+        logger.info("client {}:{} init finish", rpcServerInfo.getIp(), rpcServerInfo.getPort());
+      });
+      logger.info("Rpc load balance client init finish");
+    }else {
+      String error = "ERROR:Client already started!";
+      logger.error(error);
+      throw new RuntimeException(error);
+    }
   }
 
   private void initLoadBalancer(){
@@ -93,13 +107,20 @@ public class RpcLoadBalanceAdaptor implements Client{
   }
   @Override
   public void destroy(){
-    logger.info("Rpc load balance client ready to destroy");
-    servers.forEach(rpcServerInfo -> {
-      logger.info("client {}:{} ready to destroy",rpcServerInfo.getIp(),rpcServerInfo.getPort());
-      serversMap.get("/"+rpcServerInfo.getIp() + ":" +rpcServerInfo.getPort()).stop();
-      logger.info("client {}:{} destroy finish",rpcServerInfo.getIp(),rpcServerInfo.getPort());
-    });
-    logger.info("Rpc load balance client destroy finish");
+    if(started.getAndSet(false)) {
+      logger.info("Rpc load balance client ready to destroy");
+      servers.forEach(rpcServerInfo -> {
+        logger
+            .info("client {}:{} ready to destroy", rpcServerInfo.getIp(), rpcServerInfo.getPort());
+        serversMap.get("/" + rpcServerInfo.getIp() + ":" + rpcServerInfo.getPort()).stop();
+        logger.info("client {}:{} destroy finish", rpcServerInfo.getIp(), rpcServerInfo.getPort());
+      });
+      logger.info("Rpc load balance client destroy finish");
+    }else{
+      String error = "ERROR:Client not started!";
+      logger.error(error);
+      throw new IllegalStateException(error);
+    }
   }
 
   @Override
@@ -156,6 +177,11 @@ public class RpcLoadBalanceAdaptor implements Client{
   @Override
   public void addFilter(RpcClientFilter rpcClientFilter) {
     filters.add(rpcClientFilter);
+  }
+
+  @Override
+  public boolean isStarted() {
+    return started.get();
   }
 
   public String getLoadBalance() {

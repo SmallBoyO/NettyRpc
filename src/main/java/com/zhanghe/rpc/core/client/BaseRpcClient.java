@@ -5,7 +5,6 @@ import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import com.zhanghe.spring.annotation.RpcClient;
 import io.netty.channel.Channel;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -14,8 +13,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
 
 public class BaseRpcClient implements Client {
 
@@ -167,6 +164,11 @@ public class BaseRpcClient implements Client {
     filters.add(rpcClientFilter);
   }
 
+  @Override
+  public boolean isStarted() {
+    return started.get();
+  }
+
   public void gracefulShutdown(){
     //todo 停止继续发送rpc请求
     waitRunningRpcRequest();
@@ -178,8 +180,8 @@ public class BaseRpcClient implements Client {
   private void waitRunningRpcRequest(){
     while(RpcRequestCallBackholder.callBackMap.size()>0){
       try {
-        RpcRequestCallBackholder.callBackMap.keySet().forEach(rpcRequestUUID -> {
-          logger.debug("等待任务[{}]的返回结果",rpcRequestUUID);
+        RpcRequestCallBackholder.callBackMap.keySet().forEach(rpcRequestUuid -> {
+          logger.debug("等待任务[{}]的返回结果",rpcRequestUuid);
         });
         Thread.sleep(1000);
       }catch (Exception e) {

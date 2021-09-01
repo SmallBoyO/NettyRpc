@@ -39,6 +39,10 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
   @Override
   public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy)
       throws Throwable {
+    if(!client.isStarted()){
+      String error = "client not start or client has stoped";
+      throw new RuntimeException(error);
+    }
     if(method.getAnnotation(AsyncMethod.class) == null){
       //是同步调用
       RpcClientFilterChain rpcClientFilterChain = new RpcClientFilterChain();
