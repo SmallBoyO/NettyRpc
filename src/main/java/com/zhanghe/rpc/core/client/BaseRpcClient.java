@@ -136,7 +136,6 @@ public class BaseRpcClient implements Client {
     }else{
 
     }
-    //todo 可以根据注解里面的remoteService 设置代理成不同的类
     //使用 CGLIB
     Enhancer enhancer = new Enhancer();
     enhancer.setSuperclass(serviceClass);
@@ -170,7 +169,6 @@ public class BaseRpcClient implements Client {
   }
 
   public void gracefulShutdown(){
-    //todo 停止继续发送rpc请求
     waitRunningRpcRequest();
   }
 
