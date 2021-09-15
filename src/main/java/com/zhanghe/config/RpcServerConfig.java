@@ -65,7 +65,6 @@ public class RpcServerConfig {
   }
 
   public void setBusinessLogicCoreThreadNum(int businessLogicCoreThreadNum) {
-
     this.businessLogicCoreThreadNum = businessLogicCoreThreadNum;
   }
 

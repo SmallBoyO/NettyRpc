@@ -64,8 +64,8 @@ public class BaseRpcClient implements Client {
   private void doInit(){
     if(rpcServerInfo == null){
       rpcServerInfo = new RpcServerInfo();
-      rpcServerInfo.setIp(rpcClientConfig.getIp());
-      rpcServerInfo.setPort(rpcClientConfig.getPort());
+      rpcServerInfo.getRpcClientConfig().setIp(rpcClientConfig.getIp());
+      rpcServerInfo.getRpcClientConfig().setPort(rpcClientConfig.getPort());
     }
     rpcClientConnector = new RpcClientConnector(rpcClientConfig.getIp(),rpcClientConfig.getPort());
     rpcClientConnector.setSerializer(serializer);
@@ -192,4 +192,8 @@ public class BaseRpcClient implements Client {
     return serializer;
   }
 
+
+  public void setRpcClientConfig(RpcClientConfig rpcClientConfig) {
+    this.rpcClientConfig = rpcClientConfig;
+  }
 }

@@ -61,21 +61,21 @@ public class RpcLoadBalanceAdaptor implements Client{
     if(started.compareAndSet(false,true)) {
       initLoadBalancer();
       servers.forEach(rpcServerInfo -> {
-        logger.info("client {}:{} ready to init", rpcServerInfo.getIp(), rpcServerInfo.getPort());
-        RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getIp(),
-            rpcServerInfo.getPort());
+        logger.info("client {}:{} ready to init", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
+        RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getRpcClientConfig().getIp(),
+            rpcServerInfo.getRpcClientConfig().getPort());
         rpcClientConnector.setSerializer(serializer);
         rpcServerInfo.setRpcClientConnector(rpcClientConnector);
         serversMap
-            .put("/" + rpcServerInfo.getIp() + ":" + rpcServerInfo.getPort(), rpcClientConnector);
+            .put("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcClientConnector);
         serversInfoMap
-            .put("/" + rpcServerInfo.getIp() + ":" + rpcServerInfo.getPort(), rpcServerInfo);
+            .put("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcServerInfo);
         rpcClientConnector.setClient(this);
         rpcClientConnector.start();
         loadBalancer.addService(LoadBalanceService
-            .of("/" + rpcServerInfo.getIp() + ":" + rpcServerInfo.getPort(), rpcServerInfo,
+            .of("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcServerInfo,
                 rpcServerInfo.weight));
-        logger.info("client {}:{} init finish", rpcServerInfo.getIp(), rpcServerInfo.getPort());
+        logger.info("client {}:{} init finish", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
       });
       logger.info("Rpc load balance client init finish");
     }else {
@@ -111,9 +111,9 @@ public class RpcLoadBalanceAdaptor implements Client{
       logger.info("Rpc load balance client ready to destroy");
       servers.forEach(rpcServerInfo -> {
         logger
-            .info("client {}:{} ready to destroy", rpcServerInfo.getIp(), rpcServerInfo.getPort());
-        serversMap.get("/" + rpcServerInfo.getIp() + ":" + rpcServerInfo.getPort()).stop();
-        logger.info("client {}:{} destroy finish", rpcServerInfo.getIp(), rpcServerInfo.getPort());
+            .info("client {}:{} ready to destroy", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
+        serversMap.get("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort()).stop();
+        logger.info("client {}:{} destroy finish", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
       });
       logger.info("Rpc load balance client destroy finish");
     }else{

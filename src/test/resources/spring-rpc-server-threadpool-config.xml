@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.zhanghe.com/schema/rpc
+  http://www.zhanghe.com/schema/rpc.xsd">
+
+  <bean name="demoService" class="com.zhanghe.test.spring.service.DemoServiceImpl"></bean>
+
+  <bean name="testSerializer" class="com.zhanghe.test.spring.serializer.TestSerializer"></bean>
+
+  <rpc:server  id="server" port="6666" ip="localhost" businessLogicCoreThreadNum="4" businessLogicQueueLength="600">
+  </rpc:server>
+
+</beans>

@@ -1,5 +1,6 @@
 package com.zhanghe.spring.annotation;
 
+import com.zhanghe.config.RpcClientConfig;
 import com.zhanghe.rpc.core.client.RpcLoadBalanceAdaptor;
 import com.zhanghe.rpc.core.client.RpcServerInfo;
 import com.zhanghe.spring.RpcClientBeanProcessor;
@@ -28,8 +29,8 @@ public class RpcLoadBalanceClientConfigurationSelector implements ImportBeanDefi
     List<RpcServerInfo> servers = new ArrayList<>();
     for(AnnotationAttributes annotationAttributes:attributesAnnotationArray){
       RpcServerInfo rpcServerInfo = new RpcServerInfo();
-      rpcServerInfo.setIp(annotationAttributes.getString("ip"));
-      rpcServerInfo.setPort(annotationAttributes.getNumber("port"));
+      RpcClientConfig rpcClientConfig = new RpcClientConfig(annotationAttributes.getString("ip"),annotationAttributes.getNumber("port"));
+      rpcServerInfo.setRpcClientConfig(rpcClientConfig);
       rpcServerInfo.setWeight(annotationAttributes.getNumber("weight"));
       servers.add(rpcServerInfo);
     }

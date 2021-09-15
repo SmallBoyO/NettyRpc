@@ -168,4 +168,8 @@ public class BaseRpcServer implements Server {
   public void addFilter(RpcServerFilter filter) {
     this.filters.add(filter);
   }
+
+  public void setRpcServerConfig(RpcServerConfig rpcServerConfig) {
+    this.rpcServerConfig = rpcServerConfig;
+  }
 }
