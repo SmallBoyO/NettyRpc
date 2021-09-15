@@ -3,6 +3,7 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.protocol.v1.response.RpcResponse;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,7 +33,7 @@ public class RpcRequestCallBack {
         cancel = false;
     }
 
-    public RpcResponse get(Long timeOut,TimeUnit timeUnit){
+    public RpcResponse get(Long timeOut,TimeUnit timeUnit) throws TimeoutException{
         try{
             lock.lock();
             if(result != null){
@@ -42,6 +43,10 @@ public class RpcRequestCallBack {
                 //阻塞住 直到收到服务端rpc请求
                 if(timeOut!=null && timeUnit!=null) {
                     condition.await(timeOut, timeUnit);
+                    if(result == null){
+                        //到时间了还没得到返回
+                        throw new TimeoutException("time Out");
+                    }
                 }else{
                     condition.await();
                 }
@@ -52,7 +57,7 @@ public class RpcRequestCallBack {
                 }else{
                     //删除此次rpc调用的request
                     RpcRequestCallBackholder.callBackMap.remove(requestId);
-                    return null;
+                    throw new TimeoutException("rpc request timeout!");
                 }
             }
         }catch (InterruptedException e){
@@ -65,7 +70,7 @@ public class RpcRequestCallBack {
         }
     }
 
-    public RpcResponse start(){
+    public RpcResponse start() throws TimeoutException {
         return get(10 * 1000L,TimeUnit.SECONDS);
     }
 

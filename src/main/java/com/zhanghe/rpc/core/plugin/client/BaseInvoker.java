@@ -1,22 +1,22 @@
 package com.zhanghe.rpc.core.plugin.client;
 
 import com.zhanghe.protocol.v1.response.RpcResponse;
-import com.zhanghe.rpc.core.client.RpcRequestProxy;
+import com.zhanghe.rpc.core.client.RpcClientMethodInterceptor;
 import java.lang.reflect.Method;
 
 public class BaseInvoker implements Invoker {
 
-  private RpcRequestProxy rpcRequestProxy;
+  private RpcClientMethodInterceptor rpcClientMethodInterceptor;
 
   private RpcResponse rpcResponse;
 
-  public BaseInvoker(RpcRequestProxy rpcRequestProxy) {
-    this.rpcRequestProxy = rpcRequestProxy;
+  public BaseInvoker(RpcClientMethodInterceptor rpcClientMethodInterceptor) {
+    this.rpcClientMethodInterceptor = rpcClientMethodInterceptor;
   }
 
   @Override
-  public void invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    rpcResponse =  rpcRequestProxy.call(proxy,method,args);
+  public void invoke(Method method, Object[] args) throws Throwable {
+    rpcResponse =  rpcClientMethodInterceptor.call(method,args);
   }
 
   public RpcResponse getRpcResponse() {

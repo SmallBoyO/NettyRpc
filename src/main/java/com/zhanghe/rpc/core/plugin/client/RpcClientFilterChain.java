@@ -19,11 +19,11 @@ public class RpcClientFilterChain {
     this.filters.add(rpcClientFilter);
   }
 
-  public void doFilter(Object proxy, Method method, Object[] args,Invoker invoker) throws Throwable{
+  public void doFilter(Method method, Object[] args,Invoker invoker) throws Throwable{
     if(position <= (filters.size()-1)){
-        filters.get(position++).doFilter(proxy,method,args,invoker,this);
+        filters.get(position++).doFilter(method,args,invoker,this);
       }else{
-        invoker.invoke(proxy,method,args);
+        invoker.invoke(method,args);
     }
   }
 

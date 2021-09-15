@@ -44,6 +44,11 @@ public class RpcServerConnector {
 
   private Serializer serializer;
 
+
+  private int businessLogicCoreThreadNum;
+
+  private int businessLogicQueueLength;
+
   public RpcServerConnector() {
   }
 
@@ -88,7 +93,7 @@ public class RpcServerConnector {
   }
 
   public void resetWorkGroup(){
-    businessLogicExcutor = RpcThreadPool.getExecutor(4, 1000);
+    businessLogicExcutor = RpcThreadPool.getExecutor(businessLogicCoreThreadNum, businessLogicQueueLength);
     bossGroup = NettyEventLoopGroupUtil.newEventLoopGroup(1, new RpcThreadPoolFactory("Rpc-server-boss")) ;
     workerGroup = NettyEventLoopGroupUtil.newEventLoopGroup(Runtime.getRuntime().availableProcessors()*2, new RpcThreadPoolFactory("Rpc-server-worker")) ;
     if (workerGroup instanceof NioEventLoopGroup) {
@@ -119,6 +124,22 @@ public class RpcServerConnector {
 
   public void setPort(int port) {
     this.port = port;
+  }
+
+  public int getBusinessLogicCoreThreadNum() {
+    return businessLogicCoreThreadNum;
+  }
+
+  public void setBusinessLogicCoreThreadNum(int businessLogicCoreThreadNum) {
+    this.businessLogicCoreThreadNum = businessLogicCoreThreadNum;
+  }
+
+  public int getBusinessLogicQueueLength() {
+    return businessLogicQueueLength;
+  }
+
+  public void setBusinessLogicQueueLength(int businessLogicQueueLength) {
+    this.businessLogicQueueLength = businessLogicQueueLength;
   }
 
   public Serializer getSerializer() {
