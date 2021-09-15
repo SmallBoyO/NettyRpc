@@ -1,5 +1,6 @@
 package com.zhanghe.rpc.core.client;
 
+import com.zhanghe.config.RpcClientConfig;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -9,9 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class RpcServerInfo {
 
-  public String ip;
-
-  public int port;
+  public RpcClientConfig rpcClientConfig;
 
   public int weight;
 
@@ -26,14 +25,14 @@ public class RpcServerInfo {
   private RpcClientConnector rpcClientConnector;
 
   public RpcServerInfo() {
+    this.rpcClientConfig = new RpcClientConfig();
     useful = new AtomicBoolean(false);
     statusLock = new ReentrantLock();
     statusCondition = statusLock.newCondition();
   }
 
   public RpcServerInfo(String ip, int port) {
-    this.ip = ip;
-    this.port = port;
+    this.rpcClientConfig = new RpcClientConfig(ip,port);
     useful = new AtomicBoolean(false);
     statusLock = new ReentrantLock();
     statusCondition = statusLock.newCondition();
@@ -64,22 +63,6 @@ public class RpcServerInfo {
     }
   }
 
-  public String getIp() {
-    return ip;
-  }
-
-  public void setIp(String ip) {
-    this.ip = ip;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
-  }
-
   public int getWeight() {
     return weight;
   }
@@ -89,7 +72,7 @@ public class RpcServerInfo {
   }
 
   public String getAddressInfo(){
-    return ip + ":" + port;
+    return rpcClientConfig.getIp() + ":" + rpcClientConfig.getPort();
   }
 
   public Set<String> getServices() {
@@ -127,8 +110,16 @@ public class RpcServerInfo {
       return false;
     }
     RpcServerInfo that = (RpcServerInfo) o;
-    return port == that.port &&
+    return rpcClientConfig.getPort() == that.rpcClientConfig.getPort() &&
         weight == that.weight &&
-        Objects.equals(ip, that.ip);
+        Objects.equals(rpcClientConfig.getIp(), that.rpcClientConfig.getIp());
+  }
+
+  public RpcClientConfig getRpcClientConfig() {
+    return rpcClientConfig;
+  }
+
+  public void setRpcClientConfig(RpcClientConfig rpcClientConfig) {
+    this.rpcClientConfig = rpcClientConfig;
   }
 }

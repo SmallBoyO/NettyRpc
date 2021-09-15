@@ -1,5 +1,6 @@
 package com.zhanghe.spring.schema;
 
+import com.zhanghe.config.RpcServerConfig;
 import com.zhanghe.protocol.serializer.SerializerAlgorithm;
 import com.zhanghe.protocol.serializer.SerializerManager;
 import com.zhanghe.rpc.core.server.BaseRpcServer;
@@ -31,11 +32,21 @@ public class RpcServerNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
   protected void doParse(Element element, ParserContext parserContext,
       BeanDefinitionBuilder builder) {
     String ip = element.getAttribute("ip");
-    int port=Integer.valueOf(element.getAttribute("port"));
+    int port = Integer.valueOf(element.getAttribute("port"));
+    RpcServerConfig rpcServerConfig = new RpcServerConfig(ip,port);
+    if(element.hasAttribute("businessLogicCoreThreadNum")){
+      int businessLogicCoreThreadNum = Integer.valueOf(element.getAttribute("businessLogicCoreThreadNum"));
+      rpcServerConfig.setBusinessLogicCoreThreadNum(businessLogicCoreThreadNum);
+    }
+    if(element.hasAttribute("businessLogicQueueLength")){
+      int businessLogicQueueLength = Integer.valueOf(element.getAttribute("businessLogicQueueLength"));
+      rpcServerConfig.setBusinessLogicQueueLength(businessLogicQueueLength);
+    }
     String serializer = element.getAttribute("serializer");
     String scanPackage = element.getAttribute("scanPackage");
-    builder.addPropertyValue("ip",ip);
-    builder.addPropertyValue("port",port);
+    builder.addPropertyValue("rpcServerConfig",rpcServerConfig);
+//    builder.addPropertyValue("ip",ip);
+//    builder.addPropertyValue("port",port);
 
     if(!StringUtils.isEmpty(serializer)){
       switch ( serializer ){

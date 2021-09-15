@@ -37,6 +37,16 @@
         <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
+    <xsd:attribute name="businessLogicCoreThreadNum" type="xsd:int">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="businessLogicQueueLength" type="xsd:int">
+      <xsd:annotation>
+        <xsd:documentation><![CDATA[ The mybean name. ]]></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
   </xsd:complexType>
 
   <xsd:complexType name="serverType">

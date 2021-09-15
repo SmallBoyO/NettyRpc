@@ -1,5 +1,6 @@
 package com.zhanghe.test.testClient.loadbalance;
 
+import com.zhanghe.config.RpcClientConfig;
 import com.zhanghe.rpc.core.client.RpcLoadBalanceAdaptor;
 import com.zhanghe.rpc.core.client.RpcServerInfo;
 import com.zhanghe.rpc.core.server.BaseRpcServer;
@@ -69,13 +70,11 @@ public class RandomLoadBalanceClientTest {
 
   public void connect() throws ClassNotFoundException{
     RpcServerInfo rpcServerInfo1 = new RpcServerInfo();
-    rpcServerInfo1.setIp("127.0.0.1");
+    rpcServerInfo1.setRpcClientConfig(new RpcClientConfig("127.0.0.1",7777));
     rpcServerInfo1.setWeight(10);
-    rpcServerInfo1.setPort(7777);
     RpcServerInfo rpcServerInfo2 = new RpcServerInfo();
-    rpcServerInfo2.setIp("127.0.0.1");
+    rpcServerInfo1.setRpcClientConfig(new RpcClientConfig("127.0.0.1",7778));
     rpcServerInfo2.setWeight(10);
-    rpcServerInfo2.setPort(7778);
     rpcClient = new RpcLoadBalanceAdaptor();
     rpcClient.setServers(
       new ArrayList<RpcServerInfo>(){{
