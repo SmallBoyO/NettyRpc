@@ -12,6 +12,15 @@ import org.w3c.dom.Element;
 
 public class RpcClientNameSpaceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
+  private final static String IP_ATTRIBUTE_NAME = "ip";
+  private final static String PORT_ATTRIBUTE_NAME = "port";
+  private final static String SCAN_PACKAGE_ATTRIBUTE_NAME = "scanPackage";
+
+  private final static String INIT_METHOD_NAME = "init";
+  private final static String DESTROY_METHOD_NAME = "destroy";
+
+  private final static String CLIENT_CONFIG_PROPERTY_NAME = "rpcClientConfig";
+
   @Override
   protected Class getBeanClass(Element ele){
     return BaseRpcClient.class;
@@ -25,13 +34,13 @@ public class RpcClientNameSpaceBeanDefinitionParser extends AbstractSingleBeanDe
   @Override
   protected void doParse(Element element, ParserContext parserContext,
       BeanDefinitionBuilder builder) {
-    String ip = element.getAttribute("ip");
-    int port = Integer.valueOf(element.getAttribute("port"));
+    String ip = element.getAttribute(IP_ATTRIBUTE_NAME);
+    int port = Integer.valueOf(element.getAttribute(PORT_ATTRIBUTE_NAME));
     RpcClientConfig rpcClientConfig = new RpcClientConfig(ip,port);
-    String scanPackage = element.getAttribute("scanPackage");
-    builder.addPropertyValue("rpcClientConfig",rpcClientConfig);
-    builder.setInitMethodName("init");
-    builder.setDestroyMethodName("destroy");
+    String scanPackage = element.getAttribute(SCAN_PACKAGE_ATTRIBUTE_NAME);
+    builder.addPropertyValue(CLIENT_CONFIG_PROPERTY_NAME,rpcClientConfig);
+    builder.setInitMethodName(INIT_METHOD_NAME);
+    builder.setDestroyMethodName(DESTROY_METHOD_NAME);
 
     if(!StringUtils.isEmpty(scanPackage)){
       //注册RpcServiceBeanProcessor用于扫描RpcClient注解

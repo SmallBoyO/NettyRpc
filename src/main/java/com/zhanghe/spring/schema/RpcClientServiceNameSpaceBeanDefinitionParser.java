@@ -7,6 +7,10 @@ import org.w3c.dom.Element;
 
 public class RpcClientServiceNameSpaceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
+  private final static String CLASS_ATTRIBUTE_NAME = "ip";
+  private final static String FACTORY_METHOD_NAME = "proxy";
+  private final static String FACTORY_BEAN_NAME = "client";
+
   @Override
   protected Class getBeanClass(Element ele){
     return Object.class;
@@ -20,8 +24,8 @@ public class RpcClientServiceNameSpaceBeanDefinitionParser extends AbstractSingl
   @Override
   protected void doParse(Element element, ParserContext parserContext,
       BeanDefinitionBuilder builder) {
-    String clazz = element.getAttribute("class");
-    builder.setFactoryMethodOnBean("proxy","client");
+    String clazz = element.getAttribute(CLASS_ATTRIBUTE_NAME);
+    builder.setFactoryMethodOnBean(FACTORY_METHOD_NAME,FACTORY_BEAN_NAME);
     builder.addConstructorArgValue(clazz);
   }
 

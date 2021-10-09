@@ -6,6 +6,14 @@ import io.netty.channel.ChannelHandlerContext;
 
 public interface RpcServerFilter {
 
+  /**
+   * 继续过滤
+   * @param channelHandlerContext
+   * @param request
+   * @param invoker
+   * @param chain
+   * @throws Exception
+   */
   void doFilter(ChannelHandlerContext channelHandlerContext,RpcRequest request,Invoker invoker,RpcServerFilterChain chain) throws Exception;
 
 }

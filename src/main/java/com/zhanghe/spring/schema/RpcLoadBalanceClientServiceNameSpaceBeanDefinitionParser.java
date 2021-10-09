@@ -19,6 +19,20 @@ import org.w3c.dom.NodeList;
 public class RpcLoadBalanceClientServiceNameSpaceBeanDefinitionParser extends
     AbstractSingleBeanDefinitionParser {
 
+  private final static String IP_ATTRIBUTE_NAME = "ip";
+  private final static String PORT_ATTRIBUTE_NAME = "port";
+  private final static String WEIGHT_ATTRIBUTE_NAME = "weight";
+  private final static String SCAN_PACKAGE_ATTRIBUTE_NAME = "scanPackage";
+  private final static String LOAD_BALANCE_ATTRIBUTE_NAME = "loadBalance";
+  private final static String LOAD_BALANCE_PROPERTY_NAME = "loadBalance";
+
+  private final static String INIT_METHOD_NAME = "init";
+  private final static String DESTROY_METHOD_NAME = "destroy";
+
+  private final static String LOAD_BALANCE_SERVER_NODE_NAME = "loadBalanceServer";
+
+  private final static String SERVERS_PROPERTY_NAME = "servers";
+
   @Override
   protected Class getBeanClass(Element ele){
     return RpcLoadBalanceAdaptor.class;
@@ -32,11 +46,11 @@ public class RpcLoadBalanceClientServiceNameSpaceBeanDefinitionParser extends
   @Override
   protected void doParse(Element element, ParserContext parserContext,
       BeanDefinitionBuilder builder) {
-    String scanPackage = element.getAttribute("scanPackage");
-    String loadBalance = element.getAttribute("loadBalance");
-    builder.addPropertyValue("loadBalance",loadBalance);
-    builder.setInitMethodName("init");
-    builder.setDestroyMethodName("destroy");
+    String scanPackage = element.getAttribute(SCAN_PACKAGE_ATTRIBUTE_NAME);
+    String loadBalance = element.getAttribute(LOAD_BALANCE_ATTRIBUTE_NAME);
+    builder.addPropertyValue(LOAD_BALANCE_PROPERTY_NAME,loadBalance);
+    builder.setInitMethodName(INIT_METHOD_NAME);
+    builder.setDestroyMethodName(DESTROY_METHOD_NAME);
     //注册多个rpcserver
     List<RpcServerInfo> servers = new ArrayList<>();
 //    ManagedList servers = new ManagedList();
@@ -46,10 +60,10 @@ public class RpcLoadBalanceClientServiceNameSpaceBeanDefinitionParser extends
       for (int i = 0; i < elementSons.getLength(); i++) {
         Node node = elementSons.item(i);
         if (node instanceof Element) {
-          if ("loadBalanceServer".equals(node.getNodeName()) || "loadBalanceServer".equals(node.getLocalName())) {
-            String ip = ((Element) node).getAttribute("ip");
-            String port = ((Element) node).getAttribute("port");
-            String weight = ((Element) node).getAttribute("weight");
+          if (LOAD_BALANCE_SERVER_NODE_NAME.equals(node.getNodeName()) || LOAD_BALANCE_SERVER_NODE_NAME.equals(node.getLocalName())) {
+            String ip = ((Element) node).getAttribute(IP_ATTRIBUTE_NAME);
+            String port = ((Element) node).getAttribute(PORT_ATTRIBUTE_NAME);
+            String weight = ((Element) node).getAttribute(WEIGHT_ATTRIBUTE_NAME);
             RpcServerInfo rpcServerInfo = new RpcServerInfo(ip,Integer.valueOf(port));
             rpcServerInfo.setWeight(Integer.valueOf(weight));
             servers.add(rpcServerInfo);
@@ -57,7 +71,7 @@ public class RpcLoadBalanceClientServiceNameSpaceBeanDefinitionParser extends
         }
       }
     }
-    builder.addPropertyValue("servers",servers);
+    builder.addPropertyValue(SERVERS_PROPERTY_NAME,servers);
     if(!StringUtils.isEmpty(scanPackage)){
       //注册RpcServiceBeanProcessor用于扫描RpcClient注解
       RootBeanDefinition beanDefinition = new RootBeanDefinition();

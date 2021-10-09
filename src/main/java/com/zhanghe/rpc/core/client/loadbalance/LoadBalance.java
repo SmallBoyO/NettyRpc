@@ -8,6 +8,10 @@ public interface LoadBalance<T> {
    */
   T next();
 
+  /**
+   * 添加新的服务
+   * @param loadBalanceService
+   */
   void addService(LoadBalanceService loadBalanceService);
 
 }
