@@ -5,6 +5,7 @@ import com.zhanghe.rpc.core.client.RpcContext;
 import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.test.testServer.service.GracefulShutdownService;
 import com.zhanghe.test.testServer.service.GracefulShutdownServiceImpl;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -108,20 +109,26 @@ public class GracefulShutdownServerTest {
       }catch (Exception e){
 
       }
-      gracefulShutdownService.costSomeTimes(str);
+      Random random = new Random(System.currentTimeMillis());
+      Long waitTime = Long.valueOf(random.nextInt(1000));
+      System.out.println("waitTime:" + waitTime);
+      gracefulShutdownService.costSomeTimes(str,waitTime);
       Future future = RpcContext.getInstance().getFuture();
       try {
-        String result = (String) future.get(10, TimeUnit.SECONDS);
+        String result = (String) future.get(waitTime + 3000, TimeUnit.MILLISECONDS);
         Assert.assertEquals(str, result);
         atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }catch (ExecutionException e){
+        e.printStackTrace();
         atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }catch (TimeoutException e){
+        e.printStackTrace();
         atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }catch (InterruptedException e){
+        e.printStackTrace();
         atomicInteger.incrementAndGet();
         countDownLatch.countDown();
       }

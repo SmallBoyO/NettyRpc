@@ -3,9 +3,9 @@ package com.zhanghe.test.testServer.service;
 public class GracefulShutdownServiceImpl implements GracefulShutdownService {
 
   @Override
-  public String costSomeTimes(String str) {
+  public String costSomeTimes(String str,Long waitTime) {
     try {
-      Thread.sleep(5 * 1000L);
+      Thread.sleep(waitTime);
     }catch (InterruptedException e){
 
     }
