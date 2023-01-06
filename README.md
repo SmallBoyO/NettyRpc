@@ -15,14 +15,14 @@
 ##### java代码配置
 
 1.1 服务端
-```aidl
+```
     BaseRpcServer rpcServer = new BaseRpcServer(7777);
     rpcServer.init();
     rpcServer.bind(new DemoServiceImpl());
 ```
 
 1.2 客户端
-```aidl
+```
     BaseRpcClient rpcClient = new BaseRpcClient("127.0.0.1",7777);
     rpcClient.init();
     demoService = (DemoService) rpcClient.proxy(DemoService.class.getName());
@@ -31,7 +31,7 @@
 ##### spring xml配置
 
 1.1 服务端
-```aidl
+```
 <beans xmlns="http://www.springframework.org/schema/beans"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:rpc="http://www.zhanghe.com/schema/rpc"
@@ -49,7 +49,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 ```
 
 1.2 客户端
-```aidl
+```
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:rpc="http://www.zhanghe.com/schema/rpc"
@@ -68,7 +68,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 
 在rpc:server中添加scanPackage配置,在需要注册的service上添加注解@RpcService
 
-```aidl
+```
 <beans xmlns="http://www.springframework.org/schema/beans"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:rpc="http://www.zhanghe.com/schema/rpc"
@@ -100,7 +100,7 @@ public class DemoServiceImpl implements DemoService {
 1.4 客户端注解扫描
 
 在rpc:client中添加scanPackage配置,在需要注册的service上添加注解@DemoService
-```aidl
+```
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:rpc="http://www.zhanghe.com/schema/rpc"
@@ -189,5 +189,3 @@ public interface AsyncService {
  Future<String> future = RpcContext.getInstance().getFuture();
  String result = future.get(10, TimeUnit.SECONDS);
 ```
-
-##### 
