@@ -12,10 +12,26 @@
 
 #### 使用说明
 
+##### java代码配置
+
+1.1 服务端
+```aidl
+    BaseRpcServer rpcServer = new BaseRpcServer(7777);
+    rpcServer.init();
+    rpcServer.bind(new DemoServiceImpl());
+```
+
+1.2 客户端
+```aidl
+    BaseRpcClient rpcClient = new BaseRpcClient("127.0.0.1",7777);
+    rpcClient.init();
+    demoService = (DemoService) rpcClient.proxy(DemoService.class.getName());
+```
+
 ##### spring xml配置
 
-1.1 客户端配置
-```
+1.1 服务端
+```aidl
 <beans xmlns="http://www.springframework.org/schema/beans"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:rpc="http://www.zhanghe.com/schema/rpc"
@@ -23,22 +39,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
   http://www.zhanghe.com/schema/rpc
   http://www.zhanghe.com/schema/rpc.xsd">
 
-  <rpc:client id="client" port="6667" ip="127.0.0.1"></rpc:client>
-
-  <rpc:clientService id="demoService" class="com.zhanghe.rpc.demo.service.DemoService"></rpc:clientService>
-
-</beans>rpc:clientService>
-```
-1.2 服务端配置
-```
-<beans xmlns="http://www.springframework.org/schema/beans"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns:rpc="http://www.zhanghe.com/schema/rpc"
-xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-  http://www.zhanghe.com/schema/rpc
-  http://www.zhanghe.com/schema/rpc.xsd">
-
-<bean name="demoService" class="com.zhanghe.rpc.demo.service.impl.DemoServiceImpl"></bean>
+<bean name="demoService" class="com.zhanghe.test.spring.service.DemoServiceImpl"></bean>
 
 <rpc:server  id="adaptor" port="6667" ip="127.0.0.1">
   <rpc:service value="demoService"></rpc:service>
@@ -46,69 +47,147 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 
 </beans>
 ```
-##### spring扫描注解
 
-2.1 客户端配置
-```
+1.2 客户端
+```aidl
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:rpc="http://www.zhanghe.com/schema/rpc"
-  xmlns:context="http://www.springframework.org/schema/context"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://www.zhanghe.com/schema/rpc
-  http://www.zhanghe.com/schema/rpc.xsd
-  http://www.springframework.org/schema/context
-  http://www.springframework.org/schema/context/spring-context.xsd">
+  http://www.zhanghe.com/schema/rpc.xsd">
 
-  <context:component-scan base-package="com.zhanghe.rpc.demo" ></context:component-scan>
+  <rpc:client id="client" port="7777" ip="127.0.0.1"></rpc:client>
 
-  <rpc:client id="client" port="6667" ip="127.0.0.1" scanPackage="com.zhanghe.rpc.demo.service"></rpc:client>
+  <rpc:clientService id="demoService" class="com.zhanghe.test.spring.service.DemoService"></rpc:clientService>
 
 </beans>
 ```
-2.2 服务端配置
-```
+
+1.3 服务端注解扫描
+
+在rpc:server中添加scanPackage配置,在需要注册的service上添加注解@RpcService
+
+```aidl
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:rpc="http://www.zhanghe.com/schema/rpc"
   xmlns:context="http://www.springframework.org/schema/context"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://www.zhanghe.com/schema/rpc
   http://www.zhanghe.com/schema/rpc.xsd
   http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd">
 
+  <context:annotation-config></context:annotation-config>
 
-  <context:component-scan base-package="com.zhanghe.rpc.demo"></context:component-scan>
-
-  <rpc:server  id="adaptor" port="6667" ip="127.0.0.1" scanPackage="com.zhanghe.rpc.demo.service.impl">
+  <rpc:server  id="adaptor" port="6668" ip="127.0.0.1" scanPackage="com.zhanghe.test.spring.service">
   </rpc:server>
 
 </beans>
-```
-##### spring注解配置
 
-3.1 客户端配置
-```
-  @Bean
-  public BaseRpcClient getBaseRpcClient(){
-    BaseRpcClient rpcClient = new BaseRpcClient("127.0.0.1",6666);
-    rpcClient.init();
-    return rpcClient;
-  }
+@RpcService(value = "rpcservice")
+public class DemoServiceImpl implements DemoService {
 
-  @Bean
-  public DemoService getDemoService() throws ClassNotFoundException{
-    return (DemoService)getBaseRpcClient().proxy(DemoService.class.getName());
+  @Override
+  public String call(String requestParam) {
+    return "requestParam:" + requestParam;
   }
+}
+
 ```
-3.2 服务端配置
+
+1.4 客户端注解扫描
+
+在rpc:client中添加scanPackage配置,在需要注册的service上添加注解@DemoService
+```aidl
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:rpc="http://www.zhanghe.com/schema/rpc"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.zhanghe.com/schema/rpc
+  http://www.zhanghe.com/schema/rpc.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <context:annotation-config></context:annotation-config>
+
+  <rpc:client id="client" port="6666" ip="127.0.0.1" scanPackage="com.zhanghe.test.spring.service"></rpc:client>
+
+</beans>
+
+@RpcClient(value = "rpcclient")
+public interface DemoService{
+
+  String call(String requestParam);
+
+}
 ```
- @Bean
-  public BaseRpcServer getBaseRpcServer(){
-    BaseRpcServer baseRpcServer = new BaseRpcServer();
-    baseRpcServer.init();
-    baseRpcServer.setServices(Arrays.asList(new DemoServiceImpl()));
-    return baseRpcServer;
-  }
+1.5 服务端使用Enable模块注解进行配置
+
+给配置类加上@EnableRpcServer注解
 ```
+@EnableRpcServer(ip = "127.0.0.1",port = 6666,scanPacakges = "com.zhanghe.test")
+@Configuration
+public class EnableRpcServerConfiguration {
+
+}
+``````
+1.6 客户端使用Enable模块注解进行配置
+给配置类加上@EnableRpcClient注解
+```
+@EnableRpcClient(ip = "127.0.0.1",port = 6666,scanPacakges = "com.zhanghe.test")
+@Configuration
+public class EnableRpcClientConfiguration {
+
+}
+```
+
+##### 客户端负载均衡配置
+1.1 xpring xml 配置
+```
+  <rpc:loadBalanceClient id="client" scanPackage="com.zhanghe.test.spring.service" loadBalance="weight_random">
+    <rpc:loadBalanceServer port="7777" ip="127.0.0.1" weight="1"></rpc:loadBalanceServer>
+    <rpc:loadBalanceServer port="7778" ip="127.0.0.1" weight="1"></rpc:loadBalanceServer>
+  </rpc:loadBalanceClient>
+```
+```
+1.2 Enable模块注解配置
+给配置类添加@EnableLoadBalanceRpcClient注解
+```
+```
+@EnableLoadBalanceRpcClient(
+    rpcServers = {
+        @RpcServerInfo(ip = "127.0.0.1",port = 6666,weight = 10),
+        @RpcServerInfo(ip = "127.0.0.1",port = 6667)
+    },
+    loadBalance="weight_random",
+    scanPacakges = "com.zhanghe.test")
+@Configuration
+public class EnableLoadBalanceRpcClientConfiguration {
+
+}
+```
+
+
+##### 客户端异步调用配置
+
+1 在需要异步调用的方法加上@AsyncMethod注解
+```
+public interface AsyncService {
+
+  @AsyncMethod
+  String waitTwoSeconds(String str);
+
+}
+```
+2 调用service
+调用原方法之后,使用RpcContext.getInstance().getFuture()获取到future
+```
+ asyncService.waitTwoSeconds(str);
+ Future<String> future = RpcContext.getInstance().getFuture();
+ String result = future.get(10, TimeUnit.SECONDS);
+```
+
+##### 

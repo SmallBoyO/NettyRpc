@@ -82,9 +82,9 @@ public class AsyncClientTest {
     public void run() {
       String str = "Random str:"+Math.random();
       asyncService.waitTwoSeconds(str);
-      Future future = RpcContext.getInstance().getFuture();
+      Future<String> future = RpcContext.getInstance().getFuture();
       try {
-        String result = (String) future.get(10, TimeUnit.SECONDS);
+        String result = future.get(10, TimeUnit.SECONDS);
         Assert.assertEquals(str, result);
         atomicInteger.incrementAndGet();
         countDownLatch.countDown();
