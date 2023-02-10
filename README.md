@@ -169,6 +169,13 @@ public class EnableLoadBalanceRpcClientConfiguration {
 
 }
 ```
+负载均衡类型
+
+| 算法 | 备注  |
+|  ----  | ----  |
+| random  | 随机 |
+| weight_random  | 带权重的随机 |
+| round  | 轮询 |
 
 
 ##### 客户端异步调用配置
