@@ -61,21 +61,7 @@ public class RpcLoadBalanceAdaptor implements Client{
     if(started.compareAndSet(false,true)) {
       initLoadBalancer();
       servers.forEach(rpcServerInfo -> {
-        logger.info("client {}:{} ready to init", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
-        RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getRpcClientConfig().getIp(),
-            rpcServerInfo.getRpcClientConfig().getPort());
-        rpcClientConnector.setSerializer(serializer);
-        rpcServerInfo.setRpcClientConnector(rpcClientConnector);
-        serversMap
-            .put("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcClientConnector);
-        serversInfoMap
-            .put("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcServerInfo);
-        rpcClientConnector.setClient(this);
-        rpcClientConnector.start();
-        loadBalancer.addService(LoadBalanceService
-            .of("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcServerInfo,
-                rpcServerInfo.weight));
-        logger.info("client {}:{} init finish", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
+        connectToServer(rpcServerInfo);
       });
       logger.info("Rpc load balance client init finish");
     }else {
@@ -83,6 +69,28 @@ public class RpcLoadBalanceAdaptor implements Client{
       logger.error(error);
       throw new RuntimeException(error);
     }
+  }
+
+  private void connectToServer(RpcServerInfo rpcServerInfo){
+    logger.info("client ready to connect server {}:{} ", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
+    RpcClientConnector rpcClientConnector = new RpcClientConnector(rpcServerInfo.getRpcClientConfig().getIp(),
+        rpcServerInfo.getRpcClientConfig().getPort());
+    rpcClientConnector.setSerializer(serializer);
+    rpcServerInfo.setRpcClientConnector(rpcClientConnector);
+    serversMap
+        .put("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcClientConnector);
+    serversInfoMap
+        .put("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcServerInfo);
+    rpcClientConnector.setClient(this);
+    rpcClientConnector.start();
+    loadBalancer.addService(LoadBalanceService
+        .of("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcServerInfo,
+            rpcServerInfo.weight));
+    logger.info("client ready connected server {}:{} ", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
+  }
+
+  public void addServer(RpcServerInfo rpcServerInfo){
+    connectToServer(rpcServerInfo);
   }
 
   private void initLoadBalancer(){

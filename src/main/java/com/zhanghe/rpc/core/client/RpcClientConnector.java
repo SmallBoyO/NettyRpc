@@ -185,7 +185,7 @@ public class RpcClientConnector {
 
     private void sleepSomeTime(long times){
         try {
-            Thread.sleep(1000);
+            Thread.sleep(times);
         } catch (Exception s) {
 
         }

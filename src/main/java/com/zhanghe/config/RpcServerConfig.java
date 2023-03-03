@@ -2,7 +2,7 @@ package com.zhanghe.config;
 
 public class RpcServerConfig {
 
-  public static final int DEFAILT_MAGIC_NUM = 0xfade;
+  public static final int DEFAULT_MAGIC_NUM = 0xfade;
 
   public static final int DEFAULT_PORT = 7777;
 
