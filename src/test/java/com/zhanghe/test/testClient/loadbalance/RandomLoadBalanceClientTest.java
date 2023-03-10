@@ -73,7 +73,7 @@ public class RandomLoadBalanceClientTest {
     rpcServerInfo1.setRpcClientConfig(new RpcClientConfig("127.0.0.1",7777));
     rpcServerInfo1.setWeight(10);
     RpcServerInfo rpcServerInfo2 = new RpcServerInfo();
-    rpcServerInfo1.setRpcClientConfig(new RpcClientConfig("127.0.0.1",7778));
+    rpcServerInfo2.setRpcClientConfig(new RpcClientConfig("127.0.0.1",7778));
     rpcServerInfo2.setWeight(10);
     rpcClient = new RpcLoadBalanceAdaptor();
     rpcClient.setServers(

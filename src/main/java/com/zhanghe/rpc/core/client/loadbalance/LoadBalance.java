@@ -14,4 +14,17 @@ public interface LoadBalance<T> {
    */
   void addService(LoadBalanceService loadBalanceService);
 
+  /**
+   *  删除服务
+   * @param ip
+   * @param port
+   */
+  void removeService(String ip,Integer port);
+
+  /**
+   * 获取当前server总数量
+   * @return
+   */
+  Integer serverSize();
+
 }
