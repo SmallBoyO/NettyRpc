@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 
 public class RpcClientServiceNameSpaceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-  private final static String CLASS_ATTRIBUTE_NAME = "ip";
+  private final static String CLASS_ATTRIBUTE_NAME = "class";
   private final static String FACTORY_METHOD_NAME = "proxy";
   private final static String FACTORY_BEAN_NAME = "client";
 

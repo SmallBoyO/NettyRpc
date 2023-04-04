@@ -26,8 +26,6 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   public List<RpcServerInfo> servers;
 
-  public Map<String,RpcClientConnector> serversMap;
-
   public Map<String,RpcServerInfo> serversInfoMap;
 
   List<RpcClientConnector> activeServer;
@@ -43,7 +41,6 @@ public class RpcLoadBalanceAdaptor implements Client{
   private volatile AtomicBoolean started = new AtomicBoolean(false);
 
   public RpcLoadBalanceAdaptor() {
-    serversMap = new HashMap<>();
     serversInfoMap = new HashMap<>();
     activeServer = new ArrayList<>();
     this.filters = new ArrayList<>();
@@ -75,8 +72,6 @@ public class RpcLoadBalanceAdaptor implements Client{
     rpcServerInfo.setRpcClientConnector(rpcClientConnector);
     rpcClientConnector.setClient(this);
     rpcClientConnector.start();
-    serversMap
-        .put("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcClientConnector);
     serversInfoMap
         .put("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo.getRpcClientConfig().getPort(), rpcServerInfo);
     logger.info("client connected server {}:{} ", rpcServerInfo.getRpcClientConfig().getIp(), rpcServerInfo.getRpcClientConfig().getPort());
@@ -95,7 +90,6 @@ public class RpcLoadBalanceAdaptor implements Client{
     synchronized (this) {
       logger.info(" remove server :[{},{}] ", ip, port);
       loadBalancer.removeService(ip, port);
-      RpcClientConnector rpcClientConnector = serversMap.remove("/" + ip + ":" + port);
       RpcServerInfo rpcServerInfo = null;
       Iterator it = servers.iterator();
       while (it.hasNext()) {
@@ -106,8 +100,7 @@ public class RpcLoadBalanceAdaptor implements Client{
           break;
         }
       }
-      serversInfoMap.remove("/" + ip + ":" + port);
-      rpcClientConnector.stop();
+      serversInfoMap.remove("/" + ip + ":" + port).getRpcClientConnector().stop();
     }
   }
 
@@ -137,11 +130,9 @@ public class RpcLoadBalanceAdaptor implements Client{
       if (started.getAndSet(false)) {
         logger.info("Rpc load balance client ready to destroy");
         servers.forEach(rpcServerInfo -> {
-          logger
-              .info("client {}:{} ready to destroy", rpcServerInfo.getRpcClientConfig().getIp(),
+          rpcServerInfo.getRpcClientConnector().stop();
+          logger.info("client {}:{} ready to destroy", rpcServerInfo.getRpcClientConfig().getIp(),
                   rpcServerInfo.getRpcClientConfig().getPort());
-          serversMap.get("/" + rpcServerInfo.getRpcClientConfig().getIp() + ":" + rpcServerInfo
-              .getRpcClientConfig().getPort()).stop();
           logger.info("client {}:{} destroy finish", rpcServerInfo.getRpcClientConfig().getIp(),
               rpcServerInfo.getRpcClientConfig().getPort());
         });
@@ -157,15 +148,10 @@ public class RpcLoadBalanceAdaptor implements Client{
   @Override
   public void setServices(String address, Set<String> services) {
     logger.info("server[{}] get services:{}",address,services);
-    activeServer.add(serversMap.get(address));
+    activeServer.add(serversInfoMap.get(address).getRpcClientConnector());
     RpcServerInfo rpcServerInfo = serversInfoMap.get(address);
     rpcServerInfo.setServices(services);
     loadBalancer.addService(LoadBalanceService.of(address, rpcServerInfo,rpcServerInfo.weight));
-  }
-
-  @Override
-  public void setChannel(String address, Channel channel) {
-    logger.info("server[{}] get channel",address);
   }
 
   @Override
@@ -215,6 +201,19 @@ public class RpcLoadBalanceAdaptor implements Client{
   @Override
   public boolean isStarted() {
     return started.get();
+  }
+
+  @Override
+  public void connectorConnected(String address) {
+
+  }
+
+  @Override
+  public void connectorDisConnected(String address) {
+    RpcServerInfo rpcServerInfo = serversInfoMap.get(address);
+    System.out.println(address);
+    System.out.println("rpcServerInfo:" + rpcServerInfo);
+    loadBalancer.removeService(rpcServerInfo.getRpcClientConfig().getIp(),rpcServerInfo.getRpcClientConfig().getPort());
   }
 
   public String getLoadBalance() {

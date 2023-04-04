@@ -27,8 +27,8 @@ public class RpcServerConfigurationSelector implements ImportBeanDefinitionRegis
     String serializer = "";
 
     BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(BaseRpcServer.class);
-    builder.addPropertyValue("ip",ip);
-    builder.addPropertyValue("port",port);
+    builder.addConstructorArgValue(ip);
+    builder.addConstructorArgValue(port);
     if(!StringUtils.isEmpty(serializer)){
       switch ( serializer ){
         case "KRYO":

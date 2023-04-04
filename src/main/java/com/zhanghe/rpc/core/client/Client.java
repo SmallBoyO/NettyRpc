@@ -37,13 +37,6 @@ public interface Client {
   void setServices(String address, Set<String> services);
 
   /**
-   * 设置channel
-   * @param address
-   * @param channel
-   */
-  void setChannel(String address, Channel channel);
-
-  /**
    * 通过代理生成 service 的rpc代理类
    * @param service
    * @return
@@ -62,4 +55,15 @@ public interface Client {
    * @return
    */
   boolean isStarted();
+
+  /**
+   *  connector连接成功
+   */
+  void connectorConnected(String address);
+
+  /**
+   *  connector连接断开
+   */
+  void connectorDisConnected(String address);
+
 }

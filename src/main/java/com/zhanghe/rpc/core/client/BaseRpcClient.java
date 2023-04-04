@@ -121,11 +121,6 @@ public class BaseRpcClient implements Client {
   }
 
   @Override
-  public void setChannel(String address, Channel channel) {
-//    proxy.setChannel(channel);
-  }
-
-  @Override
   public Object proxy(String service) throws ClassNotFoundException {
     rpcServerInfo.waitServerUseful();
     //获取注解信息
@@ -166,6 +161,16 @@ public class BaseRpcClient implements Client {
   @Override
   public boolean isStarted() {
     return started.get();
+  }
+
+  @Override
+  public void connectorConnected(String address) {
+
+  }
+
+  @Override
+  public void connectorDisConnected(String address) {
+
   }
 
   public void gracefulShutdown(){
