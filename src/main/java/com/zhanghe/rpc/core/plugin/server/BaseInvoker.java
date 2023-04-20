@@ -18,14 +18,20 @@ public class BaseInvoker implements Invoker {
         rpcResponse.setRequestId(rpcRequest.getRequestId());
         String className = rpcRequest.getClassName();
         Map mserverMap = channelHandlerContext.channel().attr(Attributes.SERVERS).get();
-        Object serviceBean = mserverMap.get(className);
-        Object result = serviceBean.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getTypeParameters()).invoke(serviceBean,rpcRequest.getParametersVal());
-        rpcResponse.setResult(result);
-        rpcResponse.setSuccess(true);
-        this.rpcResponse = rpcResponse;
+        if(mserverMap.containsKey(className)){
+          Object serviceBean = mserverMap.get(className);
+          Object result = serviceBean.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getTypeParameters()).invoke(serviceBean,rpcRequest.getParametersVal());
+          rpcResponse.setResult(result);
+          rpcResponse.setSuccess(true);
+          this.rpcResponse = rpcResponse;
+        }else{
+          rpcResponse.setExceptionMessage("invalid service");
+          rpcResponse.setSuccess(false);
+          this.rpcResponse = rpcResponse;
+        }
       }catch (Exception e){
         e.printStackTrace();
-        rpcResponse.setException(e);
+        rpcResponse.setExceptionMessage(e.getMessage());
         rpcResponse.setSuccess(false);
         this.rpcResponse = rpcResponse;
       }

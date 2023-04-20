@@ -2,6 +2,7 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.protocol.v1.response.RpcResponse;
+import com.zhanghe.rpc.core.exception.RpcException;
 import com.zhanghe.rpc.core.plugin.client.AsyncInvoker;
 import com.zhanghe.rpc.core.plugin.client.BaseInvoker;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
@@ -55,7 +56,7 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
       if (result.isSuccess()) {
         return result.getResult();
       } else {
-        throw result.getException();
+          throw new RpcException(result.getExceptionMessage());
       }
     }else{
       RpcClientFilterChain rpcClientFilterChain = new RpcClientFilterChain();

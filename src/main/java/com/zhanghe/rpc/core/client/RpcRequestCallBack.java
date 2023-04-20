@@ -63,7 +63,7 @@ public class RpcRequestCallBack {
         }catch (InterruptedException e){
             e.printStackTrace();
             result = new RpcResponse();
-            result.setException(e);
+            result.setExceptionMessage(e.getMessage());
             return result;
         }finally {
             lock.unlock();
@@ -95,7 +95,7 @@ public class RpcRequestCallBack {
             if(!done){
                 this.cancel = true;
                 result = new RpcResponse();
-                result.setException(new Exception("Rpc request has been canceled!"));
+                result.setExceptionMessage("Rpc request has been canceled!");
                 condition.signalAll();
                 return true;
             }else{

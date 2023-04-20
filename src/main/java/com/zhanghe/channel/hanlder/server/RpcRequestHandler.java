@@ -44,7 +44,7 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
           } catch (Exception e) {
             e.printStackTrace();
             RpcResponse rpcResponse = new RpcResponse();
-            rpcResponse.setException(e);
+            rpcResponse.setExceptionMessage(e.getMessage());
             rpcResponse.setSuccess(false);
             channelHandlerContext.channel().writeAndFlush(rpcResponse);
           }finally {
