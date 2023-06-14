@@ -1,14 +1,11 @@
 package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.protocol.serializer.Serializer;
-import com.zhanghe.rpc.core.client.loadbalance.LoadBalance;
 import com.zhanghe.rpc.core.client.loadbalance.LoadBalanceService;
-import com.zhanghe.rpc.core.client.loadbalance.RandomLoadBalance;
-import com.zhanghe.rpc.core.client.loadbalance.RoundLoadBalance;
-import com.zhanghe.rpc.core.client.loadbalance.WeightRandomLoadBalance;
+import com.zhanghe.rpc.core.client.route.LoadBalanceRouter;
+import com.zhanghe.rpc.core.client.route.Router;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import com.zhanghe.spring.annotation.RpcClient;
-import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,7 +27,7 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   List<RpcClientConnector> activeServer;
 
-  private LoadBalance<RpcServerInfo> loadBalancer;
+  private Router router;
 
   private String loadBalance = "";
 
@@ -51,7 +48,7 @@ public class RpcLoadBalanceAdaptor implements Client{
     synchronized (this){
       logger.info("Rpc load balance client ready to init");
       if(started.compareAndSet(false,true)) {
-        initLoadBalancer();
+        initRouter();
         servers.forEach(rpcServerInfo -> {
           connectToServer(rpcServerInfo);
         });
@@ -89,7 +86,7 @@ public class RpcLoadBalanceAdaptor implements Client{
   public void removeServer(String ip,Integer port){
     synchronized (this) {
       logger.info(" remove server :[{},{}] ", ip, port);
-      loadBalancer.removeService(ip, port);
+      router.removeRoute(ip,port);
       RpcServerInfo rpcServerInfo = null;
       Iterator it = servers.iterator();
       while (it.hasNext()) {
@@ -104,26 +101,11 @@ public class RpcLoadBalanceAdaptor implements Client{
     }
   }
 
-  private void initLoadBalancer(){
-    switch (loadBalance){
-      case "random":
-        loadBalancer = new RandomLoadBalance<>();
-        logger.info("Rpc load balance client use RandomLoadBalance");
-        break;
-      case "weight_random":
-        loadBalancer = new WeightRandomLoadBalance<>();
-        logger.info("Rpc load balance client use WeightRandomLoadBalance");
-        break;
-      case "round":
-        loadBalancer = new RoundLoadBalance<>();
-        logger.info("Rpc load balance client use RoundLoadBalance");
-        break;
-      default:
-        loadBalancer = new RandomLoadBalance<>();
-        logger.info("Rpc load balance client use default RandomLoadBalance");
-        break;
-    }
+  private void initRouter(){
+    router = new LoadBalanceRouter(loadBalance);
   }
+
+
   @Override
   public void destroy(){
     synchronized (this) {
@@ -150,8 +132,11 @@ public class RpcLoadBalanceAdaptor implements Client{
     logger.info("server[{}] get services:{}",address,services);
     activeServer.add(serversInfoMap.get(address).getRpcClientConnector());
     RpcServerInfo rpcServerInfo = serversInfoMap.get(address);
+    services.forEach(service -> {
+      router.refreshRoute(service,LoadBalanceService.of(address, rpcServerInfo,rpcServerInfo.weight));
+    });
+    //setServices 会导致rpcserverinfo可用,若此时路由还未刷新会导致短时间内该服务端虽然可用,但是路由不到该服务端
     rpcServerInfo.setServices(services);
-    loadBalancer.addService(LoadBalanceService.of(address, rpcServerInfo,rpcServerInfo.weight));
   }
 
   @Override
@@ -189,8 +174,8 @@ public class RpcLoadBalanceAdaptor implements Client{
   }
 
   @Override
-  public RpcServerInfo currentServer() {
-    return this.loadBalancer.next();
+  public RpcServerInfo currentServer(String serviceName) {
+    return router.getService(serviceName);
   }
 
   @Override
@@ -211,20 +196,11 @@ public class RpcLoadBalanceAdaptor implements Client{
   @Override
   public void connectorDisConnected(String address) {
     RpcServerInfo rpcServerInfo = serversInfoMap.get(address);
-    System.out.println(address);
-    System.out.println("rpcServerInfo:" + rpcServerInfo);
-    loadBalancer.removeService(rpcServerInfo.getRpcClientConfig().getIp(),rpcServerInfo.getRpcClientConfig().getPort());
-  }
-
-  public String getLoadBalance() {
-    return loadBalance;
+    router.removeRoute(rpcServerInfo.getRpcClientConfig().getIp(),rpcServerInfo.getRpcClientConfig().getPort());
   }
 
   public void setLoadBalance(String loadBalance) {
     this.loadBalance = loadBalance;
   }
 
-  public LoadBalance<RpcServerInfo> getLoadBalancer() {
-    return loadBalancer;
-  }
 }

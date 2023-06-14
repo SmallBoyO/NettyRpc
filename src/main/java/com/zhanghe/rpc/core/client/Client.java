@@ -2,7 +2,6 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
-import io.netty.channel.Channel;
 import java.util.Set;
 
 public interface Client {
@@ -48,7 +47,7 @@ public interface Client {
    * 获取当前服务端信息
    * @return
    */
-  RpcServerInfo currentServer();
+  RpcServerInfo currentServer(String serviceName);
 
   /**
    * client服务是否启动

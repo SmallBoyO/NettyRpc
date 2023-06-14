@@ -6,8 +6,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoundLoadBalance<T> implements LoadBalance {
+
+  private static Logger logger = LoggerFactory.getLogger(RoundLoadBalance.class);
 
   private List<T> services;
 
@@ -46,6 +50,7 @@ public class RoundLoadBalance<T> implements LoadBalance {
 
   @Override
   public void addService(LoadBalanceService loadBalanceService) {
+    logger.info("loadballance add service:{}",loadBalanceService.getName());
     lock.writeLock().lock();
     try {
       position.set(0);
