@@ -72,9 +72,15 @@ public class LoadBalanceRouter implements Router {
 
   @Override
   public void removeRoute(String ip,Integer port) {
-    serverInfoConcurrentHashMap.forEach((serviceName, rpcServerInfoLoadBalance) -> {
-      rpcServerInfoLoadBalance.removeService(ip,port);
-    });
+    Lock writeLock = readWriteLock.writeLock();
+    try {
+      writeLock.lock();
+      serverInfoConcurrentHashMap.forEach((serviceName, rpcServerInfoLoadBalance) -> {
+        rpcServerInfoLoadBalance.removeService(ip, port);
+      });
+    }finally {
+      writeLock.unlock();
+    }
   }
 
   @Override
