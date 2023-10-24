@@ -2,6 +2,7 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.protocol.v1.request.RpcRequest;
 import com.zhanghe.protocol.v1.response.RpcResponse;
+import com.zhanghe.rpc.core.exception.RpcException;
 import com.zhanghe.rpc.core.plugin.client.AsyncInvoker;
 import com.zhanghe.rpc.core.plugin.client.BaseInvoker;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
@@ -30,6 +31,8 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
 
   public String remoteClassName;
 
+
+
   public RpcClientMethodInterceptor(String remoteClassName, List<RpcClientFilter> filters,Client client) {
     this.remoteClassName = remoteClassName;
     this.filters = filters;
@@ -55,7 +58,7 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
       if (result.isSuccess()) {
         return result.getResult();
       } else {
-        throw result.getException();
+          throw new RpcException(result.getExceptionMessage());
       }
     }else{
       RpcClientFilterChain rpcClientFilterChain = new RpcClientFilterChain();
@@ -68,7 +71,11 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
     }
   }
   public RpcResponse call( Method method, Object[] args) throws TimeoutException {
-    Channel channel = client.currentServer().getRpcClientConnector().getActiveChannel();
+    RpcServerInfo rpcServerInfo = client.currentServer(remoteClassName);
+    if (rpcServerInfo == null) {
+      throw new IllegalStateException("rpc server not exist");
+    }
+    Channel channel = rpcServerInfo.getRpcClientConnector().getActiveChannel();
     if (!channel.isActive()) {
       throw new IllegalStateException("rpc server disconnected!");
     }
@@ -91,7 +98,11 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
   }
 
   public Future asyncCall(Method method, Object[] args){
-    Channel channel = client.currentServer().getRpcClientConnector().getActiveChannel();
+    RpcServerInfo rpcServerInfo = client.currentServer(remoteClassName);
+    if (rpcServerInfo == null) {
+      throw new IllegalStateException("rpc server not exist");
+    }
+    Channel channel = rpcServerInfo.getRpcClientConnector().getActiveChannel();
     if (!channel.isActive()) {
       throw new IllegalStateException("rpc server disconnected!");
     }

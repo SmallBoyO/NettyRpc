@@ -110,28 +110,31 @@ public class RpcClientConnector {
     }
 
     public void connect(){
-        logger.debug("ready connect to server {}:{}.",serverIp,serverPort);
+        logger.info("ready connect to server {}:{}.",serverIp,serverPort);
             ChannelFuture future = bootstrap.connect();
             future.addListener((f) -> {
                 if (future.isSuccess()) {
                     //连接成功后 在断开连接之后绑定重新连接的逻辑
                     Channel channel = future.channel();
                     activeChannel = channel;
-                    client.setChannel(channel.remoteAddress().toString(),channel);
+                    client.connectorConnected(channel.remoteAddress().toString());
                     channel.attr(AttributeKey.valueOf("rpcClient")).set(this);
                     //查询服务端接口列表
                     channel.writeAndFlush(GetRegisterServiceRequest.INSTANCE);
                     channel.closeFuture().addListener((closeFuture) -> {
+                      if(stared.get()) {
                         //当channel断开
                         logger.debug("client disconnect.ready to reconnect!");
+                        client.connectorDisConnected(channel.remoteAddress().toString());
                         //重连
                         connect();
+                      }
                     });
                     //修改proxy代理所使用的的channel
                     logger.debug("connect to server success.");
                 } else {
                     if(stared.get()){
-                        logger.debug("connect to server failed,cause:{}.", f.cause().getMessage());
+                        logger.debug("connect to server [{},{}] failed,cause:{}.",serverIp,serverPort, f.cause().getMessage());
                         //连接失败之后 休眠一段时间重连
                         sleepSomeTime(1000);
                         connect();
@@ -185,7 +188,7 @@ public class RpcClientConnector {
 
     private void sleepSomeTime(long times){
         try {
-            Thread.sleep(1000);
+            Thread.sleep(times);
         } catch (Exception s) {
 
         }

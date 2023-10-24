@@ -2,9 +2,10 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.config.RpcClientConfig;
 import com.zhanghe.protocol.serializer.Serializer;
+import com.zhanghe.rpc.core.client.route.DefaultRouter;
+import com.zhanghe.rpc.core.client.route.Router;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
 import com.zhanghe.spring.annotation.RpcClient;
-import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,8 @@ public class BaseRpcClient implements Client {
   private RpcClientConfig rpcClientConfig;
 
   private RpcServerInfo rpcServerInfo;
+
+  private Router router;
 
   private Serializer serializer;
 
@@ -62,6 +65,9 @@ public class BaseRpcClient implements Client {
   }
 
   private void doInit(){
+    if(router == null){
+      router = new DefaultRouter();
+    }
     if(rpcServerInfo == null){
       rpcServerInfo = new RpcServerInfo();
       rpcServerInfo.getRpcClientConfig().setIp(rpcClientConfig.getIp());
@@ -116,13 +122,10 @@ public class BaseRpcClient implements Client {
 
   @Override
   public void setServices(String address, Set<String> services) {
+    services.forEach(service -> {
+      router.refreshRoute(service,rpcServerInfo);
+    });
     rpcServerInfo.setServices(services);
-    rpcServerInfo.signalServerUseful();
-  }
-
-  @Override
-  public void setChannel(String address, Channel channel) {
-//    proxy.setChannel(channel);
   }
 
   @Override
@@ -131,11 +134,7 @@ public class BaseRpcClient implements Client {
     //获取注解信息
     Class serviceClass = Class.forName(service);
     RpcClient rpcClientAnnotation = (RpcClient)serviceClass.getAnnotation(RpcClient.class);
-    if( rpcClientAnnotation == null || rpcClientAnnotation.remoteClassName() == null){
-      //使用默认的
-    }else{
 
-    }
     //使用 CGLIB
     Enhancer enhancer = new Enhancer();
     enhancer.setSuperclass(serviceClass);
@@ -154,8 +153,8 @@ public class BaseRpcClient implements Client {
   }
 
   @Override
-  public RpcServerInfo currentServer() {
-    return this.rpcServerInfo;
+  public RpcServerInfo currentServer(String serviceName) {
+    return router.getService(serviceName);
   }
 
   @Override
@@ -166,6 +165,16 @@ public class BaseRpcClient implements Client {
   @Override
   public boolean isStarted() {
     return started.get();
+  }
+
+  @Override
+  public void connectorConnected(String address) {
+
+  }
+
+  @Override
+  public void connectorDisConnected(String address) {
+
   }
 
   public void gracefulShutdown(){

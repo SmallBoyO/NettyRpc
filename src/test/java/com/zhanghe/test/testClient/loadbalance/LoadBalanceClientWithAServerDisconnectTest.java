@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RandomLoadBalanceClientTest {
+public class LoadBalanceClientWithAServerDisconnectTest {
 
   private BaseRpcServer server1;
 
@@ -42,7 +42,6 @@ public class RandomLoadBalanceClientTest {
   public void destroy(){
     rpcClient.destroy();
     server1.stop();
-    server2.stop();
   }
 
   @Test
@@ -52,20 +51,30 @@ public class RandomLoadBalanceClientTest {
   }
 
   public void call(){
-    Random random = new Random(System.currentTimeMillis());
-    int total = random.nextInt(100000);
-    int server1Num = 0;
-    int server2Num = 0;
-    for(int i = 0; i < total ;i++){
-      String result = demoService.call("call");
-      if (result.startsWith("server1")){
-        server1Num++;
+      Random random = new Random(System.currentTimeMillis());
+      int total = random.nextInt(10000) * 2;
+      int server1Num = 0;
+      int server2Num = 0;
+
+      for(int i = 0; i < 10 ;i++){
+        String result = demoService.call("call");
+        if (result.startsWith("server1")){
+          server1Num++;
+        }
+        if (result.startsWith("server2")){
+          server2Num++;
+        }
       }
-      if (result.startsWith("server2")){
-        server2Num++;
+      Assert.assertTrue(server1Num == server2Num);
+
+      server2.stop();
+      for(int i = 0; i < total ;i++){
+        try {
+          String result = demoService.call("call");
+        }catch (Exception e){
+          Assert.fail("Should not reach here");
+        }
       }
-    }
-    Assert.assertTrue(Math.abs(server1Num-server2Num)< (total/10));
   }
 
   public void connect() throws ClassNotFoundException{
@@ -76,15 +85,15 @@ public class RandomLoadBalanceClientTest {
     rpcServerInfo2.setRpcClientConfig(new RpcClientConfig("127.0.0.1",7778));
     rpcServerInfo2.setWeight(10);
     rpcClient = new RpcLoadBalanceAdaptor();
+    rpcClient.setLoadBalance("round");
     rpcClient.setServers(
-      new ArrayList<RpcServerInfo>(){{
-        add(rpcServerInfo1);
-        add(rpcServerInfo2);
-      }}
+        new ArrayList<RpcServerInfo>(){{
+          add(rpcServerInfo1);
+          add(rpcServerInfo2);
+        }}
     );
     rpcClient.init();
     demoService = (DemoService) rpcClient.proxy(DemoService.class.getName());
     Assert.assertNotNull(demoService);
   }
-
 }

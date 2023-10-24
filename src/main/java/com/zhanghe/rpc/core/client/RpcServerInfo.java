@@ -85,14 +85,6 @@ public class RpcServerInfo {
     signalServerUseful();
   }
 
-  public AtomicBoolean getUseful() {
-    return useful;
-  }
-
-  public void setUseful(AtomicBoolean useful) {
-    this.useful = useful;
-  }
-
   public RpcClientConnector getRpcClientConnector() {
     return rpcClientConnector;
   }

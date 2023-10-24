@@ -11,7 +11,7 @@ public class RpcResponse extends BasePacket {
 
     public Object result;
 
-    public Exception exception;
+    public String exceptionMessage;
 
     @Override
     public Byte getCommand() {
@@ -39,14 +39,6 @@ public class RpcResponse extends BasePacket {
         this.result = result;
     }
 
-    public Exception getException() {
-        return exception;
-    }
-
-    public void setException(Exception exception) {
-        this.exception = exception;
-    }
-
     public boolean isSuccess() {
         return success;
     }
@@ -55,12 +47,21 @@ public class RpcResponse extends BasePacket {
         this.success = success;
     }
 
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public void setExceptionMessage(String exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
+
     @Override
     public String toString() {
         return "RpcResponse{" +
-                "requestId='" + requestId + '\'' +
-                ", result=" + result +
-                ", exception=" + exception +
-                '}';
+            "requestId='" + requestId + '\'' +
+            ", success=" + success +
+            ", result=" + result +
+            ", exceptionMessage='" + exceptionMessage + '\'' +
+            '}';
     }
 }

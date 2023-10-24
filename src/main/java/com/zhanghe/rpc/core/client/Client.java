@@ -2,7 +2,6 @@ package com.zhanghe.rpc.core.client;
 
 import com.zhanghe.protocol.serializer.Serializer;
 import com.zhanghe.rpc.core.plugin.client.RpcClientFilter;
-import io.netty.channel.Channel;
 import java.util.Set;
 
 public interface Client {
@@ -37,13 +36,6 @@ public interface Client {
   void setServices(String address, Set<String> services);
 
   /**
-   * 设置channel
-   * @param address
-   * @param channel
-   */
-  void setChannel(String address, Channel channel);
-
-  /**
    * 通过代理生成 service 的rpc代理类
    * @param service
    * @return
@@ -55,11 +47,22 @@ public interface Client {
    * 获取当前服务端信息
    * @return
    */
-  RpcServerInfo currentServer();
+  RpcServerInfo currentServer(String serviceName);
 
   /**
    * client服务是否启动
    * @return
    */
   boolean isStarted();
+
+  /**
+   *  connector连接成功
+   */
+  void connectorConnected(String address);
+
+  /**
+   *  connector连接断开
+   */
+  void connectorDisConnected(String address);
+
 }
