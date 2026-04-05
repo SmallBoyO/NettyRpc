@@ -9,6 +9,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.Future;
+
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,25 +35,35 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
         channelHandlerContext.channel().attr(Attributes.SERVER_RUNNING_COMMANDS).get().put(rpcRequest.getRequestId(),rpcRequest);
         ThreadPoolExecutor businessExecutor = channelHandlerContext.channel()
             .attr(Attributes.SERVER_BUSINESS_EXECUTOR).get();
-        businessExecutor.submit(() -> {
-          RpcServerFilterChain rpcServerFilterChain = new RpcServerFilterChain(
-              channelHandlerContext.channel().attr(Attributes.SERVER_FILTER_LIST).get());
-          try {
-            logger.debug("开始执行任务:{}", rpcRequest);
-            BaseInvoker baseInvoker = new BaseInvoker();
-            rpcServerFilterChain.doFilter(channelHandlerContext, rpcRequest, baseInvoker);
-            channelHandlerContext.channel().writeAndFlush(baseInvoker.getRpcResponse());
-          } catch (Exception e) {
-            e.printStackTrace();
-            RpcResponse rpcResponse = new RpcResponse();
-            rpcResponse.setRequestId(rpcRequest.getRequestId());
-            rpcResponse.setExceptionMessage(e.getMessage());
-            rpcResponse.setSuccess(false);
-            channelHandlerContext.channel().writeAndFlush(rpcResponse);
-          }finally {
-            channelHandlerContext.channel().attr(Attributes.SERVER_RUNNING_COMMANDS).get().remove(rpcRequest.getRequestId());
-          }
-        });
+        try {
+          businessExecutor.submit(() -> {
+            RpcServerFilterChain rpcServerFilterChain = new RpcServerFilterChain(
+                    channelHandlerContext.channel().attr(Attributes.SERVER_FILTER_LIST).get());
+            try {
+              logger.debug("开始执行任务:{}", rpcRequest);
+              BaseInvoker baseInvoker = new BaseInvoker();
+              rpcServerFilterChain.doFilter(channelHandlerContext, rpcRequest, baseInvoker);
+              channelHandlerContext.channel().writeAndFlush(baseInvoker.getRpcResponse());
+            } catch (Exception e) {
+              e.printStackTrace();
+              RpcResponse rpcResponse = new RpcResponse();
+              rpcResponse.setRequestId(rpcRequest.getRequestId());
+              rpcResponse.setExceptionMessage(e.getMessage());
+              rpcResponse.setSuccess(false);
+              channelHandlerContext.channel().writeAndFlush(rpcResponse);
+            }finally {
+              channelHandlerContext.channel().attr(Attributes.SERVER_RUNNING_COMMANDS).get().remove(rpcRequest.getRequestId());
+            }
+          });
+        }catch (RejectedExecutionException e){
+          e.printStackTrace();
+          RpcResponse rpcResponse = new RpcResponse();
+          rpcResponse.setRequestId(rpcRequest.getRequestId());
+          rpcResponse.setExceptionMessage(e.getMessage());
+          rpcResponse.setSuccess(false);
+          channelHandlerContext.channel().writeAndFlush(rpcResponse);
+          channelHandlerContext.channel().attr(Attributes.SERVER_RUNNING_COMMANDS).get().remove(rpcRequest.getRequestId());
+        }
       }else{
         //服务已经准备停止
         channelHandlerContext.channel().close();
