@@ -25,6 +25,9 @@ public class WeightRoundLoadBalance implements LoadBalance {
   public RpcServerInfo next() {
     lock.readLock().lock();
     try {
+      if(services.size() == 0){
+        return null;
+      }
       int allWeight = services.stream().mapToInt(value -> value.getWeight()).sum();
       int num = times.getAndAdd(1) % allWeight;
       for(LoadBalanceService service:services){

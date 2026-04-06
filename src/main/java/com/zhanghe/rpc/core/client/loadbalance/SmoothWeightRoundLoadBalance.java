@@ -25,6 +25,9 @@ public class SmoothWeightRoundLoadBalance implements LoadBalance {
   public RpcServerInfo next() {
     lock.readLock().lock();
     try {
+      if(services.size() == 0){
+        return null;
+      }
       int allWeight = services.stream().mapToInt(value -> value.getWeight()).sum();
       InsideLoadBalanceService maxWeightService = null;
       for(InsideLoadBalanceService loadBalanceService:services){

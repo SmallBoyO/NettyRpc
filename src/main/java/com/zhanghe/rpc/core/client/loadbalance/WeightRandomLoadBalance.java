@@ -24,6 +24,9 @@ public class WeightRandomLoadBalance implements LoadBalance {
   public RpcServerInfo next() {
     lock.readLock().lock();
     try {
+      if(services.size() == 0){
+        return null;
+      }
       int allWeight = services.stream().mapToInt(value -> value.getWeight()).sum();
       int randomNum = random.nextInt(allWeight);
       for (LoadBalanceService service : services) {

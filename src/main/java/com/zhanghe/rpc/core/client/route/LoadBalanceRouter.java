@@ -6,6 +6,9 @@ import com.zhanghe.rpc.core.client.loadbalance.LoadBalanceService;
 import com.zhanghe.rpc.core.client.loadbalance.RandomLoadBalance;
 import com.zhanghe.rpc.core.client.loadbalance.RoundLoadBalance;
 import com.zhanghe.rpc.core.client.loadbalance.WeightRandomLoadBalance;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -75,8 +78,15 @@ public class LoadBalanceRouter implements Router {
     Lock writeLock = readWriteLock.writeLock();
     try {
       writeLock.lock();
+      List<String> needDelete = new ArrayList<>();
       serverInfoConcurrentHashMap.forEach((serviceName, rpcServerInfoLoadBalance) -> {
         rpcServerInfoLoadBalance.removeService(ip, port);
+        if(rpcServerInfoLoadBalance.serverSize() == 0){
+          needDelete.add(serviceName);
+        }
+      });
+      needDelete.forEach(serviceName -> {
+        serverInfoConcurrentHashMap.remove(serviceName);
       });
     }finally {
       writeLock.unlock();

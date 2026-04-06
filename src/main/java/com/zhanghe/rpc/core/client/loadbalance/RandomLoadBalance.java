@@ -24,6 +24,9 @@ public class RandomLoadBalance implements LoadBalance {
   public RpcServerInfo next() {
     lock.readLock().lock();
     try {
+      if(services.size() == 0){
+        return null;
+      }
       return services.get(random.nextInt(services.size()));
     }finally {
       lock.readLock().unlock();

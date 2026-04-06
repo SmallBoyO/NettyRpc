@@ -29,6 +29,9 @@ public class RoundLoadBalance implements LoadBalance {
   public RpcServerInfo next() {
     lock.readLock().lock();
     try {
+      if(services.size() == 0){
+        return null;
+      }
       Integer[] positions = getPosition();
       while(!position.compareAndSet(positions[0],positions[1]+1)){
         positions = getPosition();
