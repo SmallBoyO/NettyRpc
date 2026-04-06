@@ -140,7 +140,11 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
       public Object get() throws InterruptedException, ExecutionException {
         try {
           RpcResponse result = callBack.get(null,null);
-          return result.getResult();
+          if(result.isSuccess()) {
+            return result.getResult();
+          }else{
+            throw new ExecutionException(new Exception(result.getExceptionMessage()));
+          }
         }catch (Exception e){
           throw new ExecutionException(e);
         }
@@ -150,7 +154,11 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
       public Object get(long timeout, TimeUnit unit)
           throws InterruptedException, ExecutionException, TimeoutException {
         RpcResponse result = callBack.get(timeout,unit);
-        return result.getResult();
+        if(result.isSuccess()) {
+          return result.getResult();
+        }else{
+          throw new ExecutionException(new Exception(result.getExceptionMessage()));
+        }
       }
     };
   }
