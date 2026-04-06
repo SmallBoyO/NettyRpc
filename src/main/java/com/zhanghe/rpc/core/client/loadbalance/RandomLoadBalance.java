@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class RandomLoadBalance<T> implements LoadBalance {
+public class RandomLoadBalance implements LoadBalance {
 
   ThreadLocalRandom random = ThreadLocalRandom.current();
 
-  private List<T> services;
+  private List<RpcServerInfo> services;
 
   private ReentrantReadWriteLock lock;
 
@@ -21,7 +21,7 @@ public class RandomLoadBalance<T> implements LoadBalance {
   }
 
   @Override
-  public Object next() {
+  public RpcServerInfo next() {
     lock.readLock().lock();
     try {
       return services.get(random.nextInt(services.size()));
@@ -34,7 +34,7 @@ public class RandomLoadBalance<T> implements LoadBalance {
   public void addService(LoadBalanceService loadBalanceService) {
     lock.writeLock().lock();
     try {
-      services.add((T) loadBalanceService.getService());
+      services.add(loadBalanceService.getService());
     }finally {
       lock.writeLock().unlock();
     }

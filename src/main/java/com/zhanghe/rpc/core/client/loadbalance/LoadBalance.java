@@ -1,12 +1,14 @@
 package com.zhanghe.rpc.core.client.loadbalance;
 
-public interface LoadBalance<T> {
+import com.zhanghe.rpc.core.client.RpcServerInfo;
+
+public interface LoadBalance {
 
   /**
    * 下一个获取到的服务
    * @return
    */
-  T next();
+  RpcServerInfo next();
 
   /**
    * 添加新的服务

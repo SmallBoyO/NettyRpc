@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class WeightRandomLoadBalance<T> implements LoadBalance {
+public class WeightRandomLoadBalance implements LoadBalance {
 
   ThreadLocalRandom random = ThreadLocalRandom.current();
 
@@ -21,7 +21,7 @@ public class WeightRandomLoadBalance<T> implements LoadBalance {
   }
 
   @Override
-  public Object next() {
+  public RpcServerInfo next() {
     lock.readLock().lock();
     try {
       int allWeight = services.stream().mapToInt(value -> value.getWeight()).sum();
@@ -53,10 +53,10 @@ public class WeightRandomLoadBalance<T> implements LoadBalance {
   public void removeService(String ip,Integer port) {
     lock.writeLock().lock();
     try {
-      Iterator it = services.iterator();
+      Iterator<LoadBalanceService> it = services.iterator();
       while(it.hasNext()){
-        RpcServerInfo rpcServerInfo = (RpcServerInfo)it.next();
-        if(rpcServerInfo.getRpcClientConfig().getIp().equals(ip) &&  rpcServerInfo.getRpcClientConfig().getPort() == port){
+        LoadBalanceService loadBalanceService = (LoadBalanceService)it.next();
+        if(loadBalanceService.getService().getRpcClientConfig().getIp().equals(ip) &&  loadBalanceService.getService().getRpcClientConfig().getPort() == port){
           it.remove();
           break;
         }

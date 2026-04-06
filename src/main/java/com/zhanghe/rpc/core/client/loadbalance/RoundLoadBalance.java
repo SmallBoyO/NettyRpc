@@ -9,11 +9,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RoundLoadBalance<T> implements LoadBalance {
+public class RoundLoadBalance implements LoadBalance {
 
   private static Logger logger = LoggerFactory.getLogger(RoundLoadBalance.class);
 
-  private List<T> services;
+  private List<RpcServerInfo> services;
 
   private AtomicInteger position;
 
@@ -26,7 +26,7 @@ public class RoundLoadBalance<T> implements LoadBalance {
   }
 
   @Override
-  public Object next() {
+  public RpcServerInfo next() {
     lock.readLock().lock();
     try {
       Integer[] positions = getPosition();
@@ -54,7 +54,7 @@ public class RoundLoadBalance<T> implements LoadBalance {
     lock.writeLock().lock();
     try {
       position.set(0);
-      services.add((T) loadBalanceService.getService());
+      services.add(loadBalanceService.getService());
     }finally {
       lock.writeLock().unlock();
     }
@@ -64,7 +64,7 @@ public class RoundLoadBalance<T> implements LoadBalance {
   public void removeService(String ip,Integer port) {
     lock.writeLock().lock();
     try {
-      Iterator it = services.iterator();
+      Iterator<RpcServerInfo> it = services.iterator();
       while(it.hasNext()){
         RpcServerInfo rpcServerInfo = (RpcServerInfo)it.next();
         if(rpcServerInfo.getRpcClientConfig().getIp().equals(ip) &&  rpcServerInfo.getRpcClientConfig().getPort() == port){

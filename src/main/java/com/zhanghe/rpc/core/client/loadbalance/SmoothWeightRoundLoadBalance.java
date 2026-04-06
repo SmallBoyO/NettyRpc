@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class SmoothWeightRoundLoadBalance <T> implements LoadBalance {
+public class SmoothWeightRoundLoadBalance implements LoadBalance {
 
   private List<InsideLoadBalanceService> services;
 
@@ -22,7 +22,7 @@ public class SmoothWeightRoundLoadBalance <T> implements LoadBalance {
   }
 
   @Override
-  public Object next() {
+  public RpcServerInfo next() {
     lock.readLock().lock();
     try {
       int allWeight = services.stream().mapToInt(value -> value.getWeight()).sum();
@@ -36,7 +36,7 @@ public class SmoothWeightRoundLoadBalance <T> implements LoadBalance {
       for(InsideLoadBalanceService loadBalanceService:services){
         loadBalanceService.setConcurrentWeight(loadBalanceService.getWeight() + loadBalanceService.getConcurrentWeight());
       }
-      return maxWeightService;
+      return maxWeightService.getService();
     }finally {
       lock.readLock().unlock();
     }
@@ -59,7 +59,7 @@ public class SmoothWeightRoundLoadBalance <T> implements LoadBalance {
 
     private int concurrentWeight;
 
-    public InsideLoadBalanceService(String name, Object service,int weight) {
+    public InsideLoadBalanceService(String name, RpcServerInfo service,int weight) {
       super(name, service,weight);
       this.concurrentWeight = weight;
     }
@@ -77,10 +77,10 @@ public class SmoothWeightRoundLoadBalance <T> implements LoadBalance {
   public void removeService(String ip,Integer port) {
     lock.writeLock().lock();
     try {
-      Iterator it = services.iterator();
+      Iterator<InsideLoadBalanceService> it = services.iterator();
       while(it.hasNext()){
-        RpcServerInfo rpcServerInfo = (RpcServerInfo)it.next();
-        if(rpcServerInfo.getRpcClientConfig().getIp().equals(ip) &&  rpcServerInfo.getRpcClientConfig().getPort() == port){
+        InsideLoadBalanceService rpcServerInfo = (InsideLoadBalanceService)it.next();
+        if(rpcServerInfo.getService().getRpcClientConfig().getIp().equals(ip) &&  rpcServerInfo.getService().getRpcClientConfig().getPort() == port){
           it.remove();
           break;
         }

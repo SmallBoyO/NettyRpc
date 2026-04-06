@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class WeightRoundLoadBalance<T> implements LoadBalance {
+public class WeightRoundLoadBalance implements LoadBalance {
 
   private List<LoadBalanceService> services;
 
@@ -22,14 +22,14 @@ public class WeightRoundLoadBalance<T> implements LoadBalance {
   }
 
   @Override
-  public Object next() {
+  public RpcServerInfo next() {
     lock.readLock().lock();
     try {
       int allWeight = services.stream().mapToInt(value -> value.getWeight()).sum();
       int num = times.getAndAdd(1) % allWeight;
       for(LoadBalanceService service:services){
         if( num < service.getWeight() ){
-          return service;
+          return service.getService();
         }
         num = num - service.getWeight();
       }
@@ -54,10 +54,10 @@ public class WeightRoundLoadBalance<T> implements LoadBalance {
   public void removeService(String ip,Integer port) {
     lock.writeLock().lock();
     try {
-      Iterator it = services.iterator();
+      Iterator<LoadBalanceService> it = services.iterator();
       while(it.hasNext()){
-        RpcServerInfo rpcServerInfo = (RpcServerInfo)it.next();
-        if(rpcServerInfo.getRpcClientConfig().getIp().equals(ip) &&  rpcServerInfo.getRpcClientConfig().getPort() == port){
+        LoadBalanceService loadBalanceService = (LoadBalanceService)it.next();
+        if(loadBalanceService.getService().getRpcClientConfig().getIp().equals(ip) &&  loadBalanceService.getService().getRpcClientConfig().getPort() == port){
           it.remove();
           break;
         }

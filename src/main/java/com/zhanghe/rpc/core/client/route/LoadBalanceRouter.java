@@ -18,7 +18,7 @@ public class LoadBalanceRouter implements Router {
 
   public static final Logger logger = LoggerFactory.getLogger(LoadBalanceRouter.class);
 
-  private ConcurrentHashMap<String,LoadBalance<RpcServerInfo>> serverInfoConcurrentHashMap;
+  private ConcurrentHashMap<String,LoadBalance> serverInfoConcurrentHashMap;
 
   private String loadbalanceType;
 
@@ -44,19 +44,19 @@ public class LoadBalanceRouter implements Router {
       if(loadBalancer == null){
         switch (loadbalanceType){
           case "random":
-            loadBalancer = new RandomLoadBalance<>();
+            loadBalancer = new RandomLoadBalance();
             logger.info("Rpc load balance client use RandomLoadBalance");
             break;
           case "weight_random":
-            loadBalancer = new WeightRandomLoadBalance<>();
+            loadBalancer = new WeightRandomLoadBalance();
             logger.info("Rpc load balance client use WeightRandomLoadBalance");
             break;
           case "round":
-            loadBalancer = new RoundLoadBalance<>();
+            loadBalancer = new RoundLoadBalance();
             logger.info("Rpc load balance client use RoundLoadBalance");
             break;
           default:
-            loadBalancer = new RandomLoadBalance<>();
+            loadBalancer = new RandomLoadBalance();
             logger.info("Rpc load balance client use default RandomLoadBalance");
             break;
         }

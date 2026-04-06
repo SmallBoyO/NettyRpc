@@ -1,28 +1,30 @@
 package com.zhanghe.rpc.core.client.loadbalance;
 
+import com.zhanghe.rpc.core.client.RpcServerInfo;
+
 public class LoadBalanceService {
 
   public String name;
 
-  public Object service;
+  public RpcServerInfo service;
 
   public int weight;
 
-  public LoadBalanceService(String name, Object service) {
+  public LoadBalanceService(String name, RpcServerInfo service) {
     this.name = name;
     this.service = service;
   }
-  public LoadBalanceService(String name, Object service,int weight) {
+  public LoadBalanceService(String name, RpcServerInfo service,int weight) {
     this.name = name;
     this.service = service;
     this.weight = weight;
   }
 
-  public static LoadBalanceService of(String name,Object service){
+  public static LoadBalanceService of(String name,RpcServerInfo service){
     return new LoadBalanceService(name, service);
   }
 
-  public static LoadBalanceService of(String name,Object service,int weight){
+  public static LoadBalanceService of(String name,RpcServerInfo service,int weight){
     return new LoadBalanceService(name, service, weight);
   }
 
@@ -34,11 +36,11 @@ public class LoadBalanceService {
     this.name = name;
   }
 
-  public Object getService() {
+  public RpcServerInfo getService() {
     return service;
   }
 
-  public void setService(Object service) {
+  public void setService(RpcServerInfo service) {
     this.service = service;
   }
 
