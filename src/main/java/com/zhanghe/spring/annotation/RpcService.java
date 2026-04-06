@@ -16,6 +16,6 @@ import org.springframework.stereotype.Component;
 //@Component
 public @interface RpcService {
   
-  String value();
+//  String value();
 
 }

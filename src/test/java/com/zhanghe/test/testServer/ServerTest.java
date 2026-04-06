@@ -12,7 +12,7 @@ public class ServerTest {
   }
 
   private void testService(){
-    BaseRpcServer rpcServer = new BaseRpcServer("0.0.0.0",1111);
+    BaseRpcServer rpcServer = new BaseRpcServer("0.0.0.0",11111);
     try{
       rpcServer.init();
     }catch (Exception e){
@@ -20,7 +20,7 @@ public class ServerTest {
       Assert.fail("Should not reach here");
     }
 
-    BaseRpcServer rpcServer2 = new BaseRpcServer("0.0.0.0",1111);
+    BaseRpcServer rpcServer2 = new BaseRpcServer("0.0.0.0",11111);
     try{
       rpcServer2.init();
       Assert.fail("Should not reach here");

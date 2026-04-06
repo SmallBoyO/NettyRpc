@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 //@Component
 public @interface RpcClient {
 
-  String value();
+//  String value();
 
   String remoteClassName() default "";
 

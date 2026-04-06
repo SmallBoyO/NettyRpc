@@ -86,7 +86,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 
 </beans>
 
-@RpcService(value = "rpcservice")
+@RpcService
 public class DemoServiceImpl implements DemoService {
 
   @Override
@@ -117,7 +117,7 @@ public class DemoServiceImpl implements DemoService {
 
 </beans>
 
-@RpcClient(value = "rpcclient")
+@RpcClient
 public interface DemoService{
 
   String call(String requestParam);

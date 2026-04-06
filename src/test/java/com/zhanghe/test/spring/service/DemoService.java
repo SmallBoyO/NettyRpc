@@ -2,7 +2,7 @@ package com.zhanghe.test.spring.service;
 
 import com.zhanghe.spring.annotation.RpcClient;
 
-@RpcClient(value = "rpcclient")
+@RpcClient
 public interface DemoService{
 
   String call(String requestParam);
