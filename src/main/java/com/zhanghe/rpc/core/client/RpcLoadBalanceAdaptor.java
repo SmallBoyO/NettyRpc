@@ -31,6 +31,8 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   private String loadBalance = "";
 
+  private long serviceDiscoveryTimeoutMillis = 30000L;
+
   private Serializer serializer;
 
   private List<RpcClientFilter> filters;
@@ -141,10 +143,6 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   @Override
   public Object proxy(String service) throws ClassNotFoundException{
-    //等待每一个服务端获取到service列表
-    serversInfoMap.forEach((s, rpcServerInfo) -> {
-      rpcServerInfo.waitServerUseful();
-    });
     Class<?> serviceClass = Class.forName(service);
     RpcClient rpcClientAnnotation = (RpcClient)serviceClass.getAnnotation(RpcClient.class);
     //使用 CGLIB
@@ -156,8 +154,39 @@ public class RpcLoadBalanceAdaptor implements Client{
     }else{
       remoteServiceName = service;
     }
+    waitForServiceDiscoverable(remoteServiceName);
     enhancer.setCallback(new RpcClientMethodInterceptor(remoteServiceName,filters,this));
     return enhancer.create();
+  }
+
+  private void waitForServiceDiscoverable(String serviceName) {
+    if (router.hasService(serviceName)) {
+      return;
+    }
+    if (serviceDiscoveryTimeoutMillis <= 0) {
+      throw new IllegalStateException(
+          "rpc service [" + serviceName + "] not discovered, serviceDiscoveryTimeoutMillis="
+              + serviceDiscoveryTimeoutMillis);
+    }
+    long deadline = System.currentTimeMillis() + serviceDiscoveryTimeoutMillis;
+    while (System.currentTimeMillis() < deadline) {
+      if (router.hasService(serviceName)) {
+        return;
+      }
+      try {
+        Thread.sleep(100L);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new IllegalStateException(
+            "interrupted while waiting rpc service [" + serviceName + "] discovery", e);
+      }
+    }
+    if (router.hasService(serviceName)) {
+      return;
+    }
+    throw new IllegalStateException(
+        "rpc service [" + serviceName + "] discovery timeout after "
+            + serviceDiscoveryTimeoutMillis + "ms");
   }
 
   public List<RpcServerInfo> getServers() {
@@ -201,6 +230,10 @@ public class RpcLoadBalanceAdaptor implements Client{
 
   public void setLoadBalance(String loadBalance) {
     this.loadBalance = loadBalance;
+  }
+
+  public void setServiceDiscoveryTimeoutMillis(long serviceDiscoveryTimeoutMillis) {
+    this.serviceDiscoveryTimeoutMillis = serviceDiscoveryTimeoutMillis;
   }
 
 }

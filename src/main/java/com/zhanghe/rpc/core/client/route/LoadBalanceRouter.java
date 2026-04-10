@@ -107,4 +107,16 @@ public class LoadBalanceRouter implements Router {
       readLock.unlock();
     }
   }
+
+  @Override
+  public boolean hasService(String serviceName) {
+    Lock readLock = readWriteLock.readLock();
+    try {
+      readLock.lock();
+      LoadBalance loadBalance = serverInfoConcurrentHashMap.get(serviceName);
+      return loadBalance != null && loadBalance.serverSize() > 0;
+    } finally {
+      readLock.unlock();
+    }
+  }
 }

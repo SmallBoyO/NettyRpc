@@ -25,6 +25,8 @@ public class RpcLoadBalanceClientServiceNameSpaceBeanDefinitionParser extends
   private final static String SCAN_PACKAGE_ATTRIBUTE_NAME = "scanPackage";
   private final static String LOAD_BALANCE_ATTRIBUTE_NAME = "loadBalance";
   private final static String LOAD_BALANCE_PROPERTY_NAME = "loadBalance";
+  private final static String SERVICE_DISCOVERY_TIMEOUT_ATTRIBUTE_NAME = "serviceDiscoveryTimeoutMillis";
+  private final static String SERVICE_DISCOVERY_TIMEOUT_PROPERTY_NAME = "serviceDiscoveryTimeoutMillis";
 
   private final static String INIT_METHOD_NAME = "init";
   private final static String DESTROY_METHOD_NAME = "destroy";
@@ -48,7 +50,11 @@ public class RpcLoadBalanceClientServiceNameSpaceBeanDefinitionParser extends
       BeanDefinitionBuilder builder) {
     String scanPackage = element.getAttribute(SCAN_PACKAGE_ATTRIBUTE_NAME);
     String loadBalance = element.getAttribute(LOAD_BALANCE_ATTRIBUTE_NAME);
+    String serviceDiscoveryTimeoutMillis = element.getAttribute(SERVICE_DISCOVERY_TIMEOUT_ATTRIBUTE_NAME);
     builder.addPropertyValue(LOAD_BALANCE_PROPERTY_NAME,loadBalance);
+    if(!StringUtils.isEmpty(serviceDiscoveryTimeoutMillis)){
+      builder.addPropertyValue(SERVICE_DISCOVERY_TIMEOUT_PROPERTY_NAME,Long.valueOf(serviceDiscoveryTimeoutMillis));
+    }
     builder.setInitMethodName(INIT_METHOD_NAME);
     builder.setDestroyMethodName(DESTROY_METHOD_NAME);
     //注册多个rpcserver

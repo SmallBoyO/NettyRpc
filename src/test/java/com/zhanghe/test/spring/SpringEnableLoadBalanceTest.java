@@ -1,11 +1,12 @@
 package com.zhanghe.test.spring;
 
-import com.zhanghe.rpc.core.client.Client;
+import com.zhanghe.rpc.core.client.RpcLoadBalanceAdaptor;
 import com.zhanghe.rpc.core.server.BaseRpcServer;
 import com.zhanghe.test.spring.configuration.EnableLoadBalanceRpcClientConfiguration;
 import com.zhanghe.test.spring.service.DemoService;
 import com.zhanghe.test.spring.service.DemoServiceImpl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -26,9 +27,10 @@ public class SpringEnableLoadBalanceTest {
   }
 
   @Test
-  public void testSpringClientAdaptor(){
+  public void testSpringClientAdaptor() throws Exception {
     AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(EnableLoadBalanceRpcClientConfiguration.class);
-    Client client = (Client)annotationConfigApplicationContext.getBean("client");
+    RpcLoadBalanceAdaptor client = (RpcLoadBalanceAdaptor)annotationConfigApplicationContext.getBean("client");
+    Assert.assertEquals(1234L, getServiceDiscoveryTimeoutMillis(client));
     DemoService demoService = (DemoService)annotationConfigApplicationContext.getBean("demoService");
     demoService.call("call");
     annotationConfigApplicationContext.close();
@@ -38,5 +40,11 @@ public class SpringEnableLoadBalanceTest {
   public void destroyRpcServer(){
     rpcServer1.destroy();
     rpcServer2.destroy();
+  }
+
+  private long getServiceDiscoveryTimeoutMillis(RpcLoadBalanceAdaptor client) throws Exception {
+    java.lang.reflect.Field field = RpcLoadBalanceAdaptor.class.getDeclaredField("serviceDiscoveryTimeoutMillis");
+    field.setAccessible(true);
+    return field.getLong(client);
   }
 }

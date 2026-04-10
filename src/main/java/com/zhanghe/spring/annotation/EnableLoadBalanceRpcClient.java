@@ -22,4 +22,6 @@ public @interface EnableLoadBalanceRpcClient {
 
   String scanPacakges();
 
+  long serviceDiscoveryTimeoutMillis() default 30000L;
+
 }

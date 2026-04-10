@@ -16,4 +16,6 @@ public interface Router {
 
   RpcServerInfo getService(String serviceName);
 
+  boolean hasService(String serviceName);
+
 }

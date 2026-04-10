@@ -28,11 +28,12 @@ public class SpringLoadBalanceClientAdaptorTest {
   }
 
   @Test
-  public void testSpringClientAdaptor(){
+  public void testSpringClientAdaptor() throws Exception {
     ApplicationContext context = new ClassPathXmlApplicationContext(
         "spring-rpc-loadbalance-client-spring-adaptor.xml");
     RpcLoadBalanceAdaptor adaptor = (RpcLoadBalanceAdaptor)context.getBean("client");
     Assert.assertNotNull(adaptor);
+    Assert.assertEquals(1234L, getServiceDiscoveryTimeoutMillis(adaptor));
     DemoService demoService = (com.zhanghe.test.spring.service.DemoService) context.getBean("demoService");
     for(int i = 0;i<1000;i++){
       String result = demoService.call("demo");
@@ -44,5 +45,11 @@ public class SpringLoadBalanceClientAdaptorTest {
   public void destroyRpcServer(){
     rpcServer1.destroy();
     rpcServer2.destroy();
+  }
+
+  private long getServiceDiscoveryTimeoutMillis(RpcLoadBalanceAdaptor client) throws Exception {
+    java.lang.reflect.Field field = RpcLoadBalanceAdaptor.class.getDeclaredField("serviceDiscoveryTimeoutMillis");
+    field.setAccessible(true);
+    return field.getLong(client);
   }
 }

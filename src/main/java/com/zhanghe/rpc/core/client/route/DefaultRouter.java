@@ -23,6 +23,11 @@ public class DefaultRouter implements Router{
   }
 
   @Override
+  public boolean hasService(String serviceName) {
+    return serverInfoConcurrentHashMap.containsKey(serviceName);
+  }
+
+  @Override
   public void removeRoute(String ip, Integer port) {
 
   }

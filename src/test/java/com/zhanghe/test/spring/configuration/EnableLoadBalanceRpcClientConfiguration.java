@@ -10,7 +10,8 @@ import org.springframework.context.annotation.Configuration;
         @RpcServerInfo(ip = "127.0.0.1",port = 6667)
     },
     loadBalance="weight_random",
-    scanPacakges = "com.zhanghe.test")
+    scanPacakges = "com.zhanghe.test.spring",
+    serviceDiscoveryTimeoutMillis = 1234L)
 @Configuration
 public class EnableLoadBalanceRpcClientConfiguration {
 
