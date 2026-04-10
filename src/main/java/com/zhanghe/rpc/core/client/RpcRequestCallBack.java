@@ -15,6 +15,8 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class RpcRequestCallBack {
 
+    private static final long DEFAULT_REQUEST_TIMEOUT_SECONDS = 10L;
+
     private Lock lock = new ReentrantLock();
 
     private Condition condition = lock.newCondition();
@@ -76,7 +78,7 @@ public class RpcRequestCallBack {
     }
 
     public RpcResponse start() throws TimeoutException {
-        return get(10 * 1000L,TimeUnit.SECONDS);
+        return get(DEFAULT_REQUEST_TIMEOUT_SECONDS,TimeUnit.SECONDS);
     }
 
     public void callBack(RpcResponse rpcResponse){
