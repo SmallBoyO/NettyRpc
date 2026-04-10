@@ -47,6 +47,8 @@ public class RpcClientConnector {
 
     private Serializer serializer;
 
+    private RpcRequestCallBackholder callBackholder = new RpcRequestCallBackholder();
+
     public void start(){
         if(stared.compareAndSet(false,true)){
             logger.info("Ready start RpcClientConnector,connect address {}:{}.",serverIp,serverPort);
@@ -180,6 +182,10 @@ public class RpcClientConnector {
 
     public void setSerializer(Serializer serializer) {
         this.serializer = serializer;
+    }
+
+    public RpcRequestCallBackholder getCallBackholder() {
+        return callBackholder;
     }
 
     public void resetWorkGroup(){

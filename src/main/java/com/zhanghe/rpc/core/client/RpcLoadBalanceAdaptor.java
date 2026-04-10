@@ -113,6 +113,7 @@ public class RpcLoadBalanceAdaptor implements Client{
     synchronized (this) {
       if (started.getAndSet(false)) {
         logger.info("Rpc load balance client ready to destroy");
+        gracefulShutdown();
         servers.forEach(rpcServerInfo -> {
           rpcServerInfo.getRpcClientConnector().stop();
           logger.info("client {}:{} ready to destroy", rpcServerInfo.getRpcClientConfig().getIp(),
@@ -125,6 +126,33 @@ public class RpcLoadBalanceAdaptor implements Client{
         String error = "ERROR:Client not started!";
         logger.error(error);
         throw new IllegalStateException(error);
+      }
+    }
+  }
+
+  public void gracefulShutdown(){
+    waitRunningRpcRequest();
+  }
+
+  private void waitRunningRpcRequest(){
+    boolean hasRunningRpcRequest = true;
+    while(hasRunningRpcRequest){
+      hasRunningRpcRequest = false;
+      try {
+        for (RpcServerInfo rpcServerInfo : servers) {
+          RpcClientConnector rpcClientConnector = rpcServerInfo.getRpcClientConnector();
+          if (rpcClientConnector != null && rpcClientConnector.getCallBackholder().size() > 0) {
+            hasRunningRpcRequest = true;
+            rpcClientConnector.getCallBackholder().keySet().forEach(rpcRequestUuid -> {
+              logger.debug("wait rpc request [{}] result", rpcRequestUuid);
+            });
+          }
+        }
+        if (hasRunningRpcRequest) {
+          Thread.sleep(1000);
+        }
+      }catch (Exception e) {
+        e.printStackTrace();
       }
     }
   }

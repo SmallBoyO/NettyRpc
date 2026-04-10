@@ -27,8 +27,11 @@ public class RpcRequestCallBack {
 
     private Boolean cancel;
 
-    public RpcRequestCallBack(String requestId) {
+    private RpcRequestCallBackholder callBackholder;
+
+    public RpcRequestCallBack(String requestId, RpcRequestCallBackholder callBackholder) {
         this.requestId = requestId;
+        this.callBackholder = callBackholder;
         done = false;
         cancel = false;
     }
@@ -37,13 +40,14 @@ public class RpcRequestCallBack {
         try{
             lock.lock();
             if(result != null){
-                RpcRequestCallBackholder.callBackMap.remove(requestId);
+                callBackholder.remove(requestId);
                 return  result;
             }else{
                 //阻塞住 直到收到服务端rpc请求
                 if(timeOut!=null && timeUnit!=null) {
                     condition.await(timeOut, timeUnit);
                     if(result == null){
+                        callBackholder.remove(requestId);
                         //到时间了还没得到返回
                         throw new TimeoutException("time Out");
                     }
@@ -52,16 +56,17 @@ public class RpcRequestCallBack {
                 }
                 if(result!=null){
                     //删除此次rpc调用的request
-                    RpcRequestCallBackholder.callBackMap.remove(requestId);
+                    callBackholder.remove(requestId);
                     return result;
                 }else{
                     //删除此次rpc调用的request
-                    RpcRequestCallBackholder.callBackMap.remove(requestId);
+                    callBackholder.remove(requestId);
                     throw new TimeoutException("rpc request timeout!");
                 }
             }
         }catch (InterruptedException e){
             e.printStackTrace();
+            callBackholder.remove(requestId);
             result = new RpcResponse();
             result.setExceptionMessage(e.getMessage());
             return result;

@@ -185,10 +185,11 @@ public class BaseRpcClient implements Client {
    * 等待执行中的rpc任务全部完成
    */
   private void waitRunningRpcRequest(){
-    while(RpcRequestCallBackholder.callBackMap.size()>0){
+    RpcRequestCallBackholder callBackholder = rpcClientConnector.getCallBackholder();
+    while(callBackholder.size()>0){
       try {
-        RpcRequestCallBackholder.callBackMap.keySet().forEach(rpcRequestUuid -> {
-          logger.debug("等待任务[{}]的返回结果",rpcRequestUuid);
+        callBackholder.keySet().forEach(rpcRequestUuid -> {
+          logger.debug("wait rpc request [{}] result", rpcRequestUuid);
         });
         Thread.sleep(1000);
       }catch (Exception e) {

@@ -75,7 +75,8 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
     if (rpcServerInfo == null) {
       throw new IllegalStateException("rpc server not exist");
     }
-    Channel channel = rpcServerInfo.getRpcClientConnector().getActiveChannel();
+    RpcClientConnector rpcClientConnector = rpcServerInfo.getRpcClientConnector();
+    Channel channel = rpcClientConnector.getActiveChannel();
     if (!channel.isActive()) {
       throw new IllegalStateException("rpc server disconnected!");
     }
@@ -86,9 +87,10 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
     rpcRequest.setMethodName(getRemoteMethodName(method));
     rpcRequest.setTypeParameters(method.getParameterTypes());
     rpcRequest.setParametersVal(args);
-    RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
+    RpcRequestCallBackholder callBackholder = rpcClientConnector.getCallBackholder();
+    RpcRequestCallBack callBack = new RpcRequestCallBack(requestId, callBackholder);
 
-    RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
+    callBackholder.put(rpcRequest.getRequestId(), callBack);
     channel.writeAndFlush(rpcRequest);
     RpcResponse result = callBack.start();
     if(result == null && !channel.isActive()){
@@ -102,7 +104,8 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
     if (rpcServerInfo == null) {
       throw new IllegalStateException("rpc server not exist");
     }
-    Channel channel = rpcServerInfo.getRpcClientConnector().getActiveChannel();
+    RpcClientConnector rpcClientConnector = rpcServerInfo.getRpcClientConnector();
+    Channel channel = rpcClientConnector.getActiveChannel();
     if (!channel.isActive()) {
       throw new IllegalStateException("rpc server disconnected!");
     }
@@ -113,9 +116,10 @@ public class RpcClientMethodInterceptor implements MethodInterceptor {
     rpcRequest.setMethodName(getRemoteMethodName(method));
     rpcRequest.setTypeParameters(method.getParameterTypes());
     rpcRequest.setParametersVal(args);
-    RpcRequestCallBack callBack = new RpcRequestCallBack(requestId);
+    RpcRequestCallBackholder callBackholder = rpcClientConnector.getCallBackholder();
+    RpcRequestCallBack callBack = new RpcRequestCallBack(requestId, callBackholder);
 
-    RpcRequestCallBackholder.callBackMap.put(rpcRequest.getRequestId(), callBack);
+    callBackholder.put(rpcRequest.getRequestId(), callBack);
     channel.writeAndFlush(rpcRequest);
     if(!channel.isActive()){
       throw new IllegalStateException("rpc server disconnected!");
